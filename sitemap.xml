@@ -2,10 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://kimberlykang.github.io/categories/</loc>
-  </url><url>
     <loc>https://kimberlykang.github.io/</loc>
+    <lastmod>2023-02-06T00:20:00+09:00</lastmod>
+  </url><url>
+    <loc>https://kimberlykang.github.io/categories/</loc>
+    <lastmod>2023-02-06T00:20:00+09:00</lastmod>
+  </url><url>
+    <loc>https://kimberlykang.github.io/post/</loc>
+    <lastmod>2023-02-06T00:20:00+09:00</lastmod>
   </url><url>
     <loc>https://kimberlykang.github.io/tags/</loc>
+    <lastmod>2023-02-06T00:20:00+09:00</lastmod>
+  </url><url>
+    <loc>https://kimberlykang.github.io/tags/yolov5/</loc>
+    <lastmod>2023-02-06T00:20:00+09:00</lastmod>
+  </url><url>
+    <loc>https://kimberlykang.github.io/categories/yolov5/</loc>
+    <lastmod>2023-02-06T00:20:00+09:00</lastmod>
+  </url><url>
+    <loc>https://kimberlykang.github.io/p/yolov5_train/</loc>
+    <lastmod>2023-02-06T00:20:00+09:00</lastmod>
+  </url><url>
+    <loc>https://kimberlykang.github.io/archives/</loc>
+    <lastmod>2022-03-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://kimberlykang.github.io/page/</loc>
+    <lastmod>2022-03-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://kimberlykang.github.io/index.html</loc>
+  </url><url>
+    <loc>https://kimberlykang.github.io/links/</loc>
+  </url><url>
+    <loc>https://kimberlykang.github.io/search/</loc>
   </url>
 </urlset>
