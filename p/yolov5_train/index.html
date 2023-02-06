@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="ko-kr" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='본 포스트에서는 YOLOv5 리파지토리의 train.py 코드를 전체적으로 살펴보도록 하겠습니다. 목차 Data parellel 학습 조건 프린트 및 저장 Logger torch_distributed_zero_first Dataloader Data parellel 학습 코드 중간 중간 RANK라는 var'>
 <title>YOLOv5 학습</title>
@@ -77,7 +77,7 @@
         
         
         <li >
-            <a href='/index.html' >
+            <a href='/' >
                 
                 
                 
@@ -551,36 +551,57 @@
      
     
         
-    <div class="disqus-container">
-    
-</div>
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
 
 <style>
-    .disqus-container {
-        background-color: var(--card-background);
-        border-radius: var(--card-border-radius);
-        box-shadow: var(--shadow-l1);
-        padding: var(--card-padding);
+    .utterances {
+        max-width: unset;
     }
 </style>
 
 <script>
-    window.addEventListener('onColorSchemeChange', (e) => {
-        if (typeof DISQUS == 'object') {
-            DISQUS.reset({
-                reload: true
-            });
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
         }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
     })
 </script>
+
 
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
-        
-            2020 - 
         
         2023 Kimberly&#39;s Blog
     </section>
