@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>YOLOv1 on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/tags/yolov1/</link>
+        <description>Recent content in YOLOv1 on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>ko-kr</language>
+        <lastBuildDate>Mon, 06 Feb 2023 00:20:00 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/yolov1/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>YOLOv1 리뷰</title>
+        <link>https://kimberlykang.github.io/p/yolov1_review/</link>
+        <pubDate>Mon, 06 Feb 2023 00:20:00 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/p/yolov1_review/</guid>
+        <description>&lt;p&gt;본 포스트에서는 2016년 CVPR에 발표된 논문 &amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;quot;을 살펴보겠습니다.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차&lt;/h1&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ea%b0%9c%eb%85%90-%ec%9d%b4%ed%95%b4&#34; &gt;개념 이해&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#bounding-box&#34; &gt;Bounding Box&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#class-probability&#34; &gt;Class Probability&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#output&#34; &gt;Output&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%eb%84%a4%ed%8a%b8%ec%9b%8c%ed%81%ac-%ea%b5%ac%ec%a1%b0&#34; &gt;네트워크 구조&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ed%95%99%ec%8a%b5&#34; &gt;학습&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ed%85%8c%ec%8a%a4%ed%8a%b8&#34; &gt;테스트&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;개념-이해&#34;&gt;개념 이해&lt;/h2&gt;
+&lt;p&gt;YOLO에서는 이미지에서 object를 찾을 때, grid를 사용합니다. 이를 간략하게 살펴보면&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;이미지를 &lt;strong&gt;S×S&lt;/strong&gt;개의 grid로 나눕니다.&lt;/li&gt;
+&lt;li&gt;각 grid cell에서 &lt;strong&gt;B&lt;/strong&gt;개의 bounding box의 좌표(x, y, w, h)와 그 bounding box의 confidence score(c)를 예측합니다.&lt;/li&gt;
+&lt;li&gt;각 grid cell마다 &lt;strong&gt;C&lt;/strong&gt;개의 class probability를 예측합니다.&lt;/li&gt;
+&lt;li&gt;confidence score과 class probability로 최종 score와 class를 결정하고, 이 때 score가 threshold보다 높은 bounding box가 최종 object detection의 결과가 됩니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/figure2.png&#34;
+	width=&#34;642&#34;
+	height=&#34;404&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 5&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;158&#34;
+		data-flex-basis=&#34;381px&#34;
+	
+&gt;&lt;br&gt;
+출처: &lt;em&gt;Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp.780, Figure2&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;논문에서 PASCAL VOC 데이터를 학습 실험의 예를 들어 살펴보면,&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;S는 하이퍼파라미터입니다. 해당 실험에서는 &lt;strong&gt;S=7&lt;/strong&gt;을 사용합니다.&lt;/li&gt;
+&lt;li&gt;B 또한 하이퍼파라미터입니다. 해당 실험에서는 &lt;strong&gt;B=2&lt;/strong&gt;를 사용합니다. 따라서, 각 grid cell마다 bounding box(x, y, w, h, c)를 두 세트씩 예측합니다.&lt;/li&gt;
+&lt;li&gt;PASCAL VOC 데이터는 총 class 수가 20개인 데이터입니다. 따라서 &lt;strong&gt;C=20&lt;/strong&gt;이 됩니다. 각 grid cell마다 20개의 class에 대한 class probability를 예측합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;지금까지 YOLO가 어떻게 object를 찾는지 대략적으로 살펴봤습니다. 아래에서는 각 예측값들이 어떻게 계산되고 어떤 의미를 갖는지 살펴보겠습니다.&lt;/p&gt;
+&lt;h2 id=&#34;bounding-box&#34;&gt;Bounding Box&lt;/h2&gt;
+&lt;p&gt;bounding box는 (x, y, w, h, c)로 이루어져 있습니다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;(x, y): bounding box &lt;strong&gt;중심의 좌표&lt;/strong&gt;.
+&lt;ul&gt;
+&lt;li&gt;각 grid cell마다 B개의 bounding box를 가진다는 의미는, 이 B개의 bounding box의 중심이 해당 grid cell 안에 있다는 의미입니다.&lt;/li&gt;
+&lt;li&gt;box의 네 꼭지점은 bounding box 밖에 있어도 상관이 없습니다.&lt;/li&gt;
+&lt;li&gt;grid cell 안에서 상대적으로 어느 위치에 있는지를 표시하며, 0~1 사이의 값을 가집니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;(w, h): bounding box의 &lt;strong&gt;너비, 높이&lt;/strong&gt;.
+&lt;ul&gt;
+&lt;li&gt;전체 이미지 너비, 높이에 대해 상대적인 값을 사용하며 0~1 사이의 값을 가집니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;c: box가 &lt;strong&gt;object를 갖는 것&lt;/strong&gt;에 대해 얼마나 확신하고, 그 box의 &lt;strong&gt;좌표가 얼마나 정확한&lt;/strong&gt; 가에 대한 값입니다.
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/notation1.png&#34;
+	width=&#34;235&#34;
+	height=&#34;37&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/notation1_hu8656dbe4c7f6134625307222faab044e_4879_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/notation1_hu8656dbe4c7f6134625307222faab044e_4879_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 1&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;635&#34;
+		data-flex-basis=&#34;1524px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;좌표가 얼마나 정확한지를 계산할 때에는 &lt;strong&gt;예측한 좌표와 Ground Truth&lt;/strong&gt;(&lt;strong&gt;GT&lt;/strong&gt;) &lt;strong&gt;사이의 Intersection Over Union&lt;/strong&gt;(&lt;strong&gt;IOU&lt;/strong&gt;)를 계산합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;class-probability&#34;&gt;Class Probability&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;C: 각 grid cell이 object를 가지고 있을 때의 class probability입니다.
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/notation2.png&#34;
+	width=&#34;198&#34;
+	height=&#34;33&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/notation2_huf134703bb89a453953094e7423720719_4036_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/notation2_huf134703bb89a453953094e7423720719_4036_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 2&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;600&#34;
+		data-flex-basis=&#34;1440px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;bounding box 갯수와 상관 없이 grid cell마다 한 세트의 class probability만 예측합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;output&#34;&gt;Output&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;이미지를 S×S grid로 나누고, 각 grid마다 B개의 bounding box와 C개 class에 대한 class probability가 있다고 할 때, 최종 output tensor의 shape은 &lt;strong&gt;S×S×&lt;/strong&gt;(&lt;strong&gt;B*5+C&lt;/strong&gt;)가 됩니다.&lt;/li&gt;
+&lt;li&gt;PASCAL VOC 실험 예를 들면, S=7, B=2, C=20입니다. 따라서 총 49개의 grid가 있고, 각 grid cell마다 30개의 예측값을 갖게 됩니다. 아래는 30개의 예측값 중 하나의 예시입니다.
+&lt;ul&gt;
+&lt;li&gt;[x, y, w, h, c, 배경일 확률, 비행기일 확률, &amp;hellip;, 모니터일 확률]&lt;/li&gt;
+&lt;li&gt;[0.4, 0.3, 0.8, 0.7, 0.9, 0.003, 0.8, &amp;hellip; , 0.012]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;네트워크-구조&#34;&gt;네트워크 구조&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;TBU&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;학습&#34;&gt;학습&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;학습할 때는, 하나의 bounding box predictor로 각 object를 예측하기 위해, 각 GT와 가장 IOU가 높은 bounding box에 해당 GT를 할당합니다. 이를 통해 bounding box들은 서로 다른 특성을 학습하게 되고, 특정 사이즈, 특정 비율, 특정 클래스를 더 잘 예측할 수 있게 됩니다.&lt;/li&gt;
+&lt;li&gt;Loss
+&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/notation3.png&#34;
+	width=&#34;561&#34;
+	height=&#34;380&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/notation3_hu7e88875320d34c1a084163241195336b_32557_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/notation3_hu7e88875320d34c1a084163241195336b_32557_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 3&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;147&#34;
+		data-flex-basis=&#34;354px&#34;
+	
+&gt;
+&lt;ul&gt;
+&lt;li&gt;1&lt;!-- raw HTML omitted --&gt;obj&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;i&lt;!-- raw HTML omitted --&gt;: cell i에 object가 나타났는지 여부를 의미합니다.&lt;/li&gt;
+&lt;li&gt;1&lt;!-- raw HTML omitted --&gt;obj&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;ij&lt;!-- raw HTML omitted --&gt;: cell i에 있는 j번째 bounding box가 cell i에 있는 GT에 해당하는 예측값인지 여부입니다. 즉, cell i에 있는 j번째 bounding box가 GT와의 IOU가 가장 큰 지 여부입니다.&lt;/li&gt;
+&lt;li&gt;큰 box는 편차가 조금 있어도 크게 상관 없지만 작은 box에는 큰 영향을 끼칩니다. 이 문제를 해결하기 위해 bounding box 너비와 높이 값에 루트를 씌워 줬습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;테스트&#34;&gt;테스트&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/notation4.png&#34;
+	width=&#34;564&#34;
+	height=&#34;40&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/notation4_hu013f73fd8add0c13dbd52f20ed59f69f_8925_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/notation4_hu013f73fd8add0c13dbd52f20ed59f69f_8925_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 4&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;1410&#34;
+		data-flex-basis=&#34;3384px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;테스트할 때는 class probability와 confidence score를 곱해서 최종 score를 계산합니다.&lt;/li&gt;
+&lt;li&gt;최종 score는 해당 박스에 class가 나타날 확률과 예측한 box가 실제 object에 얼마나 잘 맞는 지 두 가지 의미를 모두 갖고 있습니다.&lt;/li&gt;
+&lt;li&gt;아래 그림의 bounding box 선의 굵기가 confidence를 의미합니다. 이 confidence와 class probability를 곱하여 threshold 이상의 결과가 최종 결과가 됩니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/figure2.png&#34;
+	width=&#34;642&#34;
+	height=&#34;404&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 5&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;158&#34;
+		data-flex-basis=&#34;381px&#34;
+	
+&gt;&lt;br&gt;
+출처: &lt;em&gt;Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp.780, Figure2&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
