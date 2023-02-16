@@ -145,8 +145,8 @@
 	
 &gt;
 &lt;ul&gt;
-&lt;li&gt;1&lt;!-- raw HTML omitted --&gt;obj&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;i&lt;!-- raw HTML omitted --&gt;: cell i에 object가 나타났는지 여부를 의미합니다.&lt;/li&gt;
-&lt;li&gt;1&lt;!-- raw HTML omitted --&gt;obj&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;ij&lt;!-- raw HTML omitted --&gt;: cell i에 있는 j번째 bounding box가 cell i에 있는 GT에 해당하는 예측값인지 여부입니다. 즉, cell i에 있는 j번째 bounding box가 GT와의 IOU가 가장 큰 지 여부입니다.&lt;/li&gt;
+&lt;li&gt;1&lt;sup&gt;obj&lt;/sup&gt;&lt;sub&gt;i&lt;/sub&gt;: cell i에 object가 나타났는지 여부를 의미합니다.&lt;/li&gt;
+&lt;li&gt;1&lt;sup&gt;obj&lt;/sup&gt;&lt;sub&gt;ij&lt;/sub&gt;: cell i에 있는 j번째 bounding box가 cell i에 있는 GT에 해당하는 예측값인지 여부입니다. 즉, cell i에 있는 j번째 bounding box가 GT와의 IOU가 가장 큰 지 여부입니다.&lt;/li&gt;
 &lt;li&gt;큰 box는 편차가 조금 있어도 크게 상관 없지만 작은 box에는 큰 영향을 끼칩니다. 이 문제를 해결하기 위해 bounding box 너비와 높이 값에 루트를 씌워 줬습니다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
