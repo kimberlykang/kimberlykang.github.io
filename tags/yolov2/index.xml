@@ -12,9 +12,7 @@
         <pubDate>Thu, 16 Feb 2023 00:09:40 +0900</pubDate>
         
         <guid>https://kimberlykang.github.io/p/yolov2_review/</guid>
-        <description>&lt;script src=&#34;https://polyfill.io/v3/polyfill.min.js?features=es6&#34;&gt;&lt;/script&gt;
-&lt;script id=&#34;MathJax-script&#34; async src=&#34;https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js&#34;&gt;&lt;/script&gt;
-&lt;p&gt;본 포스트에서는 2017년 CVPR에 발표된 논문 &amp;ldquo;YOLO9000: Better, Faster, Stronger&amp;quot;을 살펴보겠습니다.&lt;br&gt;
+        <description>&lt;p&gt;본 포스트에서는 2017년 CVPR에 발표된 논문 &amp;ldquo;YOLO9000: Better, Faster, Stronger&amp;quot;을 살펴보겠습니다.&lt;br&gt;
 &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1612.08242v1.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;YOLO9000: Better, Faster, Stronger&lt;/a&gt;&lt;/p&gt;
 &lt;h1 id=&#34;목차&#34;&gt;목차&lt;/h1&gt;
