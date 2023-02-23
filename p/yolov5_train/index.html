@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov5_train/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='YOLOv5 학습'>
+<link rel="stylesheet" href="/scss/style.min.5be32ca3f6e1a997c75795c4359147cc6d4fbd34948c0acd51e31d237033978a.css"><meta property='og:title' content='YOLOv5 학습'>
 <meta property='og:description' content='본 포스트에서는 YOLOv5 리파지토리의 train.py 코드를 전체적으로 살펴보도록 하겠습니다. 목차 Data parellel 학습 조건 프린트 및 저장 Logger torch_distributed_zero_first Dataloader Data parellel 학습 코드 중간 중간 RANK라는 var'>
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov5_train/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
@@ -333,12 +333,12 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># main 함수</span>
-<span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
-    <span class="n">print_args</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
-    <span class="c1"># check_git_status()</span>
-    <span class="n">check_requirements</span><span class="p">()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># main 함수</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">print_args</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># check_git_status()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">check_requirements</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>학습이 시작되면 아래에서 현재 학습에 사용하고 있는 하이퍼파라미터와 학습 관련된 세팅을 저장합니다. 각 파일은 <code>runs/train/exp</code> 폴더에 저장되어 학습이 종료 후 학습에 사용한 설정을 확인할 수 있습니다. <code>exp</code> 폴더는 학습을 새로 할 때마다 <code>exp1</code> <code>exp2</code>와 같이 자동으로 숫자가 커지며 폴더가 새로 생성됩니다.</p>
 <div class="highlight"><div class="chroma">
@@ -349,11 +349,11 @@
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># train 함수</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">evolve</span><span class="p">:</span>
-    <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;hyp.yaml&#39;</span><span class="p">,</span> <span class="n">hyp</span><span class="p">)</span>
-    <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;opt.yaml&#39;</span><span class="p">,</span> <span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># train 함수</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="ow">not</span> <span class="n">evolve</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;hyp.yaml&#39;</span><span class="p">,</span> <span class="n">hyp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;opt.yaml&#39;</span><span class="p">,</span> <span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="logger">Logger</h2>
 <div class="highlight"><div class="chroma">
@@ -366,13 +366,13 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
-    <span class="n">loggers</span> <span class="o">=</span> <span class="n">Loggers</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">hyp</span><span class="p">,</span> <span class="n">LOGGER</span><span class="p">)</span>  <span class="c1"># loggers instance</span>
-
-    <span class="c1"># Register actions</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">(</span><span class="n">loggers</span><span class="p">):</span>
-        <span class="n">callbacks</span><span class="o">.</span><span class="n">register_action</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">loggers</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loggers</span> <span class="o">=</span> <span class="n">Loggers</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">hyp</span><span class="p">,</span> <span class="n">LOGGER</span><span class="p">)</span>  <span class="c1"># loggers instance</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Register actions</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">(</span><span class="n">loggers</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">callbacks</span><span class="o">.</span><span class="n">register_action</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">loggers</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>로깅을 한 번만 하기 위해 rank가 0일 경우 Logger 객체를 만듭니다. 그런 다음 loggers의 함수를 각 함수의 이름으로 callback에 등록해 줍니다. 함수를 호출 할 때에는 함수 이름을 이용하여 아래와 같이 호출해줍니다.</p>
 <div class="highlight"><div class="chroma">
@@ -380,8 +380,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">callbacks</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;on_pretrain_routine_end&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">callbacks</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;on_pretrain_routine_end&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>예를 들면 위 코드는 학습을 위한 설정 후 실행됩니다. 위 코드가 실행되면 <code>Loggers</code> 클래스의 <em><strong>on_pretrain_routine_end</strong></em> 함수가 실행되어 레이블에 관한 정보를 이미지로 저장합니다.</p>
 <h2 id="torch_distributed_zero_first">torch_distributed_zero_first</h2>
@@ -398,15 +398,15 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="nd">@contextmanager</span>
-<span class="k">def</span> <span class="nf">torch_distributed_zero_first</span><span class="p">(</span><span class="n">local_rank</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="c1"># Decorator to make all processes in distributed training wait for each local_master to do something</span>
-    <span class="k">if</span> <span class="n">local_rank</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
-        <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="n">local_rank</span><span class="p">])</span>
-    <span class="k">yield</span>
-    <span class="k">if</span> <span class="n">local_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@contextmanager</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">torch_distributed_zero_first</span><span class="p">(</span><span class="n">local_rank</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Decorator to make all processes in distributed training wait for each local_master to do something</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">local_rank</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="n">local_rank</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">yield</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">local_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><em><strong>torch_distributed_zero_first</strong></em> 함수는 torch의 contextmanager decorator와 <em><strong>barrier</strong></em> 함수를 이용하여 정의되어 있습니다.</p>
 <ul>
@@ -420,9 +420,9 @@
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">with</span> <span class="n">torch_distributed_zero_first</span><span class="p">(</span><span class="n">LOCAL_RANK</span><span class="p">):</span>
-    <span class="n">data_dict</span> <span class="o">=</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="n">check_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">with</span> <span class="n">torch_distributed_zero_first</span><span class="p">(</span><span class="n">LOCAL_RANK</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data_dict</span> <span class="o">=</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="n">check_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>위는 학습 코드에서 <em><strong>torch_distributed_zero_first</strong></em>가 사용된 예입니다.  * <code>rank0</code>을 제외한 나머지 process는 <code>rank0</code>가 <em><strong>check_dataset</strong></em>(<em><strong>data</strong></em>)를 수행 후 <em><strong>barrier</strong></em>를 만날 때까지 기다립니다.</p>
 <ul>
@@ -437,8 +437,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">smart_optimizer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lr0&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;momentum&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;weight_decay&#39;</span><span class="p">])</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">smart_optimizer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lr0&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;momentum&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;weight_decay&#39;</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Learning rate은 default로 Linear learning rate을 사용합니다. 아래와 같이 <code>LambdaLR</code>을 사용하여 구현되어 있습니다.</p>
 <div class="highlight"><div class="chroma">
@@ -450,12 +450,12 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cos_lr</span><span class="p">:</span>
-    <span class="n">lf</span> <span class="o">=</span> <span class="n">one_cycle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">],</span> <span class="n">epochs</span><span class="p">)</span>  <span class="c1"># cosine 1-&gt;hyp[&#39;lrf&#39;]</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">lf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span> <span class="o">/</span> <span class="n">epochs</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">]</span>  <span class="c1"># linear</span>
-<span class="n">scheduler</span> <span class="o">=</span> <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">LambdaLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">lr_lambda</span><span class="o">=</span><span class="n">lf</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cos_lr</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lf</span> <span class="o">=</span> <span class="n">one_cycle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">],</span> <span class="n">epochs</span><span class="p">)</span>  <span class="c1"># cosine 1-&gt;hyp[&#39;lrf&#39;]</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span> <span class="o">/</span> <span class="n">epochs</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">]</span>  <span class="c1"># linear</span>
+</span></span><span class="line"><span class="cl"><span class="n">scheduler</span> <span class="o">=</span> <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">LambdaLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">lr_lambda</span><span class="o">=</span><span class="n">lf</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="dataloader">Dataloader</h2>
 <p>각 rank마다 dataloader가 생기므로, 전체 batch size를 <code>WORLD_SIZE</code>로 나눈 것이 새로운 batch size가 되어 dataloader를 만들게 됩니다.</p>
@@ -479,23 +479,23 @@
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">train_loader</span><span class="p">,</span> <span class="n">dataset</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span>
-                                            <span class="n">imgsz</span><span class="p">,</span>
-                                            <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span><span class="p">,</span>
-                                            <span class="n">gs</span><span class="p">,</span>
-                                            <span class="n">single_cls</span><span class="p">,</span>
-                                            <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
-                                            <span class="n">augment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                            <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
-                                            <span class="n">rect</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">rect</span><span class="p">,</span>
-                                            <span class="n">rank</span><span class="o">=</span><span class="n">LOCAL_RANK</span><span class="p">,</span>
-                                            <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
-                                            <span class="n">image_weights</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">image_weights</span><span class="p">,</span>
-                                            <span class="n">quad</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">quad</span><span class="p">,</span>
-                                            <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;train: &#39;</span><span class="p">),</span>
-                                            <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                            <span class="n">seed</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">train_loader</span><span class="p">,</span> <span class="n">dataset</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">imgsz</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">gs</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">single_cls</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">augment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">rect</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">rect</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">rank</span><span class="o">=</span><span class="n">LOCAL_RANK</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">image_weights</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">image_weights</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">quad</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">quad</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;train: &#39;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                            <span class="n">seed</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>현재 YOLOv5에서는 validation은 single-GPU만 지원하고 있습니다.</p>
 <div class="highlight"><div class="chroma">
@@ -515,20 +515,20 @@
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
-    <span class="n">val_loader</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">val_path</span><span class="p">,</span>
-                                    <span class="n">imgsz</span><span class="p">,</span>
-                                    <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-                                    <span class="n">gs</span><span class="p">,</span>
-                                    <span class="n">single_cls</span><span class="p">,</span>
-                                    <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
-                                    <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">noval</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
-                                    <span class="n">rect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                    <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
-                                    <span class="n">workers</span><span class="o">=</span><span class="n">workers</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-                                    <span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-                                    <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;val: &#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">val_loader</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">val_path</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">imgsz</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">gs</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">single_cls</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">noval</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">rect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">workers</span><span class="o">=</span><span class="n">workers</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                    <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;val: &#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
 </section>
