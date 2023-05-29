@@ -6,11 +6,11 @@
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov1_review/'>
 
-<link rel="stylesheet" href="/scss/style.min.5be32ca3f6e1a997c75795c4359147cc6d4fbd34948c0acd51e31d237033978a.css"><meta property='og:title' content='YOLOv1 리뷰'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='YOLOv1 리뷰'>
 <meta property='og:description' content='본 포스트에서는 2016년 CVPR에 발표된 논문 &amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;quot;을 살펴보겠습니다. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf 목차 개념 이해 Bounding Box Class Probability Output 네트워크 구'>
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov1_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv1' /><meta property='article:published_time' content='2023-02-06T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-02-06T00:20:00&#43;09:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv1' /><meta property='article:published_time' content='2023-05-29T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-05-29T00:17:41&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv1 리뷰">
 <meta name="twitter:description" content="본 포스트에서는 2016년 CVPR에 발표된 논문 &amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;quot;을 살펴보겠습니다. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf 목차 개념 이해 Bounding Box Class Probability Output 네트워크 구">
     </head>
@@ -208,7 +208,7 @@
     <li><a href="#class-probability">Class Probability</a></li>
     <li><a href="#output">Output</a></li>
     <li><a href="#네트워크-구조">네트워크 구조</a></li>
-    <li><a href="#학습">학습</a></li>
+    <li><a href="#loss">Loss</a></li>
     <li><a href="#테스트">테스트</a></li>
   </ol>
 </nav>
@@ -259,7 +259,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Feb 06, 2023</time>
+                <time class="article-time--published">May 29, 2023</time>
             </div>
         
 
@@ -310,26 +310,24 @@
 <li>각 grid cell마다 <strong>C</strong>개의 class probability를 예측합니다.</li>
 <li>confidence score과 class probability로 최종 score와 class를 결정하고, 이 때 score가 threshold보다 높은 bounding box가 최종 object detection의 결과가 됩니다.</li>
 </ul>
-<p><img src="/p/yolov1_review/figure2.png"
-	width="642"
-	height="404"
-	srcset="/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_480x0_resize_box_3.png 480w, /p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_1024x0_resize_box_3.png 1024w"
+<p><img src="/p/yolov1_review/bboxes.png"
+	width="1186"
+	height="822"
+	srcset="/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_480x0_resize_box_3.png 480w, /p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="Image 5"
+		alt="Bounding Box 예측 예시"
 	
 	
 		class="gallery-image" 
-		data-flex-grow="158"
-		data-flex-basis="381px"
+		data-flex-grow="144"
+		data-flex-basis="346px"
 	
-><br>
-출처: <em>Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp.780, Figure2</em></p>
-<p>논문에서 PASCAL VOC 데이터를 학습 실험의 예를 들어 살펴보면,</p>
+></p>
 <ul>
-<li>S는 하이퍼파라미터입니다. 해당 실험에서는 <strong>S=7</strong>을 사용합니다.</li>
-<li>B 또한 하이퍼파라미터입니다. 해당 실험에서는 <strong>B=2</strong>를 사용합니다. 따라서, 각 grid cell마다 bounding box(x, y, w, h, c)를 두 세트씩 예측합니다.</li>
-<li>PASCAL VOC 데이터는 총 class 수가 20개인 데이터입니다. 따라서 <strong>C=20</strong>이 됩니다. 각 grid cell마다 20개의 class에 대한 class probability를 예측합니다.</li>
+<li>위 이미지는 <strong>S=7</strong>, <strong>B=2</strong>일 때 하나의 grid에 대한 예측의 예시입니다.</li>
+<li>각 grid cell마다 bounding box(x, y, w, h, c)를 두 세트씩 예측합니다.</li>
+<li><strong>C=20</strong>일 때, 각 grid cell마다 20개의 class에 대한 class probability를 예측합니다.</li>
 </ul>
 <p>지금까지 YOLO가 어떻게 object를 찾는지 대략적으로 살펴봤습니다. 아래에서는 각 예측값들이 어떻게 계산되고 어떤 의미를 갖는지 살펴보겠습니다.</p>
 <h2 id="bounding-box">Bounding Box</h2>
@@ -349,20 +347,7 @@
 </li>
 <li>c: box가 <strong>object를 갖는 것</strong>에 대해 얼마나 확신하고, 그 box의 <strong>좌표가 얼마나 정확한</strong> 가에 대한 값입니다.
 <ul>
-<li><img src="/p/yolov1_review/notation1.png"
-	width="235"
-	height="37"
-	srcset="/p/yolov1_review/notation1_hu8656dbe4c7f6134625307222faab044e_4879_480x0_resize_box_3.png 480w, /p/yolov1_review/notation1_hu8656dbe4c7f6134625307222faab044e_4879_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Image 1"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="635"
-		data-flex-basis="1524px"
-	
-></li>
+<li>$ Pr(Object) * IOU^{truth}_{pred} $</li>
 <li>좌표가 얼마나 정확한지를 계산할 때에는 <strong>예측한 좌표와 Ground Truth</strong>(<strong>GT</strong>) <strong>사이의 Intersection Over Union</strong>(<strong>IOU</strong>)를 계산합니다.</li>
 </ul>
 </li>
@@ -371,20 +356,7 @@
 <ul>
 <li>C: 각 grid cell이 object를 가지고 있을 때의 class probability입니다.
 <ul>
-<li><img src="/p/yolov1_review/notation2.png"
-	width="198"
-	height="33"
-	srcset="/p/yolov1_review/notation2_huf134703bb89a453953094e7423720719_4036_480x0_resize_box_3.png 480w, /p/yolov1_review/notation2_huf134703bb89a453953094e7423720719_4036_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Image 2"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="600"
-		data-flex-basis="1440px"
-	
-></li>
+<li>$ Pr(Class_i|Object) $</li>
 <li>bounding box 갯수와 상관 없이 grid cell마다 한 세트의 class probability만 예측합니다.</li>
 </ul>
 </li>
@@ -401,34 +373,59 @@
 </ul>
 <h2 id="네트워크-구조">네트워크 구조</h2>
 <ul>
-<li>TBU</li>
-</ul>
-<h2 id="학습">학습</h2>
-<ul>
-<li>학습할 때는, 하나의 bounding box predictor로 각 object를 예측하기 위해, 각 GT와 가장 IOU가 높은 bounding box에 해당 GT를 할당합니다. 이를 통해 bounding box들은 서로 다른 특성을 학습하게 되고, 특정 사이즈, 특정 비율, 특정 클래스를 더 잘 예측할 수 있게 됩니다.</li>
-<li>Loss
-<img src="/p/yolov1_review/notation3.png"
-	width="561"
-	height="380"
-	srcset="/p/yolov1_review/notation3_hu7e88875320d34c1a084163241195336b_32557_480x0_resize_box_3.png 480w, /p/yolov1_review/notation3_hu7e88875320d34c1a084163241195336b_32557_1024x0_resize_box_3.png 1024w"
+<li>GoogLeNet과 유사한 구조를 사용했습니다.
+<img src="/p/yolov1_review/architecture.png"
+	width="670"
+	height="272"
+	srcset="/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_480x0_resize_box_3.png 480w, /p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="Image 3"
+		alt="Architecture"
 	
 	
 		class="gallery-image" 
-		data-flex-grow="147"
-		data-flex-basis="354px"
+		data-flex-grow="246"
+		data-flex-basis="591px"
 	
->
+><br>
+출처: <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
+    ><em>Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi, You Only Look Once: Unified, Real-Time Object Detection, Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp.781, Figure 3</em></a></li>
+</ul>
+<h2 id="loss">Loss</h2>
+<ul>
+<li>
+<p>sum-squared error를 사용했습니다.</p>
+</li>
+<li>
+<p>$ \lambda_{coor} $, $ \lambda_{noobj} $ 사용</p>
+<ul>
+<li>대부분의 이미지는 object가 있는 grid cell보다 object가 없는 grid cell이 더 많습니다. 그래서 object가 없는 grid cell의 confidence score는 0에 가까워질 때의 gradient가 object가 있는 grid cell의 gradient보다 훨씬 커서 학습 초기에 모델이 diverge 하는 현상이 생길 수 있습니다. 이를 막기 위해, $ \lambda_{coor}=5 $를 사용하여 bounding box 좌표 예측 loss는 증가시키고, $ \lambda_{noobj}=0.5 $를 사용하여 object가 없는 box의 confidence 예측 loss는 감소시켰습니다.</li>
+</ul>
+</li>
+<li>
+<p>$ \sqrt w $, $ \sqrt h $ 예측</p>
+<ul>
+<li>큰 box는 편차가 조금 있어도 크게 상관 없지만 작은 box에는 큰 영향을 끼칩니다. 이 문제를 해결하기 위해 bounding box 너비와 높이 값에 루트를 씌워 줬습니다.</li>
+</ul>
+</li>
+<li>
+<p>각 object에 가장 IOU가 높은 하나의 bounding box predictor만 할당했습니다.</p>
+</li>
+<li>
+<p>Loss function<br>
+$ \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj}  [(x_i-\hat x_i)^2 + (y_i-\hat y_i)^2] $<br>
+$ + \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj}  [(\sqrt{w_i} - \sqrt{\hat w_i})^2 + (\sqrt{h_i} - \sqrt{\hat h_i})^2] $<br>
+$ + \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj} (C_i-\hat C_i)^2 $
+$ + \lambda_{noobj} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{noobj} (C_i-\hat C_i)^2 $<br>
+$ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈classwa}} (p_i(c)-\hat p_i(c))^2 $</p>
 <ul>
 <li>1<sup>obj</sup><sub>i</sub>: cell i에 object가 나타났는지 여부를 의미합니다.</li>
 <li>1<sup>obj</sup><sub>ij</sub>: cell i에 있는 j번째 bounding box가 cell i에 있는 GT에 해당하는 예측값인지 여부입니다. 즉, cell i에 있는 j번째 bounding box가 GT와의 IOU가 가장 큰 지 여부입니다.</li>
-<li>큰 box는 편차가 조금 있어도 크게 상관 없지만 작은 box에는 큰 영향을 끼칩니다. 이 문제를 해결하기 위해 bounding box 너비와 높이 값에 루트를 씌워 줬습니다.</li>
 </ul>
 </li>
 </ul>
 <h2 id="테스트">테스트</h2>
+<p>$$ Pr(Class_i|Object) * Pr(Object) * IOU^{truth}<em>{pred} = Pr(Class_i) * IOU^{truth}</em>{pred} $$</p>
 <ul>
 <li><img src="/p/yolov1_review/notation4.png"
 	width="564"
@@ -461,7 +458,8 @@
 		data-flex-basis="381px"
 	
 ><br>
-출처: <em>Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp.780, Figure2</em></li>
+출처: <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
+    ><em>Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi, You Only Look Once: Unified, Real-Time Object Detection, Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp.780, Figure 2</em></a></li>
 </ul>
 
 </section>
@@ -497,41 +495,6 @@
     
 
     
-
-<aside class="related-content--wrapper">
-    <h2 class="section-title">Related content</h2>
-    <div class="related-content">
-        <div class="flex article-list--tile">
-            
-                
-<article class="">
-    <a href="/p/yolov3_review/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">YOLOv3 리뷰</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/p/yolov2_review/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">YOLOv2 리뷰</h2>
-        </div>
-    </a>
-</article>
-
-            
-        </div>
-    </div>
-</aside>
 
      
     
@@ -715,5 +678,6 @@
 </script>
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     </body>
 </html>
