@@ -6,11 +6,11 @@
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/xlnet_review/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='XLNet 리뷰'>
+<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='XLNet 리뷰'>
 <meta property='og:description' content='본 포스트에서는 2019년 Google이 발표한 &amp;ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&amp;quot;을 살펴보겠습니다. https://arxiv.org/pdf/1906.08237.pdf 목차 AutoRegressive vs. Auto Encoding Permutation Language Modeling Two-Stream Self-Attention AutoRegressive vs.'>
 <meta property='og:url' content='https://kimberlykang.github.io/p/xlnet_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='XLNet' /><meta property='article:published_time' content='2023-07-04T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-07-04T00:17:41&#43;09:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='XLNet' /><meta property='article:published_time' content='2023-08-31T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-08-31T00:17:41&#43;09:00'/>
 <meta name="twitter:title" content="XLNet 리뷰">
 <meta name="twitter:description" content="본 포스트에서는 2019년 Google이 발표한 &amp;ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&amp;quot;을 살펴보겠습니다. https://arxiv.org/pdf/1906.08237.pdf 목차 AutoRegressive vs. Auto Encoding Permutation Language Modeling Two-Stream Self-Attention AutoRegressive vs.">
     </head>
@@ -270,7 +270,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Jul 04, 2023</time>
+                <time class="article-time--published">Aug 31, 2023</time>
             </div>
         
 
@@ -406,8 +406,8 @@ $
 		data-flex-basis="316px"
 	
 ><br>
-출처: <a class="link" href="https://arxiv.org/pdf/1906.08237.pdf"  target="_blank" rel="noopener"
-    ><em>XLNet: Generalized Autoregressive Pretraining for Language Understanding, Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le, arXiv:1906.08237, 2019, Figure 4</em></a></p>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1906.08237.pdf"  target="_blank" rel="noopener"
+    ><em>Yang, Zhilin, et al. &ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&rdquo; Advances in neural information processing systems 32 (2019), Figure 4.</em></a></span></p>
 <ul>
 <li>위의 순열로 뽑은 factorization order에 따른 $ \log p_θ $를 구한 뒤 expectation을 구합니다.</li>
 <li>mem는 transformer XL의 특징으로 긴 sequence 학습이 가능하게 해 주는 것으로 gradient가 적용이 안 됩니다.</li>
@@ -478,8 +478,8 @@ $
 		data-flex-basis="521px"
 	
 ><br>
-출처: <a class="link" href="https://arxiv.org/pdf/1906.08237.pdf"  target="_blank" rel="noopener"
-    ><em>XLNet: Generalized Autoregressive Pretraining for Language Understanding, Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le, arXiv:1906.08237, 2019, Figure 4</em></a></p>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1906.08237.pdf"  target="_blank" rel="noopener"
+    ><em>Yang, Zhilin, et al. &ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&rdquo; Advances in neural information processing systems 32 (2019), Figure 1.</em></a></span></p>
 <ul>
 <li>factorization order이 3 -&gt; 2 -&gt; 4 -&gt; 1일 때,</li>
 <li>다음 layer의 $h_3^{(1)}$ 자기 자신을 포함한 이전 시점의 이전 layer를 attend합니다. 즉, $h_1^{(0)}, h_2^{(0)}, h_3^{(0)}$을 attend 합니다.</li>
@@ -501,8 +501,8 @@ $
 		data-flex-basis="194px"
 	
 ><br>
-출처: <a class="link" href="https://arxiv.org/pdf/1906.08237.pdf"  target="_blank" rel="noopener"
-    ><em>XLNet: Generalized Autoregressive Pretraining for Language Understanding, Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le, arXiv:1906.08237, 2019, Figure 5</em></a><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1906.08237.pdf"  target="_blank" rel="noopener"
+    ><em>Yang, Zhilin, et al. &ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&rdquo; Advances in neural information processing systems 32 (2019), Figure 5.</em></a></span><br>
 <img src="/p/xlnet_review/query_stream.png"
 	width="756"
 	height="931"
@@ -517,8 +517,8 @@ $
 		data-flex-basis="194px"
 	
 ><br>
-출처: <a class="link" href="https://arxiv.org/pdf/1906.08237.pdf"  target="_blank" rel="noopener"
-    ><em>XLNet: Generalized Autoregressive Pretraining for Language Understanding, Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le, arXiv:1906.08237, 2019, Figure 6</em></a></p>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1906.08237.pdf"  target="_blank" rel="noopener"
+    ><em>Yang, Zhilin, et al. &ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&rdquo; Advances in neural information processing systems 32 (2019), Figure 6.</em></a></span></p>
 
 </section>
 
@@ -548,6 +548,30 @@ $
 
 
     
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
 </article>
 
     
@@ -567,6 +591,32 @@ $
 
         <div class="article-details">
             <h2 class="article-title">BERT 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/yolov3_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv3 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/yolov2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv2 리뷰</h2>
         </div>
     </a>
 </article>
@@ -644,12 +694,14 @@ $
     <section class="copyright">
         &copy; 
         
-        2023 Kimberly&#39;s Blog
+            2023 - 
+        
+        2024 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -750,26 +802,6 @@ $
         document.head.appendChild(customFont);
     }());
 </script>
-<script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$','$$'], ['\\[', '\\]']],
-        processEscapes: true,
-        processEnvironments: true
-      },
-      options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-      }
-    };
-  
-    window.addEventListener('load', (event) => {
-        document.querySelectorAll("mjx-container").forEach(function(x){
-          x.parentElement.classList += 'has-jax'})
-      });
-  
-</script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     </body>
 </html>

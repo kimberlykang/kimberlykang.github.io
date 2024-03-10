@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov5_train/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='YOLOv5 학습'>
+<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='YOLOv5 학습'>
 <meta property='og:description' content='본 포스트에서는 YOLOv5 리파지토리의 train.py 코드를 전체적으로 살펴보도록 하겠습니다. 목차 Data parellel 학습 조건 프린트 및 저장 Logger torch_distributed_zero_first Dataloader Data parellel 학습 코드 중간 중간 RANK라는 var'>
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov5_train/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
@@ -311,7 +311,7 @@
 	srcset="/p/yolov5_train/ddp_hu45fc3983547123694792784d5d8b18ce_24040_480x0_resize_box_3.png 480w, /p/yolov5_train/ddp_hu45fc3983547123694792784d5d8b18ce_24040_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="Image 2"
+		alt="DDP"
 	
 	
 		class="gallery-image" 
@@ -319,8 +319,8 @@
 		data-flex-basis="644px"
 	
 ><br>
-출처: <a class="link" href="https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md"  target="_blank" rel="noopener"
-    >https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md</a></p>
+<span style="font-size:70%"> 출처: <a class="link" href="https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md"  target="_blank" rel="noopener"
+    ><em>https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md</em></a>  </span></p>
 <p>위 그림은 두 개 노드에서 학습을 하는 <strong>data parellel</strong> application입니다. 위 모델은 모델 복사본 하나 당 GPU 두 개를 사용하여 학습하여, 각 <strong>node</strong>안의 <code>GPU0</code>, <code>GPU1</code>에서 <code>LOCAL RANK0</code>을 가진 process가, <code>GPU2</code>, <code>GPU3</code>에서 <code>LOCAL RANK1</code>을 가진 process가 학습을 진행하게 됩니다. <code>GLOBAL RANK</code>는 <strong>node</strong>에 상관 없이 전체 process에 대해 0~3까지 할당됩니다.</p>
 <h2 id="학습-조건-프린트-및-저장">학습 조건 프린트 및 저장</h2>
 <p>main 함수가 시작되면 아래와 같이 현재 args를 프린트하고, 학습에 필요한 것들을 체크하는 코드가 있습니다. 이 때 위에서 살펴본 <code>RANK</code>가 나오는데, <code>RANK</code>가 <code>-1</code>인 경우는 <strong>data parellel</strong>을 사용하지 않는 경우입니다. 하나의 process에서만 프린트하기 위해 아래와 같이 rank가 0일 경우에만 코드를 실행합니다. <em><strong>check_git_status</strong></em>는 현재 브랜치의 커밋 내역을 확인하여 pull 받을 커밋이 있다면 자동으로 <code>git pull</code> 해 주는 함수입니다. 개인적으로는 코드 관리 및 재현에 용이하게 하기 위해 아래와 같이 코멘트처리 한 뒤 필요할 때마다 수동으로 <code>git pull</code>해서 사용하고 있습니다.</p>
@@ -559,6 +559,30 @@
 
 
     
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
 </article>
 
     
@@ -694,12 +718,14 @@
     <section class="copyright">
         &copy; 
         
-        2023 Kimberly&#39;s Blog
+            2023 - 
+        
+        2024 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -800,26 +826,6 @@
         document.head.appendChild(customFont);
     }());
 </script>
-<script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$','$$'], ['\\[', '\\]']],
-        processEscapes: true,
-        processEnvironments: true
-      },
-      options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-      }
-    };
-  
-    window.addEventListener('load', (event) => {
-        document.querySelectorAll("mjx-container").forEach(function(x){
-          x.parentElement.classList += 'has-jax'})
-      });
-  
-</script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     </body>
 </html>

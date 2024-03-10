@@ -6,10 +6,10 @@
         <description>Recent content in YOLOv3 on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>ko-kr</language>
-        <lastBuildDate>Thu, 23 Feb 2023 00:09:40 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/yolov3/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 04 Jul 2023 00:09:40 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/yolov3/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>YOLOv3 리뷰</title>
         <link>https://kimberlykang.github.io/p/yolov3_review/</link>
-        <pubDate>Thu, 23 Feb 2023 00:09:40 +0900</pubDate>
+        <pubDate>Tue, 04 Jul 2023 00:09:40 +0900</pubDate>
         
         <guid>https://kimberlykang.github.io/p/yolov3_review/</guid>
         <description>&lt;p&gt;본 포스트에서는 2018년 발표된 &amp;ldquo;YOLOv3: An Incremental Improvement&amp;quot;를 살펴보겠습니다.&lt;br&gt;
@@ -35,8 +35,8 @@
 		data-flex-basis=&#34;233px&#34;
 	
 &gt; &lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/174008&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://wikidocs.net/174008&lt;/a&gt;&lt;/p&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/174008&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://wikidocs.net/174008&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다.&lt;/li&gt;
 &lt;li&gt;base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다.&lt;/li&gt;
@@ -59,8 +59,8 @@
 		data-flex-basis=&#34;690px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1804.02767.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Joseph Redmon and Ali Farhadi. Yolov3: An incremental improvement. arXiv preprint arXiv:1804.02767, 2018, p3, Table 3&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1804.02767.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;Yolov3: An incremental improvement.&amp;rdquo; arXiv preprint arXiv:1804.02767 (2018), Table 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 </description>
         </item>
         

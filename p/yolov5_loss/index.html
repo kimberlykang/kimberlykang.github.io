@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov5_loss/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='YOLOv5 Loss'>
+<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='YOLOv5 Loss'>
 <meta property='og:description' content='본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차 정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss 정보 이론 Information 사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의'>
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov5_loss/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
@@ -304,8 +304,8 @@
 <li>사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\log P(A)$입니다.</li>
 <li>예) 동전 던지기 앞면이 나오는 사건의 Information
 <ul>
-<li>확률: $\frac{1}{2}$</li>
-<li>$I=-\log \frac{1}{2}$</li>
+<li>확률: $ \displaystyle \frac{1}{2}$</li>
+<li>$I=-\log  \displaystyle \frac{1}{2}$</li>
 </ul>
 </li>
 </ul>
@@ -317,7 +317,7 @@
 <li>$ H(X)=- \displaystyle \sum_{x}P(X) \log P(X)$</li>
 <li>예) 동전 던지기의 Entropy
 <ul>
-<li>$Entropy=-(\frac{1}{2} \times \log \frac{1}{2} + \frac{1}{2} \times \log \frac{1}{2})=-\log \frac{1}{2}$</li>
+<li>$Entropy= \displaystyle{ -(\frac{1}{2} \times \log \frac{1}{2} + \frac{1}{2} \times \log \frac{1}{2})=-\log \frac{1}{2}}$</li>
 </ul>
 </li>
 </ul>
@@ -360,7 +360,7 @@ $ = -\displaystyle \sum_{x}P(X) \log Q(X) +\sum_{x} P(X) \log P(X)$<br>
 <li>모델의 output $\hat y$ 은 주로 softmax function으로 계산한 각 클래스일 확률인데, 위 식에서 확률분포 Q가 됩니다.</li>
 <li>N이 데이터 갯수, y가 label, C가 클래스 갯수일 때, Cross Entropy Loss L는 아래와 같이 계산합니다.
 <ul>
-<li>$ L= - \displaystyle \sum_{n}^{N} \displaystyle \sum_{c}^{C}y_{n, c}\log \hat{y_{n, c}}$</li>
+<li>$ L= - \displaystyle \sum_{n}^{N} \displaystyle \sum_{c}^{C}y_{n, c} \log \hat{y}_{n, c}$</li>
 </ul>
 </li>
 <li>이미지가 강아지, 고양이, 개구리 세 가지 클래스 중 어느 것인지 맞추는 classification 문제가 있다고 할 때,
@@ -369,7 +369,7 @@ $ = -\displaystyle \sum_{x}P(X) \log Q(X) +\sum_{x} P(X) \log P(X)$<br>
 <li>$\hat y=\begin{bmatrix} 0.1 \cr 0.7 \cr 0.2 \end{bmatrix} $ (예측 값)</li>
 <li>이 이미지에 대한 Cross Entropy Loss $l$ 은 아래와 같습니다.
 <ul>
-<li>$ l= -\displaystyle \sum_{c}^{C}y_c\log \hat{y_c}$<br>
+<li>$ l= -\displaystyle \sum_{c}^{C}y_c\log \hat{y}_c$<br>
 $=0⋅\log 0.1 + 1⋅\log 0.7 + 0⋅\log 0.2$  <br>
 $=\log 0.7$</li>
 </ul>
@@ -382,7 +382,7 @@ $=\log 0.7$</li>
 <ul>
 <li>클래스 갯수가 두 개일 때의 Cross Entropy Loss의 특별한 케이스입니다.</li>
 <li>모델의 output $\hat y$은 주로 Sigmoid function으로 계산한 확률입니다.</li>
-<li>$ L= - \displaystyle \sum_{n}^{N} [y_n\log \hat{y_n} + (1-y_n)\log (1-\hat{y_n})]$</li>
+<li>$ L= - \displaystyle \sum_{n}^{N} [y_n\log \hat{y}_n + (1-y_n)\log (1-\hat{y}_n)]$</li>
 </ul>
 </li>
 <li>BCEWithLogitsLoss
@@ -440,7 +440,7 @@ $=\log 0.7$</li>
 <li>scale invariant</li>
 <li>Convex A, B가 있을 때 IoU는 아래와 같이 계산됩니다.
 <ul>
-<li>$ IoU=\frac{|A∩B|}{|A∪B|} $</li>
+<li>$ IoU= \displaystyle  \frac{|A∩B|}{|A∪B|} $</li>
 </ul>
 </li>
 <li>$L_{IoU}=1-IoU$</li>
@@ -453,28 +453,15 @@ $=\log 0.7$</li>
     >Generalized Intersection Over Union: A Metric and a Loss for Bounding Box Regression</a></li>
 <li>A, B를 포함하는 가장 작은 convex를 C라고 할 때, GIoU는 아래와 같이 계산됩니다.
 <ul>
-<li>$ GIoU=IoU-\frac{|C \backslash (A∪B)|}{|C|} $</li>
+<li>$ GIoU=IoU- \displaystyle  \frac{|C \backslash (A∪B)|}{|C|} $</li>
 <li>$ C \backslash (A∪B)$ 차집합을 의미합니다.</li>
 </ul>
 </li>
 <li>$L_{GIoU}=1-GIoU$. 이 때, Loss 값의 범위는 0~2입니다.</li>
 <li>타겟 box가 예측 box를 포함하고 있을 때, 페널티 텀이 0이 되어서 $L_{IoU}$ 값과 같은 값을 가지게 됩니다.
-<img src="/p/yolov5_loss/iou_losses.png"
-	width="688"
-	height="285"
-	srcset="/p/yolov5_loss/iou_losses_hu1737a77b48d96630a97ff994dab8829f_30479_480x0_resize_box_3.png 480w, /p/yolov5_loss/iou_losses_hu1737a77b48d96630a97ff994dab8829f_30479_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="IoU Losses"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="241"
-		data-flex-basis="579px"
-	
-><br>
-출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
-    ><em>Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12994, Figure 2</em></a></li>
+<img style="max-width:65%; height:auto;" src="iou_losses.png" alt="IoU Losses" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 2</em></a></span></li>
 <li>수렴 속도가 느리고, box의 정확도가 비교적 낮습니다.</li>
 </ul>
 </li>
@@ -485,23 +472,10 @@ $=\log 0.7$</li>
 <li>일반적으로 IoU 기반의 loss를 $L_{IoU}=1-IoU + \mathcal{R}(B, B^{gt})$로 정의할 수 있습니다.</li>
 <li>DIoU
 <ul>
-<li>$ \mathcal{R}_{DIoU} = \frac{ρ^2(b, b^{gt})}{c^2}$. ρ는 두 box 중심 사이의 유클리디안 거리이고, c는 두 box를 포함하는 가장 작은 box의 대각 길이입니다.<br>
-<img src="/p/yolov5_loss/distance_for_diou.png"
-	width="256"
-	height="200"
-	srcset="/p/yolov5_loss/distance_for_diou_hu34851a6fec86dc58631e2d2129b455da_34672_480x0_resize_box_3.png 480w, /p/yolov5_loss/distance_for_diou_hu34851a6fec86dc58631e2d2129b455da_34672_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Distance for DIoU"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="128"
-		data-flex-basis="307px"
-	
-><br>
-출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
-    ><em>Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12997, Figure 5</em></a></li>
+<li>$ \mathcal{R}_{DIoU} =  \displaystyle  \frac{ρ^2(b, b^{gt})}{c^2}$. ρ는 두 box 중심 사이의 유클리디안 거리이고, c는 두 box를 포함하는 가장 작은 box의 대각 길이입니다.<br>
+<img style="max-width:25%; height:auto;" src="distance_for_diou.png" alt="Distance for DIoU" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 5</em></a></span></li>
 <li>$L_{DIoU}=1-IoU + \mathcal{R}_{DIoU}$. 이 때, Loss 값의 범위는 0~2입니다.</li>
 <li>두 box 사이의 거리를 minimize하기 때문에 GIoU Loss보다 빠르게 수렴합니다.</li>
 </ul>
@@ -509,17 +483,17 @@ $=\log 0.7$</li>
 <li>CIoU
 <ul>
 <li>DIoU에 aspect ratio를 추가적으로 고려한 방법입니다.</li>
-<li>$ \mathcal{R}_{CIoU} = \frac{ρ^2(b, b^{gt})}{c^2} + \alpha v$
+<li>$ \mathcal{R}_{CIoU} = \displaystyle \frac{ρ^2(b, b^{gt})}{c^2} + \alpha v$
 <ul>
-<li>$\alpha=\frac{v}{(1-IoU) + v}$
+<li>$\alpha = \displaystyle \frac{v}{(1-IoU) + v}$
 <ul>
 <li>non-overlapping한 경우 regression에 더 높은 priority를 가지게 합니다.</li>
 </ul>
 </li>
-<li>$v=\frac{4}{\pi^2}(arctan\frac{w^{gt}}{h^{gt}} - arctan\frac{w}{h})^2$
+<li>$v = \displaystyle \frac{4}{\pi^2}(arctan\frac{w^{gt}}{h^{gt}} - arctan\frac{w}{h})^2$
 <ul>
 <li>aspect ratio가 일치하는 정도를 측정합니다.</li>
-<li>$\frac{4}{\pi^2}$는 arctan 최댓값이 $\frac{\pi}{2}$이기 때문에 계산 결과 최댓값을 1로 만들기 위해 사용됩니다.</li>
+<li>$ \displaystyle \frac{4}{\pi^2}$는 arctan 최댓값이 $\frac{\pi}{2}$이기 때문에 계산 결과 최댓값을 1로 만들기 위해 사용됩니다.</li>
 </ul>
 </li>
 </ul>
@@ -537,74 +511,28 @@ $=\log 0.7$</li>
 <li>$ s_i= \begin{cases} \displaystyle s_i, &amp; IoU -\mathcal{R}(\mathcal{M}, B_i) &lt; \epsilon \\ \displaystyle 0, &amp; IoU -\mathcal{R}(\mathcal{M}, B_i) ≥ \epsilon  \end{cases} $</li>
 </ul>
 </li>
-<li>PASCAL VOC07+12로 학습한 YOLOv3 모델로 MS COCO 2017 데이터 중 하나를 detect한 예시입니다.<br>
-<img src="/p/yolov5_loss/viz_result_diou_nms.png"
-	width="1209"
-	height="526"
-	srcset="/p/yolov5_loss/viz_result_diou_nms_huba6a2c549f0c7bbb679d7f0dbe5b64c0_520098_480x0_resize_box_3.png 480w, /p/yolov5_loss/viz_result_diou_nms_huba6a2c549f0c7bbb679d7f0dbe5b64c0_520098_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Visualization of Result with DIoU-NMS"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="229"
-		data-flex-basis="551px"
-	
-><br>
-출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
-    ><em>Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12999, Figure 8</em></a></li>
+<li>PASCAL VOC07+12로 학습한 YOLOv3 모델로 MS COCO 2017 데이터 중 하나를 detect한 예시입니다. 
+<img style="max-width:80%; height:auto;" src="viz_result_diou_nms.png" alt="Visualization of Result with DIoU-NMS" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 8</em></a></span></li>
 </ul>
 </li>
-<li>실험 결과<br>
-<img src="/p/yolov5_loss/results_yolov3.png"
-	width="1405"
-	height="944"
-	srcset="/p/yolov5_loss/results_yolov3_hu9220fca8a557ede6d40d19aa4a42e64c_303138_480x0_resize_box_3.png 480w, /p/yolov5_loss/results_yolov3_hu9220fca8a557ede6d40d19aa4a42e64c_303138_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Results with YOLOv3"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="148"
-		data-flex-basis="357px"
-	
-><br>
-출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
-    ><em>Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12997, Table 1</em></a>
-<img src="/p/yolov5_loss/results_ssd.png"
-	width="1405"
-	height="930"
-	srcset="/p/yolov5_loss/results_ssd_hud2cb12229e56a72ef2c59467d25b6096_256569_480x0_resize_box_3.png 480w, /p/yolov5_loss/results_ssd_hud2cb12229e56a72ef2c59467d25b6096_256569_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Results with SSD"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="151"
-		data-flex-basis="362px"
-	
-><br>
-출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
-    ><em>Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12998, Table 2</em></a>
-<img src="/p/yolov5_loss/results_faster_rcnn.Png"
-	width="1405"
-	height="835"
-	srcset="/p/yolov5_loss/results_faster_rcnn_hu67612258bca8aae494a6ccfcf780218b_277659_480x0_resize_box_3.Png 480w, /p/yolov5_loss/results_faster_rcnn_hu67612258bca8aae494a6ccfcf780218b_277659_1024x0_resize_box_3.Png 1024w"
-	loading="lazy"
-	
-		alt="Results with Faster-RCNN"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="168"
-		data-flex-basis="403px"
-	
-><br>
-출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
-    ><em>Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12998, Table 3</em></a></li>
+<li>실험 결과
+<ul>
+<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 YOLOv3 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<img style="max-width:80%; height:auto;" src="results_yolov3.png" alt="Results with YOLOv3" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 1</em></a></span></li>
+<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 SSD 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<img style="max-width:50%; height:auto;" src="results_ssd.png" alt="Results with SSD" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 2</em></a></span></li>
+<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 Faster-RCNN 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<img style="max-width:90%; height:auto;" src="results_faster_rcnn.png" alt="Results with Faster-RCNN" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 3</em></a></span></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -760,6 +688,30 @@ $=\log 0.7$</li>
 
 
     
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
 </article>
 
     
@@ -895,12 +847,14 @@ $=\log 0.7$</li>
     <section class="copyright">
         &copy; 
         
-        2023 Kimberly&#39;s Blog
+            2023 - 
+        
+        2024 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -1001,26 +955,6 @@ $=\log 0.7$</li>
         document.head.appendChild(customFont);
     }());
 </script>
-<script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$','$$'], ['\\[', '\\]']],
-        processEscapes: true,
-        processEnvironments: true
-      },
-      options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-      }
-    };
-  
-    window.addEventListener('load', (event) => {
-        document.querySelectorAll("mjx-container").forEach(function(x){
-          x.parentElement.classList += 'has-jax'})
-      });
-  
-</script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     </body>
 </html>

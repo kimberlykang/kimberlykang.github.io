@@ -28,8 +28,8 @@
 &lt;li&gt;사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\log P(A)$입니다.&lt;/li&gt;
 &lt;li&gt;예) 동전 던지기 앞면이 나오는 사건의 Information
 &lt;ul&gt;
-&lt;li&gt;확률: $\frac{1}{2}$&lt;/li&gt;
-&lt;li&gt;$I=-\log \frac{1}{2}$&lt;/li&gt;
+&lt;li&gt;확률: $ \displaystyle \frac{1}{2}$&lt;/li&gt;
+&lt;li&gt;$I=-\log  \displaystyle \frac{1}{2}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -41,7 +41,7 @@
 &lt;li&gt;$ H(X)=- \displaystyle \sum_{x}P(X) \log P(X)$&lt;/li&gt;
 &lt;li&gt;예) 동전 던지기의 Entropy
 &lt;ul&gt;
-&lt;li&gt;$Entropy=-(\frac{1}{2} \times \log \frac{1}{2} + \frac{1}{2} \times \log \frac{1}{2})=-\log \frac{1}{2}$&lt;/li&gt;
+&lt;li&gt;$Entropy= \displaystyle{ -(\frac{1}{2} \times \log \frac{1}{2} + \frac{1}{2} \times \log \frac{1}{2})=-\log \frac{1}{2}}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -84,7 +84,7 @@ $ = -\displaystyle \sum_{x}P(X) \log Q(X) +\sum_{x} P(X) \log P(X)$&lt;br&gt;
 &lt;li&gt;모델의 output $\hat y$ 은 주로 softmax function으로 계산한 각 클래스일 확률인데, 위 식에서 확률분포 Q가 됩니다.&lt;/li&gt;
 &lt;li&gt;N이 데이터 갯수, y가 label, C가 클래스 갯수일 때, Cross Entropy Loss L는 아래와 같이 계산합니다.
 &lt;ul&gt;
-&lt;li&gt;$ L= - \displaystyle \sum_{n}^{N} \displaystyle \sum_{c}^{C}y_{n, c}\log \hat{y_{n, c}}$&lt;/li&gt;
+&lt;li&gt;$ L= - \displaystyle \sum_{n}^{N} \displaystyle \sum_{c}^{C}y_{n, c} \log \hat{y}_{n, c}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;이미지가 강아지, 고양이, 개구리 세 가지 클래스 중 어느 것인지 맞추는 classification 문제가 있다고 할 때,
@@ -93,7 +93,7 @@ $ = -\displaystyle \sum_{x}P(X) \log Q(X) +\sum_{x} P(X) \log P(X)$&lt;br&gt;
 &lt;li&gt;$\hat y=\begin{bmatrix} 0.1 \cr 0.7 \cr 0.2 \end{bmatrix} $ (예측 값)&lt;/li&gt;
 &lt;li&gt;이 이미지에 대한 Cross Entropy Loss $l$ 은 아래와 같습니다.
 &lt;ul&gt;
-&lt;li&gt;$ l= -\displaystyle \sum_{c}^{C}y_c\log \hat{y_c}$&lt;br&gt;
+&lt;li&gt;$ l= -\displaystyle \sum_{c}^{C}y_c\log \hat{y}_c$&lt;br&gt;
 $=0⋅\log 0.1 + 1⋅\log 0.7 + 0⋅\log 0.2$  &lt;br&gt;
 $=\log 0.7$&lt;/li&gt;
 &lt;/ul&gt;
@@ -106,7 +106,7 @@ $=\log 0.7$&lt;/li&gt;
 &lt;ul&gt;
 &lt;li&gt;클래스 갯수가 두 개일 때의 Cross Entropy Loss의 특별한 케이스입니다.&lt;/li&gt;
 &lt;li&gt;모델의 output $\hat y$은 주로 Sigmoid function으로 계산한 확률입니다.&lt;/li&gt;
-&lt;li&gt;$ L= - \displaystyle \sum_{n}^{N} [y_n\log \hat{y_n} + (1-y_n)\log (1-\hat{y_n})]$&lt;/li&gt;
+&lt;li&gt;$ L= - \displaystyle \sum_{n}^{N} [y_n\log \hat{y}_n + (1-y_n)\log (1-\hat{y}_n)]$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;BCEWithLogitsLoss
@@ -164,7 +164,7 @@ $=\log 0.7$&lt;/li&gt;
 &lt;li&gt;scale invariant&lt;/li&gt;
 &lt;li&gt;Convex A, B가 있을 때 IoU는 아래와 같이 계산됩니다.
 &lt;ul&gt;
-&lt;li&gt;$ IoU=\frac{|A∩B|}{|A∪B|} $&lt;/li&gt;
+&lt;li&gt;$ IoU= \displaystyle  \frac{|A∩B|}{|A∪B|} $&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;$L_{IoU}=1-IoU$&lt;/li&gt;
@@ -177,28 +177,15 @@ $=\log 0.7$&lt;/li&gt;
     &gt;Generalized Intersection Over Union: A Metric and a Loss for Bounding Box Regression&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;A, B를 포함하는 가장 작은 convex를 C라고 할 때, GIoU는 아래와 같이 계산됩니다.
 &lt;ul&gt;
-&lt;li&gt;$ GIoU=IoU-\frac{|C \backslash (A∪B)|}{|C|} $&lt;/li&gt;
+&lt;li&gt;$ GIoU=IoU- \displaystyle  \frac{|C \backslash (A∪B)|}{|C|} $&lt;/li&gt;
 &lt;li&gt;$ C \backslash (A∪B)$ 차집합을 의미합니다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;$L_{GIoU}=1-GIoU$. 이 때, Loss 값의 범위는 0~2입니다.&lt;/li&gt;
 &lt;li&gt;타겟 box가 예측 box를 포함하고 있을 때, 페널티 텀이 0이 되어서 $L_{IoU}$ 값과 같은 값을 가지게 됩니다.
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_loss/iou_losses.png&#34;
-	width=&#34;688&#34;
-	height=&#34;285&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov5_loss/iou_losses_hu1737a77b48d96630a97ff994dab8829f_30479_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov5_loss/iou_losses_hu1737a77b48d96630a97ff994dab8829f_30479_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;IoU Losses&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;241&#34;
-		data-flex-basis=&#34;579px&#34;
-	
-&gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12994, Figure 2&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;img style=&#34;max-width:65%; height:auto;&#34; src=&#34;iou_losses.png&#34; alt=&#34;IoU Losses&#34; /&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Zheng, Zhaohui, et al. &amp;ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;li&gt;수렴 속도가 느리고, box의 정확도가 비교적 낮습니다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -209,23 +196,10 @@ $=\log 0.7$&lt;/li&gt;
 &lt;li&gt;일반적으로 IoU 기반의 loss를 $L_{IoU}=1-IoU + \mathcal{R}(B, B^{gt})$로 정의할 수 있습니다.&lt;/li&gt;
 &lt;li&gt;DIoU
 &lt;ul&gt;
-&lt;li&gt;$ \mathcal{R}_{DIoU} = \frac{ρ^2(b, b^{gt})}{c^2}$. ρ는 두 box 중심 사이의 유클리디안 거리이고, c는 두 box를 포함하는 가장 작은 box의 대각 길이입니다.&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_loss/distance_for_diou.png&#34;
-	width=&#34;256&#34;
-	height=&#34;200&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov5_loss/distance_for_diou_hu34851a6fec86dc58631e2d2129b455da_34672_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov5_loss/distance_for_diou_hu34851a6fec86dc58631e2d2129b455da_34672_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Distance for DIoU&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;128&#34;
-		data-flex-basis=&#34;307px&#34;
-	
-&gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12997, Figure 5&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;$ \mathcal{R}_{DIoU} =  \displaystyle  \frac{ρ^2(b, b^{gt})}{c^2}$. ρ는 두 box 중심 사이의 유클리디안 거리이고, c는 두 box를 포함하는 가장 작은 box의 대각 길이입니다.&lt;br&gt;
+&lt;img style=&#34;max-width:25%; height:auto;&#34; src=&#34;distance_for_diou.png&#34; alt=&#34;Distance for DIoU&#34; /&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Zheng, Zhaohui, et al. &amp;ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 5&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;li&gt;$L_{DIoU}=1-IoU + \mathcal{R}_{DIoU}$. 이 때, Loss 값의 범위는 0~2입니다.&lt;/li&gt;
 &lt;li&gt;두 box 사이의 거리를 minimize하기 때문에 GIoU Loss보다 빠르게 수렴합니다.&lt;/li&gt;
 &lt;/ul&gt;
@@ -233,17 +207,17 @@ $=\log 0.7$&lt;/li&gt;
 &lt;li&gt;CIoU
 &lt;ul&gt;
 &lt;li&gt;DIoU에 aspect ratio를 추가적으로 고려한 방법입니다.&lt;/li&gt;
-&lt;li&gt;$ \mathcal{R}_{CIoU} = \frac{ρ^2(b, b^{gt})}{c^2} + \alpha v$
+&lt;li&gt;$ \mathcal{R}_{CIoU} = \displaystyle \frac{ρ^2(b, b^{gt})}{c^2} + \alpha v$
 &lt;ul&gt;
-&lt;li&gt;$\alpha=\frac{v}{(1-IoU) + v}$
+&lt;li&gt;$\alpha = \displaystyle \frac{v}{(1-IoU) + v}$
 &lt;ul&gt;
 &lt;li&gt;non-overlapping한 경우 regression에 더 높은 priority를 가지게 합니다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;$v=\frac{4}{\pi^2}(arctan\frac{w^{gt}}{h^{gt}} - arctan\frac{w}{h})^2$
+&lt;li&gt;$v = \displaystyle \frac{4}{\pi^2}(arctan\frac{w^{gt}}{h^{gt}} - arctan\frac{w}{h})^2$
 &lt;ul&gt;
 &lt;li&gt;aspect ratio가 일치하는 정도를 측정합니다.&lt;/li&gt;
-&lt;li&gt;$\frac{4}{\pi^2}$는 arctan 최댓값이 $\frac{\pi}{2}$이기 때문에 계산 결과 최댓값을 1로 만들기 위해 사용됩니다.&lt;/li&gt;
+&lt;li&gt;$ \displaystyle \frac{4}{\pi^2}$는 arctan 최댓값이 $\frac{\pi}{2}$이기 때문에 계산 결과 최댓값을 1로 만들기 위해 사용됩니다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -261,74 +235,28 @@ $=\log 0.7$&lt;/li&gt;
 &lt;li&gt;$ s_i= \begin{cases} \displaystyle s_i, &amp;amp; IoU -\mathcal{R}(\mathcal{M}, B_i) &amp;lt; \epsilon \\ \displaystyle 0, &amp;amp; IoU -\mathcal{R}(\mathcal{M}, B_i) ≥ \epsilon  \end{cases} $&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;PASCAL VOC07+12로 학습한 YOLOv3 모델로 MS COCO 2017 데이터 중 하나를 detect한 예시입니다.&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_loss/viz_result_diou_nms.png&#34;
-	width=&#34;1209&#34;
-	height=&#34;526&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov5_loss/viz_result_diou_nms_huba6a2c549f0c7bbb679d7f0dbe5b64c0_520098_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov5_loss/viz_result_diou_nms_huba6a2c549f0c7bbb679d7f0dbe5b64c0_520098_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Visualization of Result with DIoU-NMS&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;229&#34;
-		data-flex-basis=&#34;551px&#34;
-	
-&gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12999, Figure 8&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PASCAL VOC07+12로 학습한 YOLOv3 모델로 MS COCO 2017 데이터 중 하나를 detect한 예시입니다. 
+&lt;img style=&#34;max-width:80%; height:auto;&#34; src=&#34;viz_result_diou_nms.png&#34; alt=&#34;Visualization of Result with DIoU-NMS&#34; /&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Zheng, Zhaohui, et al. &amp;ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 8&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;실험 결과&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_loss/results_yolov3.png&#34;
-	width=&#34;1405&#34;
-	height=&#34;944&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov5_loss/results_yolov3_hu9220fca8a557ede6d40d19aa4a42e64c_303138_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov5_loss/results_yolov3_hu9220fca8a557ede6d40d19aa4a42e64c_303138_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Results with YOLOv3&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;148&#34;
-		data-flex-basis=&#34;357px&#34;
-	
-&gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12997, Table 1&lt;/em&gt;&lt;/a&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_loss/results_ssd.png&#34;
-	width=&#34;1405&#34;
-	height=&#34;930&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov5_loss/results_ssd_hud2cb12229e56a72ef2c59467d25b6096_256569_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov5_loss/results_ssd_hud2cb12229e56a72ef2c59467d25b6096_256569_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Results with SSD&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;151&#34;
-		data-flex-basis=&#34;362px&#34;
-	
-&gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12998, Table 2&lt;/em&gt;&lt;/a&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_loss/results_faster_rcnn.Png&#34;
-	width=&#34;1405&#34;
-	height=&#34;835&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov5_loss/results_faster_rcnn_hu67612258bca8aae494a6ccfcf780218b_277659_480x0_resize_box_3.Png 480w, https://kimberlykang.github.io/p/yolov5_loss/results_faster_rcnn_hu67612258bca8aae494a6ccfcf780218b_277659_1024x0_resize_box_3.Png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Results with Faster-RCNN&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;168&#34;
-		data-flex-basis=&#34;403px&#34;
-	
-&gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren, Proceedings of the AAAI Conference on Artificial Intelligence, 2020, pp.12998, Table 3&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;실험 결과
+&lt;ul&gt;
+&lt;li&gt;$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 YOLOv3 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.&lt;br&gt;
+&lt;img style=&#34;max-width:80%; height:auto;&#34; src=&#34;results_yolov3.png&#34; alt=&#34;Results with YOLOv3&#34; /&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Zheng, Zhaohui, et al. &amp;ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 1&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 SSD 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.&lt;br&gt;
+&lt;img style=&#34;max-width:50%; height:auto;&#34; src=&#34;results_ssd.png&#34; alt=&#34;Results with SSD&#34; /&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Zheng, Zhaohui, et al. &amp;ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 Faster-RCNN 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.&lt;br&gt;
+&lt;img style=&#34;max-width:90%; height:auto;&#34; src=&#34;results_faster_rcnn.png&#34; alt=&#34;Results with Faster-RCNN&#34; /&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Zheng, Zhaohui, et al. &amp;ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 3&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -771,15 +699,19 @@ $=\log 0.7$&lt;/li&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;ul&gt;
-&lt;li&gt;클래스별로 아래 식을 이용하여 10개의 IoU threshold에 대해 Precision과 Recall을 계산합니다.
+&lt;li&gt;
+&lt;p&gt;클래스별로 아래 식을 이용하여 10개의 IoU threshold에 대해 Precision과 Recall을 계산합니다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;$Precision = \frac{TP}{TP+FP} = \frac{TP}{detection 갯수}$&lt;/li&gt;
 &lt;li&gt;$Recall = \frac{TP}{TP+FN} = \frac{TP}{GT 갯수}$&lt;/li&gt;
 &lt;li&gt;위의 &lt;em&gt;&lt;strong&gt;process_batch&lt;/strong&gt;&lt;/em&gt;를 계산할 때 &lt;em&gt;&lt;strong&gt;np.unique&lt;/strong&gt;&lt;/em&gt;를 통해 중복을 걸러주었기 때문에, Precision과 Recall은 모두 최대 1을 가지게 됩니다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;x 축이 Recall, y축이 Precision인 좌표평면에 각 detection에 대한 결과를 점으로 표시해 줍니다. 이 점을 모두 연결한 그래프를 Precision-Recall Curve라고 합니다.&lt;/li&gt;
-&lt;li&gt;아래 그림에서 알파벳은 각 이미지를 의미합니다.
+&lt;li&gt;
+&lt;p&gt;x 축이 Recall, y축이 Precision인 좌표평면에 각 detection에 대한 결과를 점으로 표시해 줍니다. 이 점을 모두 연결한 그래프를 Precision-Recall Curve라고 합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;아래 그림에서 알파벳은 각 이미지를 의미합니다.
 &lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_val/ap_graph_01.png&#34;
 	width=&#34;578&#34;
 	height=&#34;440&#34;
@@ -794,9 +726,11 @@ $=\log 0.7$&lt;/li&gt;
 		data-flex-basis=&#34;315px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/rafaelpadilla/Object-Detection-Metrics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;https://github.com/rafaelpadilla/Object-Detection-Metrics&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;아래 그림과 같이 전체 Recall 범위를 일정하게 나눈 뒤, 각 구역마다 Inpterpolated Precision을 구해줍니다. 아래 예시에서는 11개 구역으로 나누었는데 YOLOv5에서는 1000개로 나눕니다.
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/rafaelpadilla/Object-Detection-Metrics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://github.com/rafaelpadilla/Object-Detection-Metrics&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;아래 그림과 같이 전체 Recall 범위를 일정하게 나눈 뒤, 각 구역마다 Inpterpolated Precision을 구해줍니다. 아래 예시에서는 11개 구역으로 나누었는데 YOLOv5에서는 1000개로 나눕니다.
 &lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_val/ap_graph_02.png&#34;
 	width=&#34;556&#34;
 	height=&#34;452&#34;
@@ -811,9 +745,11 @@ $=\log 0.7$&lt;/li&gt;
 		data-flex-basis=&#34;295px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/rafaelpadilla/Object-Detection-Metrics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;https://github.com/rafaelpadilla/Object-Detection-Metrics&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Interpolated Precision을 좌표에 그려 아래와 같이 새로운 Precision-Recall Curve를 그려줍니다.
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/rafaelpadilla/Object-Detection-Metrics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://github.com/rafaelpadilla/Object-Detection-Metrics&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Interpolated Precision을 좌표에 그려 아래와 같이 새로운 Precision-Recall Curve를 그려줍니다.
 &lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_val/ap_graph_03.png&#34;
 	width=&#34;554&#34;
 	height=&#34;433&#34;
@@ -828,9 +764,11 @@ $=\log 0.7$&lt;/li&gt;
 		data-flex-basis=&#34;307px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/rafaelpadilla/Object-Detection-Metrics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;https://github.com/rafaelpadilla/Object-Detection-Metrics&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;새로운 Precision-Recall Curve의 아래 면적이(Area Uner Curve, AUC) AP값이 됩니다.
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/rafaelpadilla/Object-Detection-Metrics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://github.com/rafaelpadilla/Object-Detection-Metrics&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;새로운 Precision-Recall Curve의 아래 면적이(Area Uner Curve, AUC) AP값이 됩니다.
 &lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_val/ap_graph_04.png&#34;
 	width=&#34;557&#34;
 	height=&#34;437&#34;
@@ -845,9 +783,12 @@ $=\log 0.7$&lt;/li&gt;
 		data-flex-basis=&#34;305px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/rafaelpadilla/Object-Detection-Metrics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;https://github.com/rafaelpadilla/Object-Detection-Metrics&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;위와 같은 방법으로 &lt;em&gt;&lt;strong&gt;ap_per_class&lt;/strong&gt;&lt;/em&gt;를 통해 클래스별 AP를 구한 다음, AP 값의 평균을 구해 Object Detection 성능 평가 지표로 사용하는데, 이를 Mean Average Precision(mAP)라고 합니다.&lt;/li&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/rafaelpadilla/Object-Detection-Metrics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://github.com/rafaelpadilla/Object-Detection-Metrics&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;위와 같은 방법으로 &lt;em&gt;&lt;strong&gt;ap_per_class&lt;/strong&gt;&lt;/em&gt;를 통해 클래스별 AP를 구한 다음, AP 값의 평균을 구해 Object Detection 성능 평가 지표로 사용하는데, 이를 Mean Average Precision(mAP)라고 합니다.&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 </description>
         </item>
@@ -969,13 +910,20 @@ $=\log 0.7$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;mixup&#34;&gt;Mixup&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;Mixup은 학습 데이터에서 랜덤으로 뽑은 feature-target 벡터 $ (x_i, y_i) $, $ (x_j, y_j) $가 있을 때, 가상 feature-target 벡터 $ (\tilde x, \tilde y) $를 다음과 같이 구합니다.&lt;/li&gt;
-&lt;li&gt;이 때, λ는 베타 분포에서 샘플링합니다.
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1710.09412.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;mixup: BEYOND EMPIRICAL RISK MINIMIZATION&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Mixup은 학습 데이터에서 랜덤으로 뽑은 feature-target 벡터 $ (x_i, y_i) $, $ (x_j, y_j) $가 있을 때, 가상 feature-target 벡터 $ (\tilde x, \tilde y) $를 다음과 같이 구합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;이 때, λ는 베타 분포에서 샘플링합니다.
 $$ \tilde x = \lambda x_i + (1 - \lambda) x_j $$
-$$ \tilde y = \lambda y_i + (1 - \lambda) y_j $$
-&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1710.09412.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;mixup: BEYOND EMPIRICAL RISK MINIMIZATION&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;아래는 λ=0.5로 mixup한 이미지입니다.
+$$ \tilde y = \lambda y_i + (1 - \lambda) y_j $$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;아래는 λ=0.5로 mixup한 이미지입니다.
 &lt;img src=&#34;https://kimberlykang.github.io/p/yolov5_augmentation/mixup.png&#34;
 	width=&#34;2599&#34;
 	height=&#34;649&#34;
@@ -989,8 +937,10 @@ $$ \tilde y = \lambda y_i + (1 - \lambda) y_j $$
 		data-flex-grow=&#34;400&#34;
 		data-flex-basis=&#34;961px&#34;
 	
-&gt;&lt;/li&gt;
-&lt;li&gt;yolov5에선 &lt;code&gt;LoadImagesAndLabels&lt;/code&gt; 클래스의 &lt;em&gt;&lt;strong&gt;__getitem__&lt;/strong&gt;&lt;/em&gt; 함수에서 아래와 같이 사용됩니다.
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;yolov5에선 &lt;code&gt;LoadImagesAndLabels&lt;/code&gt; 클래스의 &lt;em&gt;&lt;strong&gt;__getitem__&lt;/strong&gt;&lt;/em&gt; 함수에서 아래와 같이 사용됩니다.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1004,7 +954,8 @@ $$ \tilde y = \lambda y_i + (1 - \lambda) y_j $$
 &lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;/li&gt;
-&lt;li&gt;yolov5에서 mixup 구현한 코드입니다.
+&lt;li&gt;
+&lt;p&gt;yolov5에서 mixup 구현한 코드입니다.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1044,8 +995,8 @@ $$ \tilde y = \lambda y_i + (1 - \lambda) y_j $$
 		data-flex-basis=&#34;562px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content/CVPR2021/papers/Ghiasi_Simple_Copy-Paste_Is_a_Strong_Data_Augmentation_Method_for_Instance_CVPR_2021_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Golnaz Ghiasi, Yin Cui, Aravind Srinivas, Rui Qian, Tsung-Yi Lin, Ekin D. Cubuk, Quoc V. Le, and Barret Zoph. Simple Copy-Paste is a Strong Data Augmentation Method for Instance Segmentation. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2021, pp. 2919, Figure2&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content/CVPR2021/papers/Ghiasi_Simple_Copy-Paste_Is_a_Strong_Data_Augmentation_Method_for_Instance_CVPR_2021_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Ghiasi, Golnaz, et al. &amp;ldquo;Simple copy-paste is a strong data augmentation method for instance segmentation.&amp;rdquo; Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2021, Figure2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;yolov5에선 &lt;em&gt;&lt;strong&gt;load_mosaic&lt;/strong&gt;&lt;/em&gt; 함수에서 mosiac을 만든 뒤 아래와 같이 사용됩니다. 여기서 img4는 mosaic 이미지, labels4, segments mosaic 이미지 안에 있는 label 정보, segmentation 정보입니다.
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1884,7 +1835,7 @@ $$ \tilde y = \lambda y_i + (1 - \lambda) y_j $$
 	srcset=&#34;https://kimberlykang.github.io/p/yolov5_train/ddp_hu45fc3983547123694792784d5d8b18ce_24040_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov5_train/ddp_hu45fc3983547123694792784d5d8b18ce_24040_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
-		alt=&#34;Image 2&#34;
+		alt=&#34;DDP&#34;
 	
 	
 		class=&#34;gallery-image&#34; 
@@ -1892,8 +1843,8 @@ $$ \tilde y = \lambda y_i + (1 - \lambda) y_j $$
 		data-flex-basis=&#34;644px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md&lt;/a&gt;&lt;/p&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md&lt;/em&gt;&lt;/a&gt;  &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;위 그림은 두 개 노드에서 학습을 하는 &lt;strong&gt;data parellel&lt;/strong&gt; application입니다. 위 모델은 모델 복사본 하나 당 GPU 두 개를 사용하여 학습하여, 각 &lt;strong&gt;node&lt;/strong&gt;안의 &lt;code&gt;GPU0&lt;/code&gt;, &lt;code&gt;GPU1&lt;/code&gt;에서 &lt;code&gt;LOCAL RANK0&lt;/code&gt;을 가진 process가, &lt;code&gt;GPU2&lt;/code&gt;, &lt;code&gt;GPU3&lt;/code&gt;에서 &lt;code&gt;LOCAL RANK1&lt;/code&gt;을 가진 process가 학습을 진행하게 됩니다. &lt;code&gt;GLOBAL RANK&lt;/code&gt;는 &lt;strong&gt;node&lt;/strong&gt;에 상관 없이 전체 process에 대해 0~3까지 할당됩니다.&lt;/p&gt;
 &lt;h2 id=&#34;학습-조건-프린트-및-저장&#34;&gt;학습 조건 프린트 및 저장&lt;/h2&gt;
 &lt;p&gt;main 함수가 시작되면 아래와 같이 현재 args를 프린트하고, 학습에 필요한 것들을 체크하는 코드가 있습니다. 이 때 위에서 살펴본 &lt;code&gt;RANK&lt;/code&gt;가 나오는데, &lt;code&gt;RANK&lt;/code&gt;가 &lt;code&gt;-1&lt;/code&gt;인 경우는 &lt;strong&gt;data parellel&lt;/strong&gt;을 사용하지 않는 경우입니다. 하나의 process에서만 프린트하기 위해 아래와 같이 rank가 0일 경우에만 코드를 실행합니다. &lt;em&gt;&lt;strong&gt;check_git_status&lt;/strong&gt;&lt;/em&gt;는 현재 브랜치의 커밋 내역을 확인하여 pull 받을 커밋이 있다면 자동으로 &lt;code&gt;git pull&lt;/code&gt; 해 주는 함수입니다. 개인적으로는 코드 관리 및 재현에 용이하게 하기 위해 아래와 같이 코멘트처리 한 뒤 필요할 때마다 수동으로 &lt;code&gt;git pull&lt;/code&gt;해서 사용하고 있습니다.&lt;/p&gt;

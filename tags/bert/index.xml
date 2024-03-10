@@ -6,10 +6,10 @@
         <description>Recent content in BERT on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>ko-kr</language>
-        <lastBuildDate>Sun, 18 Jun 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/bert/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 02 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/bert/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>BERT 리뷰</title>
         <link>https://kimberlykang.github.io/p/bert_review/</link>
-        <pubDate>Sun, 18 Jun 2023 00:17:41 +0900</pubDate>
+        <pubDate>Wed, 02 Aug 2023 00:17:41 +0900</pubDate>
         
         <guid>https://kimberlykang.github.io/p/bert_review/</guid>
         <description>&lt;p&gt;본 포스트에서는 2018년 Google이 발표한 &amp;ldquo;BERT : Pre-training of Deep Bidirectional Trnasformers for Language Understanding&amp;quot;을 살펴보겠습니다.&lt;br&gt;
@@ -40,8 +40,8 @@
 		data-flex-basis=&#34;1036px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Figure 3&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;GPT&lt;/strong&gt;: left-to-right Transformer를 사용합니다.&lt;/p&gt;
@@ -82,8 +82,8 @@
 		data-flex-basis=&#34;787px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Figure 2&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Token embeddings
 &lt;ul&gt;
@@ -119,8 +119,8 @@
 		data-flex-basis=&#34;476px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/115055&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://wikidocs.net/115055&lt;/a&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/115055&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://wikidocs.net/115055&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
 &lt;ul&gt;
 &lt;li&gt;&amp;lsquo;dog&amp;rsquo;은 [MASK]로 변경되었습니다.&lt;/li&gt;
 &lt;li&gt;&amp;lsquo;he&amp;rsquo;는 &amp;lsquo;king으로 변경되었습니다.&lt;/li&gt;
@@ -131,8 +131,11 @@
 &lt;/ul&gt;
 &lt;h3 id=&#34;task2-next-sentence-predictionnsp&#34;&gt;Task2: Next Sentence Prediction(NSP)&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;sentence A, B를 선택할 때, 50%의 경우에는 B로 A 다음에 이어지는 sentence를, 나머지 50%의 경우에는 B로 corpus에서 random한 sentence를 선택합니다.&lt;/li&gt;
-&lt;li&gt;아래는 sentence 예시입니다.
+&lt;li&gt;
+&lt;p&gt;sentence A, B를 선택할 때, 50%의 경우에는 B로 A 다음에 이어지는 sentence를, 나머지 50%의 경우에는 B로 corpus에서 random한 sentence를 선택합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;아래는 sentence 예시입니다.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Input = [CLS] the man went to [MASK] store [SEP] &lt;br/&gt;
 he bought a gallon [MASK] milk [SEP] &lt;br/&gt;
@@ -142,8 +145,9 @@ penguin [MASK] are flight ##less birds [SEP] &lt;br/&gt;
 Label = NotNext&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/nsp.png&#34;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[CLS]&lt;/code&gt; toekn의 마지막 hidden vector가 &lt;code&gt;IsNext&lt;/code&gt;/&lt;code&gt;NotNext&lt;/code&gt; classification을 하는 데 사용됩니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/nsp.png&#34;
 	width=&#34;486&#34;
 	height=&#34;237&#34;
 	srcset=&#34;https://kimberlykang.github.io/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_1024x0_resize_box_3.png 1024w&#34;
@@ -157,10 +161,9 @@ Label = NotNext&lt;/p&gt;
 		data-flex-basis=&#34;492px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/115055&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://wikidocs.net/115055&lt;/a&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;[CLS]&lt;/code&gt; toekn의 마지막 hidden vector가 &lt;code&gt;IsNext&lt;/code&gt;/&lt;code&gt;NotNext&lt;/code&gt; classification을 하는 데 사용됩니다.&lt;/li&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/115055&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://wikidocs.net/115055&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -200,8 +203,8 @@ Label = NotNext&lt;/p&gt;
 		data-flex-basis=&#34;269px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Figure 4&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (a).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;li&gt;결과
 &lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/result_glue.png&#34;
 	width=&#34;766&#34;
@@ -217,8 +220,8 @@ Label = NotNext&lt;/p&gt;
 		data-flex-basis=&#34;1134px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Table 1&lt;/em&gt;&lt;/a&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;br&gt;
 &lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/result_swag.png&#34;
 	width=&#34;248&#34;
 	height=&#34;184&#34;
@@ -233,8 +236,8 @@ Label = NotNext&lt;/p&gt;
 		data-flex-basis=&#34;323px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Table 4&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&#34;single-sentence-classification-tasks&#34;&gt;Single Sentence Classification Tasks&lt;/h3&gt;
 &lt;ul&gt;
@@ -259,8 +262,8 @@ Label = NotNext&lt;/p&gt;
 		data-flex-basis=&#34;269px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Figure 4&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (b).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&#34;question-answering-tasks&#34;&gt;Question Answering Tasks&lt;/h3&gt;
 &lt;ul&gt;
@@ -287,8 +290,8 @@ Label = NotNext&lt;/p&gt;
 		data-flex-basis=&#34;278px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Figure 4&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (c).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&#34;single-sentence-tagging-tasks&#34;&gt;Single Sentence Tagging Tasks&lt;/h3&gt;
 &lt;ul&gt;
@@ -309,28 +312,14 @@ Label = NotNext&lt;/p&gt;
 		data-flex-basis=&#34;278px&#34;
 	
 &gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Figure 4&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (d).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;결과
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/conll_2003.png&#34;
-	width=&#34;694&#34;
-	height=&#34;563&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/conll_2003_hu968eea676d56d06edf3db2745542ef98_87486_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/conll_2003_hu968eea676d56d06edf3db2745542ef98_87486_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;CoNLL-2003 Named Entity Recognition Tasks&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;123&#34;
-		data-flex-basis=&#34;295px&#34;
-	
-&gt;&lt;br&gt;
-출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova, arXiv:1810.04805, 2018, Table 7&lt;/em&gt;&lt;/a&gt;&lt;br&gt;
-file:///run/user/1000/gvfs/sftp:host=4gpu,user=embian/home/embian/projects/yolov8/nohup.out&lt;/li&gt;
+&lt;li&gt;결과&lt;br&gt;
+&lt;img style=&#34;max-width:60%; height:auto;&#34; src=&#34;conll_2003.png&#34; alt=&#34;CoNLL-2003 Named Entity Recognition Tasks&#34; /&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 7.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
