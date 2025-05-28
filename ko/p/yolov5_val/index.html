@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 YOLOv5의 Validation에 대해 살펴보겠습니다. 목차  Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP 계산  Validation 학습 시 한 epoch 학습이 끝날 때마다 validate를 하여 해당 epoch 학습에 대한 평가를 하게 됩니다. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17  if RANK in {-1, 0}: # mAP callbacks.run(&#39;on_train_epoch_end&#39;, epoch=epoch) ema.update_attr(model, include=[&#39;yaml&#39;, &#39;nc&#39;, &#39;hyp&#39;, &#39;names&#39;, &#39;stride&#39;, &#39;class_weights&#39;]) final_epoch = (epoch + 1 == epochs) or stopper.">
+<title>YOLOv5 Validation</title>
+
+<link rel='canonical' href='https://kimberlykang.github.io/ko/p/yolov5_val/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 Validation">
+<meta property='og:description' content="본 포스트에서는 YOLOv5의 Validation에 대해 살펴보겠습니다. 목차  Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP 계산  Validation 학습 시 한 epoch 학습이 끝날 때마다 validate를 하여 해당 epoch 학습에 대한 평가를 하게 됩니다. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17  if RANK in {-1, 0}: # mAP callbacks.run(&#39;on_train_epoch_end&#39;, epoch=epoch) ema.update_attr(model, include=[&#39;yaml&#39;, &#39;nc&#39;, &#39;hyp&#39;, &#39;names&#39;, &#39;stride&#39;, &#39;class_weights&#39;]) final_epoch = (epoch + 1 == epochs) or stopper.">
+<meta property='og:url' content='https://kimberlykang.github.io/ko/p/yolov5_val/'>
+<meta property='og:site_name' content='Kimberly&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-03-29T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-03-29T00:20:00&#43;09:00'/>
+<meta name="twitter:title" content="YOLOv5 Validation">
+<meta name="twitter:description" content="본 포스트에서는 YOLOv5의 Validation에 대해 살펴보겠습니다. 목차  Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP 계산  Validation 학습 시 한 epoch 학습이 끝날 때마다 validate를 하여 해당 epoch 학습에 대한 평가를 하게 됩니다. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17  if RANK in {-1, 0}: # mAP callbacks.run(&#39;on_train_epoch_end&#39;, epoch=epoch) ema.update_attr(model, include=[&#39;yaml&#39;, &#39;nc&#39;, &#39;hyp&#39;, &#39;names&#39;, &#39;stride&#39;, &#39;class_weights&#39;]) final_epoch = (epoch + 1 == epochs) or stopper.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="메뉴 여닫기">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/ko/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/ko">Kimberly&#39;s Blog</a></h1>
+            <h2 class="site-description">Vision Engineer</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/ko/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/ko/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" >English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" selected>Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>다크 모드</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">목차</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#validation">Validation</a></li>
+    <li><a href="#non-maximum-suppression">Non-Maximum Suppression</a></li>
+    <li><a href="#profile">Profile</a></li>
+    <li><a href="#prediction-matrix">Prediction Matrix</a></li>
+    <li><a href="#ap-map-계산">AP, mAP 계산</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/ko/categories/yolov5/" >
+                YOLOv5
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/ko/p/yolov5_val/">YOLOv5 Validation</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">3월 29, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 분 정도
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/p/yolov5_val/" class="link">English</a>
+                
+            </div>
+        </footer>
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>본 포스트에서는 YOLOv5의 Validation에 대해 살펴보겠습니다.</p>
+<h1 id="목차">목차
+</h1><ol>
+<li><a class="link" href="#validation" >Validation</a></li>
+<li><a class="link" href="#non-maximum-suppression" >Non-Maximum Suppression</a></li>
+<li><a class="link" href="#profile" >Profile</a></li>
+<li><a class="link" href="#prediction-matrix" >Prediction Matrix</a></li>
+<li><a class="link" href="#ap-map-%ea%b3%84%ec%82%b0" >AP, mAP 계산</a></li>
+</ol>
+<h2 id="validation">Validation
+</h2><p>학습 시 한 epoch 학습이 끝날 때마다 validate를 하여 해당 epoch 학습에 대한 평가를 하게 됩니다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+    <span class="c1"># mAP</span>
+    <span class="n">callbacks</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;on_train_epoch_end&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>
+    <span class="n">ema</span><span class="o">.</span><span class="n">update_attr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;nc&#39;</span><span class="p">,</span> <span class="s1">&#39;hyp&#39;</span><span class="p">,</span> <span class="s1">&#39;names&#39;</span><span class="p">,</span> <span class="s1">&#39;stride&#39;</span><span class="p">,</span> <span class="s1">&#39;class_weights&#39;</span><span class="p">])</span>
+    <span class="n">final_epoch</span> <span class="o">=</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">epochs</span><span class="p">)</span> <span class="ow">or</span> <span class="n">stopper</span><span class="o">.</span><span class="n">possible_stop</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">noval</span> <span class="ow">or</span> <span class="n">final_epoch</span><span class="p">:</span>  <span class="c1"># Calculate mAP</span>
+        <span class="n">results</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">validate</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span>
+                                        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+                                        <span class="n">imgsz</span><span class="o">=</span><span class="n">imgsz</span><span class="p">,</span>
+                                        <span class="n">half</span><span class="o">=</span><span class="n">amp</span><span class="p">,</span>
+                                        <span class="n">model</span><span class="o">=</span><span class="n">ema</span><span class="o">.</span><span class="n">ema</span><span class="p">,</span>
+                                        <span class="n">single_cls</span><span class="o">=</span><span class="n">single_cls</span><span class="p">,</span>
+                                        <span class="n">dataloader</span><span class="o">=</span><span class="n">val_loader</span><span class="p">,</span>
+                                        <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+                                        <span class="n">plots</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                        <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+                                        <span class="n">compute_loss</span><span class="o">=</span><span class="n">compute_loss</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>muti-gpu 학습일 경우 validate은 <code>gpu 0</code>에서만 하게 됩니다.</li>
+<li>위에서 명시해 주지 않은 <code>conf_thres</code>, <code>iou_thres</code>, <code>max_det</code>는 default로 <code>conf_thres=0.001</code>, <code>iou_thres=0.6</code>, <code>max_det=300</code>를 갖게 되고, 후에 Non-Maximum Suppression(NMS)에서 사용됩니다.</li>
+</ul>
+<h2 id="non-maximum-suppression">Non-Maximum Suppression
+</h2><ul>
+<li>각 validation data에 대해 inference를 한 뒤, prediction 결과에 Non-Maximum Suppression(NMS)를 적용합니다.</li>
+<li>NMS는 겹쳐 있는 여러 개의 bounding box에서 중복을 제거하고 하나를 선택하는 방법입니다. bounding box의 confidence score와 box 사이의 IoU를 고려하여 제거 후 남을 box를 선택하게 됩니다. 아래는 validate할 때 NMS 호출 코드입니다.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">with</span> <span class="n">dt</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">non_max_suppression</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span>
+                                <span class="n">conf_thres</span><span class="p">,</span>
+                                <span class="n">iou_thres</span><span class="p">,</span>
+                                <span class="n">labels</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+                                <span class="n">multi_label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">agnostic</span><span class="o">=</span><span class="n">single_cls</span><span class="p">,</span>
+                                <span class="n">max_det</span><span class="o">=</span><span class="n">max_det</span><span class="p">)</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>parameter로 사용되는 <code>conf_thres</code>, <code>iou_thres</code>, <code>max_det</code>는 호출되는 위치에 따라 다른 값이 사용됩니다.</li>
+<li>val.py에서 호출
+<ul>
+<li><code>conf_thres=0.001</code>: confidence score가 0.001보다 작은 detection 결과는 모두 삭제합니다.</li>
+<li><code>iou_thres=0.6</code>: IoU가 0.6 이상이 되는 box들에 대해 confidence score 기준으로 하나의 box를 선택하게 됩니다.</li>
+<li><code>max_det=300</code>: 남은 box 중 confidence score가 높은 순으로 300개를 잘라서 반환합니다.</li>
+</ul>
+</li>
+<li>detect.py에서 호출
+<ul>
+<li><code>conf_thres=0.25</code>, <code>iou_thres=0.45</code>, <code>max_det=1000</code>가 사용됩니다.</li>
+</ul>
+</li>
+</ul>
+<h2 id="profile">Profile
+</h2><p>val.py에서 <em><strong>non_max_suppression</strong></em>를 호출 할 때 <code>with dt[2]</code>로 감싸서 호출을 해 주게 되는데, 이 dt는 바로 <code>Profile</code> 클래스 객체입니다.  pre-process, inference, NMS에 걸린 시간을 기록하기 위해 validation이 시작되기 전 아래와 같이 <code>Profile</code> 객체를 만들어줍니다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">dt</span> <span class="o">=</span> <span class="n">Profile</span><span class="p">(),</span> <span class="n">Profile</span><span class="p">(),</span> <span class="n">Profile</span><span class="p">()</span>  <span class="c1"># profiling times</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>Profile</code> 클래스는 <code>contextlib.ContextDecorator</code>를 상속받습니다. <code>contextlib.ContextDecorator</code>를 상속받은 child 클래스는 <em><strong>__enter__</strong></em> 에서 <code>with</code>에 들어올 때 수행할 동작을, <em><strong>__exit__</strong></em> 에서 <code>with</code>에서 나갈 때 수행할 동작을 정의할 수 있습니다. <code>Profile</code>에서는 들어올 때 시간을 체크하고 나갈 때 한 번 더 시간을 체크하여, with 안에서 수행한 전체 시간을 <code>self.t</code>에 저장합니다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Profile</span><span class="p">(</span><span class="n">contextlib</span><span class="o">.</span><span class="n">ContextDecorator</span><span class="p">):</span>
+    <span class="c1"># YOLOv5 Profile class. Usage: @Profile() decorator or &#39;with Profile():&#39; context manager</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>  <span class="c1"># delta-time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>  <span class="c1"># accumulate dt</span>
+
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cuda</span><span class="p">:</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>validation이 학습 중 호출 된 것이 아닐 경우, validation 후에 아래와 같이 평균 수행 시간을 print합니다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Print speeds</span>
+<span class="n">t</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">t</span> <span class="o">/</span> <span class="n">seen</span> <span class="o">*</span> <span class="mf">1E3</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dt</span><span class="p">)</span>  <span class="c1"># speeds per image</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">imgsz</span><span class="p">,</span> <span class="n">imgsz</span><span class="p">)</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape </span><span class="si">{</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="prediction-matrix">Prediction Matrix
+</h2><ul>
+<li>NMS를 마친 결과와 label, 계산하고자 하는 IoU 기준으로 <em><strong>process_batch</strong></em>를 통해 각 detection마다 물체 탐지 여부를 표시하는 Prediction Matrix를 만들어줍니다.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">correct</span> <span class="o">=</span> <span class="n">process_batch</span><span class="p">(</span><span class="n">predn</span><span class="p">,</span> <span class="n">labelsn</span><span class="p">,</span> <span class="n">iouv</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">process_batch</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">iouv</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    Return correct prediction matrix
+</span><span class="s2">    Arguments:
+</span><span class="s2">        detections (array[N, 6]), x1, y1, x2, y2, conf, class
+</span><span class="s2">        labels (array[M, 5]), class, x1, y1, x2, y2
+</span><span class="s2">    Returns:
+</span><span class="s2">        correct (array[N, 10]), for 10 IoU levels
+</span><span class="s2">    &#34;&#34;&#34;</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">detections</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">iouv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">iou</span> <span class="o">=</span> <span class="n">box_iou</span><span class="p">(</span><span class="n">labels</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">detections</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">correct_class</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">detections</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iouv</span><span class="p">)):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">iou</span> <span class="o">&gt;=</span> <span class="n">iouv</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">correct_class</span><span class="p">)</span>  <span class="c1"># IoU &gt; threshold and classes match</span>
+        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">iou</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]][:,</span> <span class="kc">None</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># [label, detect, iou]</span>
+            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="c1"># matches = matches[matches[:, 2].argsort()[::-1]]</span>
+                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">correct</span><span class="p">[</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">iouv</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><code>iouv</code>는 기준이 되는 IOU threshold 리스트입니다.</p>
+<ul>
+<li>0.5~0.95 사이의 IoU threshold를 사용합니다.</li>
+<li>tensor([0.50000, 0.55000, 0.60000, 0.65000, 0.70000, 0.75000, 0.80000, 0.85000, 0.90000, 0.95000], device=&lsquo;cuda:0&rsquo;)</li>
+</ul>
+</li>
+<li>
+<p><code>iou</code></p>
+<ul>
+<li>실제 GT인 <code>labels</code>와 NMS 마친 결과인 <code>detections</code> 사이의 IoU를 구합니다.</li>
+<li><code>labels</code>가 5개, <code>detections</code>가 300개라면 <code>iou</code>의 shape은 (5, 300)이 됩니다.</li>
+</ul>
+</li>
+<li>
+<p><code>matches</code></p>
+<ul>
+<li>detection 결과 중, IoU가 threshold보다 크고, class가 match하는 결과를 뽑습니다.</li>
+<li>IoU가 큰 순으로 정렬합니다.</li>
+<li><em><strong>np.unique</strong></em>를 통해 label, detection결과가 중복된 것을 모두 제거해줍니다.</li>
+<li>shape은 (matches갯수, 3)인데 여기서 3은 차례로 label index, detections index, IoU입니다.</li>
+<li>예를 들면 아래는 IoU threshold와 class로 필터링한 결과입니다.
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="p">[[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">0</span><span class="p">,</span>     <span class="mf">0.51507</span><span class="p">],</span>
+<span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">3</span><span class="p">,</span>     <span class="mf">0.78271</span><span class="p">],</span>
+<span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>          <span class="mi">11</span><span class="p">,</span>     <span class="mf">0.51642</span><span class="p">],</span>
+<span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>          <span class="mi">12</span><span class="p">,</span>     <span class="mf">0.54807</span><span class="p">]]</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>아래는 중복까지 제거한 결과입니다.
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="p">[[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">0</span><span class="p">,</span>     <span class="mf">0.51507</span><span class="p">]]</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li>
+<p><code>correct</code></p>
+<ul>
+<li>각 <code>detections</code>에 대해 10개의 IoU threshold 기준을 적용했을 때 object를 찾았는지 여부입니다.</li>
+<li><code>detections</code>가 300개일 때, shape은 (300, 10)입니다.</li>
+<li><code>matches</code>에서 찾은 detections에 <code>True</code>를 할당하므로, <code>True</code>는 해당 detection 결과와 실제 label의 IoU가 threshold보다 높고, class도 일치함을 의미합니다.</li>
+</ul>
+</li>
+<li>
+<p>전체 이미지에 대해 <em><strong>process_batch</strong></em>한 결과를 <code>stats</code>에 저장합니다.</p>
+</li>
+</ul>
+<h2 id="ap-map-계산">AP, mAP 계산
+</h2><ul>
+<li><em><strong>ap_per_class</strong></em>를 통해 precision, recall, ap를 계산합니다.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">tp</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">ap</span><span class="p">,</span> <span class="n">ap_class</span> <span class="o">=</span> <span class="n">ap_per_class</span><span class="p">(</span><span class="o">*</span><span class="n">stats</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plots</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>클래스별로 아래 식을 이용하여 10개의 IoU threshold에 대해 Precision과 Recall을 계산합니다.</p>
+<ul>
+<li>$Precision = \frac{TP}{TP+FP} = \frac{TP}{detection 갯수}$</li>
+<li>$Recall = \frac{TP}{TP+FN} = \frac{TP}{GT 갯수}$</li>
+<li>위의 <em><strong>process_batch</strong></em>를 계산할 때 <em><strong>np.unique</strong></em>를 통해 중복을 걸러주었기 때문에, Precision과 Recall은 모두 최대 1을 가지게 됩니다.</li>
+</ul>
+</li>
+<li>
+<p>x 축이 Recall, y축이 Precision인 좌표평면에 각 detection에 대한 결과를 점으로 표시해 줍니다. 이 점을 모두 연결한 그래프를 Precision-Recall Curve라고 합니다.</p>
+</li>
+<li>
+<p>아래 그림에서 알파벳은 각 이미지를 의미합니다.
+<img src="/ko/p/yolov5_val/ap_graph_01.png"
+	width="578"
+	height="440"
+	srcset="/ko/p/yolov5_val/ap_graph_01_hu44757a369e30714e242596f179ad2185_50954_480x0_resize_box_3.png 480w, /ko/p/yolov5_val/ap_graph_01_hu44757a369e30714e242596f179ad2185_50954_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="AP Graph 01"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="131"
+		data-flex-basis="315px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://github.com/rafaelpadilla/Object-Detection-Metrics"  target="_blank" rel="noopener"
+    ><em>https://github.com/rafaelpadilla/Object-Detection-Metrics</em></a></span></p>
+</li>
+<li>
+<p>아래 그림과 같이 전체 Recall 범위를 일정하게 나눈 뒤, 각 구역마다 Inpterpolated Precision을 구해줍니다. 아래 예시에서는 11개 구역으로 나누었는데 YOLOv5에서는 1000개로 나눕니다.
+<img src="/ko/p/yolov5_val/ap_graph_02.png"
+	width="556"
+	height="452"
+	srcset="/ko/p/yolov5_val/ap_graph_02_hu3ac04bf34b3d5aaa1f47ed44ed0b6604_28288_480x0_resize_box_3.png 480w, /ko/p/yolov5_val/ap_graph_02_hu3ac04bf34b3d5aaa1f47ed44ed0b6604_28288_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="AP Graph 02"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="123"
+		data-flex-basis="295px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://github.com/rafaelpadilla/Object-Detection-Metrics"  target="_blank" rel="noopener"
+    ><em>https://github.com/rafaelpadilla/Object-Detection-Metrics</em></a></span></p>
+</li>
+<li>
+<p>Interpolated Precision을 좌표에 그려 아래와 같이 새로운 Precision-Recall Curve를 그려줍니다.
+<img src="/ko/p/yolov5_val/ap_graph_03.png"
+	width="554"
+	height="433"
+	srcset="/ko/p/yolov5_val/ap_graph_03_hu24f08e0ccede7197fd5edc156cb1098c_28102_480x0_resize_box_3.png 480w, /ko/p/yolov5_val/ap_graph_03_hu24f08e0ccede7197fd5edc156cb1098c_28102_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="AP Graph 03"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="127"
+		data-flex-basis="307px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://github.com/rafaelpadilla/Object-Detection-Metrics"  target="_blank" rel="noopener"
+    ><em>https://github.com/rafaelpadilla/Object-Detection-Metrics</em></a></span></p>
+</li>
+<li>
+<p>새로운 Precision-Recall Curve의 아래 면적이(Area Uner Curve, AUC) AP값이 됩니다.
+<img src="/ko/p/yolov5_val/ap_graph_04.png"
+	width="557"
+	height="437"
+	srcset="/ko/p/yolov5_val/ap_graph_04_hu072cf6212aa09f8b46b40cea8dc57e02_28126_480x0_resize_box_3.png 480w, /ko/p/yolov5_val/ap_graph_04_hu072cf6212aa09f8b46b40cea8dc57e02_28126_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="AP Graph 04"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="127"
+		data-flex-basis="305px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://github.com/rafaelpadilla/Object-Detection-Metrics"  target="_blank" rel="noopener"
+    ><em>https://github.com/rafaelpadilla/Object-Detection-Metrics</em></a></span></p>
+</li>
+<li>
+<p>위와 같은 방법으로 <em><strong>ap_per_class</strong></em>를 통해 클래스별 AP를 구한 다음, AP 값의 평균을 구해 Object Detection 성능 평가 지표로 사용하는데, 이를 Mean Average Precision(mAP)라고 합니다.</p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/ko/tags/yolov5/">YOLOv5</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">관련 글</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_loss/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 Loss</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_augmentation/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 Augmentation</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_evolve/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 Evolve</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_anchor/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 anchor</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_train/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 학습</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2025 Kimberly&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>로 만듦 <br />
+        <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>의 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> 테마 사용 중
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

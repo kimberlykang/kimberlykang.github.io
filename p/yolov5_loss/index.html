@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko-kr" dir="ltr">
+<html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차 정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss 정보 이론 Information 사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we will look at the Loss function of YOLOv5. Table of Contents  Information Theory Binary Cross Entropy IoU Loss YOLOv5 Loss  Information Theory   Information  If the probability of an event A occurring is P(A), the amount of information for this event is $I=-\\log P(A)$. Example: Information when a coin lands on heads  Probability: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy">
 <title>YOLOv5 Loss</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov5_loss/'>
 
-<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='YOLOv5 Loss'>
-<meta property='og:description' content='본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차 정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss 정보 이론 Information 사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 Loss">
+<meta property='og:description' content="In this post, we will look at the Loss function of YOLOv5. Table of Contents  Information Theory Binary Cross Entropy IoU Loss YOLOv5 Loss  Information Theory   Information  If the probability of an event A occurring is P(A), the amount of information for this event is $I=-\\log P(A)$. Example: Information when a coin lands on heads  Probability: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy">
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov5_loss/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-04-11T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-04-11T00:20:00&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv5 Loss">
-<meta name="twitter:description" content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차 정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss 정보 이론 Information 사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의">
+<meta name="twitter:description" content="In this post, we will look at the Loss function of YOLOv5. Table of Contents  Information Theory Binary Cross Entropy IoU Loss YOLOv5 Loss  Information Theory   Information  If the probability of an event A occurring is P(A), the amount of information for this event is $I=-\\log P(A)$. Example: Information when a coin lands on heads  Probability: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy">
     </head>
     <body class="
     article-page
@@ -153,12 +153,35 @@
             </a>
         </li>
         
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
 
-        <div class="menu-bottom-section">
-            
-            
-                <li id="dark-mode-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="8" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -166,7 +189,7 @@
 
 
 
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="16" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -174,10 +197,11 @@
 
 
 
-                    <span>Dark Mode</span>
-                </li>
-            
-        </div>
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
     </ol>
 </aside>
 
@@ -203,7 +227,7 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#정보-이론">정보 이론</a></li>
+    <li><a href="#information-theory">Information Theory</a></li>
   </ol>
 
   <ol>
@@ -273,13 +297,32 @@
 
 
                 <time class="article-time--reading">
-                    7 minute read
+                    8 minute read
                 </time>
             </div>
         
     </footer>
     
 
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/yolov5_loss/" class="link">Korean</a>
+                
+            </div>
+        </footer>
     
 </div>
 
@@ -288,23 +331,23 @@
     <section class="article-content">
     
     
-    <p>본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다.</p>
-<h1 id="목차">목차</h1>
-<ol>
-<li><a class="link" href="#%ec%a0%95%eb%b3%b4-%ec%9d%b4%eb%a1%a0" >정보 이론</a></li>
+    <p>In this post, we will look at the Loss function of YOLOv5.</p>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
+<li><a class="link" href="#information-theory" >Information Theory</a></li>
 <li><a class="link" href="#binary-cross-entropy" >Binary Cross Entropy</a></li>
 <li><a class="link" href="#iou-loss" >IoU Loss</a></li>
 <li><a class="link" href="#yolov5-loss" >YOLOv5 Loss</a></li>
 </ol>
-<h2 id="정보-이론">정보 이론</h2>
-<ul>
+<h2 id="information-theory">Information Theory
+</h2><ul>
 <li>
 <p>Information</p>
 <ul>
-<li>사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\log P(A)$입니다.</li>
-<li>예) 동전 던지기 앞면이 나오는 사건의 Information
+<li>If the probability of an event A occurring is P(A), the amount of information for this event is $I=-\log P(A)$.</li>
+<li>Example: Information when a coin lands on heads
 <ul>
-<li>확률: $ \displaystyle \frac{1}{2}$</li>
+<li>Probability: $ \displaystyle \frac{1}{2}$</li>
 <li>$I=-\log  \displaystyle \frac{1}{2}$</li>
 </ul>
 </li>
@@ -313,9 +356,9 @@
 <li>
 <p>Entropy</p>
 <ul>
-<li>Information의 기댓값입니다.</li>
+<li>The expected value of the information.</li>
 <li>$ H(X)=- \displaystyle \sum_{x}P(X) \log P(X)$</li>
-<li>예) 동전 던지기의 Entropy
+<li>Example: Entropy of a coin flip
 <ul>
 <li>$Entropy= \displaystyle{ -(\frac{1}{2} \times \log \frac{1}{2} + \frac{1}{2} \times \log \frac{1}{2})=-\log \frac{1}{2}}$</li>
 </ul>
@@ -323,17 +366,17 @@
 </ul>
 </li>
 <li>
-<p>Kullback–Leibler divergence(KL Divergence)</p>
+<p>Kullback–Leibler divergence (KL Divergence)</p>
 <ul>
-<li>두 확률 분포의 다른 정도를 측정하는 값입니다.</li>
+<li>Measures the difference between two probability distributions.</li>
 <li>$ D_{KL}(P \Vert Q)= \displaystyle \sum_{x}P(X) \log \frac{P(X)}{Q(X)} $<br>
                          
 $ = -\displaystyle \sum_{x}P(X) \log Q(X) +\sum_{x} P(X) \log P(X)$<br>
                          
 <ul>
-<li>첫 번째 term은 확률 분포 P를 가지는 데이터에 대해, 확률 분포 Q를 사용하여 Information을 계산한 뒤, 이의 기댓값인 Entropy를 계산한 값입니다.</li>
-<li>두 번째 term은 확률분포 P의 Entropy 값입니다.</li>
-<li>즉, KL divergence는 확률 분포 Q로 Information 계산했을 때, 실제 P로 계산했을 때 보다 얼마나 더 많이 Information을 가지는지를 의미합니다.</li>
+<li>The first term is the entropy calculated using distribution Q for data from distribution P.</li>
+<li>The second term is the entropy of the distribution P.</li>
+<li>In other words, KL divergence tells you how much more information you have when using Q to encode P compared to using P itself.</li>
 </ul>
 </li>
 </ul>
@@ -341,33 +384,33 @@ $ = -\displaystyle \sum_{x}P(X) \log Q(X) +\sum_{x} P(X) \log P(X)$<br>
 <li>
 <p>Cross Entropy</p>
 <ul>
-<li>위 KL divergence 식의 첫 번째 term, 즉 확률 분포 P를 가지는 데이터에 대해, 확률 분포 Q를 사용하여 Information을 계산한 뒤, 이의 기댓값인 Entropy를 계산한 값을 Cross Entropy라고 합니다.</li>
+<li>The first term of the KL divergence above, i.e. the expected value of information when using distribution Q for data from distribution P, is called the Cross Entropy.</li>
 <li>$ H(P, Q)= -\displaystyle \sum_{x}P(X)\log Q(X) $</li>
-<li>KL divergence는 아래와 같이 정리할 수 있습니다.
+<li>KL divergence can be rearranged as below:
 <ul>
 <li>$ D_{KL}(P \Vert Q)= H(P, Q) - H(P) $</li>
-<li>P가 실제 확률 분포이고, Q가 P를 근사한 모델이 만든 확률 분포라고 했을 때, H(P)는 변하지 않는 값입니다. 따라서, KL divergence에서 Cross Entropy H(P, Q)가 Model의 Loss로 자주 사용됩니다.</li>
+<li>Here, P is the true distribution, Q is the distribution produced by an approximate model, and H(P) is constant. Therefore, cross-entropy H(P, Q) is often used as a model’s loss when minimizing KL divergence.</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<h1 id="binary-cross-entropy">Binary Cross Entropy</h1>
-<ul>
+<h1 id="binary-cross-entropy">Binary Cross Entropy
+</h1><ul>
 <li>Cross Entropy Loss
 <ul>
-<li>classification에서 data의 label y는 one-hot 벡터로 주어지는데, y가 위 Cross Entroy 식에서 확률분포 P가 됩니다.</li>
-<li>모델의 output $\hat y$ 은 주로 softmax function으로 계산한 각 클래스일 확률인데, 위 식에서 확률분포 Q가 됩니다.</li>
-<li>N이 데이터 갯수, y가 label, C가 클래스 갯수일 때, Cross Entropy Loss L는 아래와 같이 계산합니다.
+<li>In classification, the data label y is given as a one-hot vector, where y is probability distribution P in the formula for cross entropy above.</li>
+<li>The model output $\hat y$ is typically the softmax output probabilities for each class, i.e., distribution Q.</li>
+<li>When N is the number of data samples, y the labels, and C the number of classes, the Cross Entropy Loss L is:
 <ul>
 <li>$ L= - \displaystyle \sum_{n}^{N} \displaystyle \sum_{c}^{C}y_{n, c} \log \hat{y}_{n, c}$</li>
 </ul>
 </li>
-<li>이미지가 강아지, 고양이, 개구리 세 가지 클래스 중 어느 것인지 맞추는 classification 문제가 있다고 할 때,
+<li>For example, in a classification problem with &lsquo;dog&rsquo;, &lsquo;cat&rsquo;, and &lsquo;frog&rsquo;:
 <ul>
-<li>$y=\begin{bmatrix} 0 \cr 1 \cr 0 \end{bmatrix} $ (실제 label)</li>
-<li>$\hat y=\begin{bmatrix} 0.1 \cr 0.7 \cr 0.2 \end{bmatrix} $ (예측 값)</li>
-<li>이 이미지에 대한 Cross Entropy Loss $l$ 은 아래와 같습니다.
+<li>$y=\begin{bmatrix} 0 \cr 1 \cr 0 \end{bmatrix} $ (True label)</li>
+<li>$\hat y=\begin{bmatrix} 0.1 \cr 0.7 \cr 0.2 \end{bmatrix} $ (Prediction)</li>
+<li>The cross-entropy loss $l$ for this image is:
 <ul>
 <li>$ l= -\displaystyle \sum_{c}^{C}y_c\log \hat{y}_c$<br>
 $=0⋅\log 0.1 + 1⋅\log 0.7 + 0⋅\log 0.2$  <br>
@@ -380,35 +423,35 @@ $=\log 0.7$</li>
 </li>
 <li>Binary Cross Entropy
 <ul>
-<li>클래스 갯수가 두 개일 때의 Cross Entropy Loss의 특별한 케이스입니다.</li>
-<li>모델의 output $\hat y$은 주로 Sigmoid function으로 계산한 확률입니다.</li>
+<li>A special case of cross entropy loss when the number of classes is two.</li>
+<li>The model’s output $\hat y$ is usually the probability from a sigmoid function.</li>
 <li>$ L= - \displaystyle \sum_{n}^{N} [y_n\log \hat{y}_n + (1-y_n)\log (1-\hat{y}_n)]$</li>
 </ul>
 </li>
 <li>BCEWithLogitsLoss
 <ul>
-<li>Torch에서는 Sigmoid layer와 Binary Crosss Entropy를 합친 BCEWithLogitsLoss 클래스를 제공하고 있습니다.</li>
-<li>log-sum-exp trick을 사용하여 Sigmoid layer와 BCELoss를 따로 사용하는 것보다 numerically stable합니다.</li>
-<li>x가 Sigmoid의 input, y가 label, N이 데이터 갯수, w가 weight라고 할 때, unreduced loss L는 아래와 같이 계산합니다.
+<li>Torch provides the BCEWithLogitsLoss class, which combines the Sigmoid layer and the Binary Cross Entropy.</li>
+<li>It is more numerically stable than using Sigmoid and BCELoss separately, due to the log-sum-exp trick.</li>
+<li>If x is the input to Sigmoid, y the label, N the number of samples, and w the weight, the unreduced loss L is:
 <ul>
-<li>$ L=\begin{Bmatrix} l_{1}, \cr &hellip;, \cr l_{N} \end{Bmatrix}일 때, l_n= - w_n [(y_n\log \sigma (x_n)) + (1-y_n)\log (1-\sigma(x_n))]$</li>
+<li>$ L=\begin{Bmatrix} l_{1}, \cr &hellip;, \cr l_{N} \end{Bmatrix}$ where $l_n= - w_n [(y_n\log \sigma (x_n)) + (1-y_n)\log (1-\sigma(x_n))]$</li>
 </ul>
 </li>
-<li>reduced loss L는 아래와 같이 계산합니다.
+<li>The reduced loss L is:
 <ul>
 <li>$ L=\begin{cases} mean(L), \text{if reduction=&lsquo;mean&rsquo;} \cr sum(L), \text{if reduction= &lsquo;sum&rsquo;} \end{cases} $</li>
 </ul>
 </li>
-<li>c가 class일 때, positive weight $p_c$를 사용하여 precision과 recall을 조절할 수 있습니다. 이 때, 식은 아래와 같이 바뀝니다.
+<li>With c as the class, you can adjust precision and recall by using a positive weight $p_c$. The formula becomes:
 <ul>
-<li>$ L_c=\begin{Bmatrix} l_{1,c}, \cr &hellip;, \cr l_{N, c} \end{Bmatrix}일 때, l_{n, c}= - w_{n,c} [(p_c ​⋅ y_{n, c}\log \sigma (x_n)) + (1-y_{n, c})\log (1-\sigma(x_{n, c}))]$</li>
-<li>$p_c&gt;1$이면 recall이 증가하고, $p_c&lt;1$면 precision이 증가합니다.</li>
-<li>dataset에 하나의 클래스에 대해 100개의 positive example과 300의 negative example이 있다면 $p_c=\frac{300}{100}=3$이 되어야 합니다.</li>
+<li>$ L_c=\begin{Bmatrix} l_{1,c}, \cr &hellip;, \cr l_{N, c} \end{Bmatrix}$ where $l_{n, c}= - w_{n,c} [(p_c ​⋅ y_{n, c}\log \sigma (x_n)) + (1-y_{n, c})\log (1-\sigma(x_{n, c}))]$</li>
+<li>$p_c&gt;1$ increases recall, $p_c&lt;1$ increases precision.</li>
+<li>If there are 100 positive and 300 negative examples for a class, set $p_c=\frac{300}{100}=3$.</li>
 </ul>
 </li>
 <li><em><strong>torch.nn.BCEWithLogitsLoss</strong></em>(<code>weight</code>=None, <code>size_average</code>=None, <code>reduce</code>=None, <code>reduction</code>=&lsquo;mean&rsquo;, <code>pos_weight</code>=None)
 <ul>
-<li><code>size_average</code>, <code>reduce</code>는 deprecated된 parameter입니다.
+<li><code>size_average</code>, <code>reduce</code> are deprecated parameters.
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -433,67 +476,70 @@ $=\log 0.7$</li>
 </ul>
 </li>
 </ul>
-<h2 id="iou-loss">IoU Loss</h2>
+<h2 id="iou-loss">IoU Loss
+</h2><ul>
+<li>
+<p>Intersection over Union (IoU)</p>
 <ul>
-<li>Intersection over Union(IoU)
-<ul>
-<li>scale invariant</li>
-<li>Convex A, B가 있을 때 IoU는 아래와 같이 계산됩니다.
+<li>Scale invariant.</li>
+<li>When you have convex A and B, IoU is calculated as follows:
 <ul>
 <li>$ IoU= \displaystyle  \frac{|A∩B|}{|A∪B|} $</li>
 </ul>
 </li>
 <li>$L_{IoU}=1-IoU$</li>
-<li>IoU가 0인 경우, 즉 두 Object Detection에서 타겟 box와 예측 box가 겹치지 않은 경우, IoU는 오차의 정도가 어느 정도인지를 나타내지 않습니다. 따라서 <strong>Gradient Vanishing</strong> 문제가 발생합니다.</li>
+<li>When IoU is 0, i.e., when the target box and prediction box do not overlap in object detection, IoU does not indicate how large the error is. As a result, the <strong>Gradient Vanishing</strong> problem occurs.</li>
 </ul>
 </li>
-<li>Generalized-IoU(GIoU)
+<li>
+<p>Generalized-IoU (GIoU)</p>
 <ul>
 <li><a class="link" href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Rezatofighi_Generalized_Intersection_Over_Union_A_Metric_and_a_Loss_for_CVPR_2019_paper.pdf"  target="_blank" rel="noopener"
     >Generalized Intersection Over Union: A Metric and a Loss for Bounding Box Regression</a></li>
-<li>A, B를 포함하는 가장 작은 convex를 C라고 할 때, GIoU는 아래와 같이 계산됩니다.
+<li>If C is the smallest convex that contains A and B, GIoU is calculated as:
 <ul>
 <li>$ GIoU=IoU- \displaystyle  \frac{|C \backslash (A∪B)|}{|C|} $</li>
-<li>$ C \backslash (A∪B)$ 차집합을 의미합니다.</li>
+<li>$ C \backslash (A∪B)$ means set difference.</li>
 </ul>
 </li>
-<li>$L_{GIoU}=1-GIoU$. 이 때, Loss 값의 범위는 0~2입니다.</li>
-<li>타겟 box가 예측 box를 포함하고 있을 때, 페널티 텀이 0이 되어서 $L_{IoU}$ 값과 같은 값을 가지게 됩니다.
+<li>$L_{GIoU}=1-GIoU$. The range of loss value is 0~2.</li>
+<li>If the target box contains the prediction box, the penalty term is zero and $L_{GIoU}$ becomes the same as $L_{IoU}$.
 <img style="max-width:65%; height:auto;" src="iou_losses.png" alt="IoU Losses" /><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
     ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 2</em></a></span></li>
-<li>수렴 속도가 느리고, box의 정확도가 비교적 낮습니다.</li>
+<li>Has slow convergence and comparatively low box accuracy.</li>
 </ul>
 </li>
-<li>Distance-IoU(DIoU) &amp; Complete IoU(CIoU)
+<li>
+<p>Distance-IoU (DIoU) &amp; Complete IoU (CIoU)</p>
 <ul>
 <li><a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
     >Distance-IoU Loss: Faster and Better Learning for Bounding Box Regression</a></li>
-<li>일반적으로 IoU 기반의 loss를 $L_{IoU}=1-IoU + \mathcal{R}(B, B^{gt})$로 정의할 수 있습니다.</li>
+<li>In general, IoU-based loss can be defined as $L_{IoU}=1-IoU + \mathcal{R}(B, B^{gt})$.</li>
 <li>DIoU
 <ul>
-<li>$ \mathcal{R}_{DIoU} =  \displaystyle  \frac{ρ^2(b, b^{gt})}{c^2}$. ρ는 두 box 중심 사이의 유클리디안 거리이고, c는 두 box를 포함하는 가장 작은 box의 대각 길이입니다.<br>
+<li>$ \mathcal{R}_{DIoU} =  \displaystyle  \frac{ρ^2(b, b^{gt})}{c^2}$. ρ is the Euclidean distance between the centers of the two boxes, and c is the diagonal length of the smallest box enclosing both boxes.<br>
 <img style="max-width:25%; height:auto;" src="distance_for_diou.png" alt="Distance for DIoU" /><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
     ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 5</em></a></span></li>
-<li>$L_{DIoU}=1-IoU + \mathcal{R}_{DIoU}$. 이 때, Loss 값의 범위는 0~2입니다.</li>
-<li>두 box 사이의 거리를 minimize하기 때문에 GIoU Loss보다 빠르게 수렴합니다.</li>
+<li>$L_{DIoU}=1-IoU + \mathcal{R}_{DIoU}$, range is 0~2.</li>
+<li>Since the distance between boxes is minimized, it converges faster than GIoU loss.</li>
 </ul>
 </li>
 <li>CIoU
 <ul>
-<li>DIoU에 aspect ratio를 추가적으로 고려한 방법입니다.</li>
+<li>This is an extension of DIoU to additionally consider the aspect ratio.</li>
 <li>$ \mathcal{R}_{CIoU} = \displaystyle \frac{ρ^2(b, b^{gt})}{c^2} + \alpha v$
 <ul>
 <li>$\alpha = \displaystyle \frac{v}{(1-IoU) + v}$
 <ul>
-<li>non-overlapping한 경우 regression에 더 높은 priority를 가지게 합니다.</li>
+<li>Gives higher priority to regression in non-overlapping cases.</li>
 </ul>
 </li>
 <li>$v = \displaystyle \frac{4}{\pi^2}(arctan\frac{w^{gt}}{h^{gt}} - arctan\frac{w}{h})^2$
 <ul>
-<li>aspect ratio가 일치하는 정도를 측정합니다.</li>
-<li>$ \displaystyle \frac{4}{\pi^2}$는 arctan 최댓값이 $\frac{\pi}{2}$이기 때문에 계산 결과 최댓값을 1로 만들기 위해 사용됩니다.</li>
+<li>Measures the similarity of aspect ratios.</li>
+<li>$ \displaystyle \frac{4}{\pi^2}$ is to make the maximum calculation result 1 since arctan max is $\frac{\pi}{2}$.</li>
 </ul>
 </li>
 </ul>
@@ -501,48 +547,48 @@ $=\log 0.7$</li>
 <li>$L_{CIoU}=1-IoU + \mathcal{R}_{CIoU}$</li>
 </ul>
 </li>
-<li>DIoU를 사용한 Non-Maximum Suppression(NMS)
+<li>Non-Maximum Suppression (NMS) using DIoU
 <ul>
-<li>기존의 NMS에서는 불필요한 detection box를 제거하는 데 IoU metric이 사용됩니다.</li>
-<li>IoU는 겹치는 영역만 고려하기 때문에, occlusion이 있는 경우 잘못된 box가 제거되기도 합니다.</li>
-<li>DIoU는 겹치는 영역과 함께 두 box의 중심 거리를 고려하기 때문에, occlusion이 있는 경우에 NMS에 더 적합한 criterion이 될 수 있습니다.</li>
-<li>가장 높은 score를 가진 예측 box를 $\mathcal{M}$, NMS를 적용하는 다른 box를 $B$, classification score를 s, NMS threshold를 $\epsilon$라고 했을 때, DIoU-NMS는 아래와 같이 정의됩니다.
+<li>In traditional NMS, the IoU metric is used to remove unnecessary detection boxes.</li>
+<li>Since IoU only considers the overlapping area, incorrect boxes can be suppressed in occlusion situations.</li>
+<li>DIoU considers both the overlapping area and the center point distance between the two boxes, making it more suitable as a criterion for NMS in case of occlusion.</li>
+<li>Let $\mathcal{M}$ be the prediction box with the highest score, $B$ other boxes to apply NMS to, $s$ is the classification score, and $\epsilon$ is the NMS threshold. DIoU-NMS is defined as:
 <ul>
 <li>$ s_i= \begin{cases} \displaystyle s_i, &amp; IoU -\mathcal{R}(\mathcal{M}, B_i) &lt; \epsilon \\ \displaystyle 0, &amp; IoU -\mathcal{R}(\mathcal{M}, B_i) ≥ \epsilon  \end{cases} $</li>
 </ul>
 </li>
-<li>PASCAL VOC07+12로 학습한 YOLOv3 모델로 MS COCO 2017 데이터 중 하나를 detect한 예시입니다. 
+<li>Below is an example using a YOLOv3 model trained on PASCAL VOC07+12, detecting an image from MS COCO 2017.
 <img style="max-width:80%; height:auto;" src="viz_result_diou_nms.png" alt="Visualization of Result with DIoU-NMS" /><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
     ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 8</em></a></span></li>
 </ul>
 </li>
-<li>실험 결과
+<li>Experimental Results
 <ul>
-<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 YOLOv3 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<li>Below are results for training YOLOv3 with $ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $. (D) means IoU-NMS is used during NMS.<br>
 <img style="max-width:80%; height:auto;" src="results_yolov3.png" alt="Results with YOLOv3" /><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
     ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 1</em></a></span></li>
-<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 SSD 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<li>Below are results for training SSD with $ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $. (D) means IoU-NMS is used during NMS.<br>
 <img style="max-width:50%; height:auto;" src="results_ssd.png" alt="Results with SSD" /><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
     ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 2</em></a></span></li>
-<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 Faster-RCNN 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<li>Below are results for training Faster-RCNN with $ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $. (D) means IoU-NMS is used during NMS.<br>
 <img style="max-width:90%; height:auto;" src="results_faster_rcnn.png" alt="Results with Faster-RCNN" /><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
     ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 3</em></a></span></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<h2 id="yolov5-loss">YOLOv5 Loss</h2>
-<ul>
+<h2 id="yolov5-loss">YOLOv5 Loss
+</h2><ul>
 <li>
 <p>Box Loss</p>
 <ul>
-<li><code>pbox</code>: (prediction 갯수, anchor 갯수)</li>
-<li><code>iou</code>: (prediction 갯수)</li>
+<li><code>pbox</code>: (number of predictions, number of anchors)</li>
+<li><code>iou</code>: (number of predictions)</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -552,7 +598,6 @@ $=\log 0.7$</li>
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
-</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Regression</span>
@@ -561,21 +606,20 @@ $=\log 0.7$</li>
 <span class="n">pbox</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">pxy</span><span class="p">,</span> <span class="n">pwh</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># predicted box </span>
 <span class="n">iou</span> <span class="o">=</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="n">pbox</span><span class="p">,</span> <span class="n">tbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">CIoU</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># iou</span>
 <span class="n">lbox</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">iou</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># iou loss</span>
-
 </code></pre></td></tr></table>
 </div>
 </div></li>
 <li>
 <p>Objectness Loss</p>
 <ul>
-<li>target box와 prediction box 사이의 IoU가 GT가 됩니다.</li>
-<li>scale마다 weight를 다르게 주어 Objectness Loss를 계산합니다.
+<li>The IoU between the target box and prediction box becomes the ground truth (GT).</li>
+<li>Objectness Loss is calculated by applying different weights for each scale.
 <ul>
-<li>$L_{obj}=4.0 ⋅L^{small}<em>{obj}+1.0 ⋅L^{medium}</em>{obj}+0.4 ⋅L^{large}_{obj}$</li>
+<li>$ L_{obj}=4.0 ⋅L_{obj}^{small} +1.0 ⋅ L_{obj}^{medium} +0.4 ⋅ L_{obj}^{large}$</li>
 </ul>
 </li>
-<li><code>pi[..., 4]</code>: (batch size, anchor 갯수, grid 갯수, grid 갯수) 모델이 예측한 objectness를 의미합니다.</li>
-<li><code>tobj</code>: (batch size, anchor 갯수, grid 갯수, grid 갯수) 어떤 batch의 어떤 anchor의 어느 grid 위치에 해당되는 target objectness인지를 의미합니다.</li>
+<li><code>pi[..., 4]</code>: (batch size, number of anchors, number of grids, number of grids) Represents the objectness predicted by the model.</li>
+<li><code>tobj</code>: (batch size, number of anchors, number of grids, number of grids) Represents the target objectness for the corresponding batch, anchor, and grid location.</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -611,7 +655,7 @@ $=\log 0.7$</li>
 <li>
 <p>Classification Loss</p>
 <ul>
-<li><code>t</code>:  (detection 갯수, class 갯수)</li>
+<li><code>t</code>: (number of detections, number of classes)</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -690,18 +734,19 @@ $=\log 0.7$</li>
     
         <link 
                 rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
             ><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
                 defer
                 >
             </script><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
                 defer
                 >
             </script><script>
     window.addEventListener("DOMContentLoaded", () => {
-        renderMathInElement(document.querySelector(`.article-content`), {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
             delimiters: [
                 { left: "$$", right: "$$", display: true },
                 { left: "$", right: "$", display: false },
@@ -711,6 +756,7 @@ $=\log 0.7$</li>
             ignoredClasses: ["gist"]
         });})
 </script>
+
     
 </article>
 
@@ -782,7 +828,7 @@ $=\log 0.7$</li>
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv5 학습</h2>
+            <h2 class="article-title">YOLOv5 Training</h2>
         </div>
     </a>
 </article>
@@ -849,12 +895,12 @@ $=\log 0.7$</li>
         
             2023 - 
         
-        2024 Kimberly&#39;s Blog
+        2025 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -943,7 +989,7 @@ $=\log 0.7$</li>
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

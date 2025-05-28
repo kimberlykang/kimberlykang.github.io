@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 2016년 CVPR에 발표된 논문 &ldquo;You Only Look Once: Unified, Real-Time Object Detection&quot;을 살펴보겠습니다. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf 목차  개념 이해 Bounding Box Class Probability Output 네트워크 구조 Loss 테스트  개념 이해 YOLO에서는 이미지에서 object를 찾을 때, grid를 사용합니다. 이를 간략하게 살펴보면  이미지를 S×S개의 grid로 나눕니다. 각 grid cell에서 B개의 bounding box의 좌표(x, y, w, h)와 그 bounding box의 confidence score(c)를 예측합니다. 각 grid cell마다 C개의 class probability를 예측합니다. confidence score과 class probability로 최종 score와 class를 결정하고, 이 때 score가 threshold보다 높은 bounding box가 최종 object detection의 결과가 됩니다.">
+<title>YOLOv1 리뷰</title>
+
+<link rel='canonical' href='https://kimberlykang.github.io/ko/p/yolov1_review/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv1 리뷰">
+<meta property='og:description' content="본 포스트에서는 2016년 CVPR에 발표된 논문 &ldquo;You Only Look Once: Unified, Real-Time Object Detection&quot;을 살펴보겠습니다. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf 목차  개념 이해 Bounding Box Class Probability Output 네트워크 구조 Loss 테스트  개념 이해 YOLO에서는 이미지에서 object를 찾을 때, grid를 사용합니다. 이를 간략하게 살펴보면  이미지를 S×S개의 grid로 나눕니다. 각 grid cell에서 B개의 bounding box의 좌표(x, y, w, h)와 그 bounding box의 confidence score(c)를 예측합니다. 각 grid cell마다 C개의 class probability를 예측합니다. confidence score과 class probability로 최종 score와 class를 결정하고, 이 때 score가 threshold보다 높은 bounding box가 최종 object detection의 결과가 됩니다.">
+<meta property='og:url' content='https://kimberlykang.github.io/ko/p/yolov1_review/'>
+<meta property='og:site_name' content='Kimberly&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv1' /><meta property='article:published_time' content='2023-05-29T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-05-29T00:17:41&#43;09:00'/>
+<meta name="twitter:title" content="YOLOv1 리뷰">
+<meta name="twitter:description" content="본 포스트에서는 2016년 CVPR에 발표된 논문 &ldquo;You Only Look Once: Unified, Real-Time Object Detection&quot;을 살펴보겠습니다. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf 목차  개념 이해 Bounding Box Class Probability Output 네트워크 구조 Loss 테스트  개념 이해 YOLO에서는 이미지에서 object를 찾을 때, grid를 사용합니다. 이를 간략하게 살펴보면  이미지를 S×S개의 grid로 나눕니다. 각 grid cell에서 B개의 bounding box의 좌표(x, y, w, h)와 그 bounding box의 confidence score(c)를 예측합니다. 각 grid cell마다 C개의 class probability를 예측합니다. confidence score과 class probability로 최종 score와 class를 결정하고, 이 때 score가 threshold보다 높은 bounding box가 최종 object detection의 결과가 됩니다.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="메뉴 여닫기">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/ko/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/ko">Kimberly&#39;s Blog</a></h1>
+            <h2 class="site-description">Vision Engineer</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/ko/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/ko/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" >English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" selected>Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>다크 모드</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">목차</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#개념-이해">개념 이해</a></li>
+    <li><a href="#bounding-box">Bounding Box</a></li>
+    <li><a href="#class-probability">Class Probability</a></li>
+    <li><a href="#output">Output</a></li>
+    <li><a href="#네트워크-구조">네트워크 구조</a></li>
+    <li><a href="#loss">Loss</a></li>
+    <li><a href="#테스트">테스트</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/ko/categories/paper-review/" >
+                Paper review
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/ko/p/yolov1_review/">YOLOv1 리뷰</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">5월 29, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 분 정도
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/p/yolov1_review/" class="link">English</a>
+                
+            </div>
+        </footer>
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>본 포스트에서는 2016년 CVPR에 발표된 논문 &ldquo;You Only Look Once: Unified, Real-Time Object Detection&quot;을 살펴보겠습니다.<br>
+<a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
+    >https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf</a></p>
+<h1 id="목차">목차
+</h1><ol>
+<li><a class="link" href="#%ea%b0%9c%eb%85%90-%ec%9d%b4%ed%95%b4" >개념 이해</a></li>
+<li><a class="link" href="#bounding-box" >Bounding Box</a></li>
+<li><a class="link" href="#class-probability" >Class Probability</a></li>
+<li><a class="link" href="#output" >Output</a></li>
+<li><a class="link" href="#%eb%84%a4%ed%8a%b8%ec%9b%8c%ed%81%ac-%ea%b5%ac%ec%a1%b0" >네트워크 구조</a></li>
+<li><a class="link" href="#loss" >Loss</a></li>
+<li><a class="link" href="#%ed%85%8c%ec%8a%a4%ed%8a%b8" >테스트</a></li>
+</ol>
+<h2 id="개념-이해">개념 이해
+</h2><p>YOLO에서는 이미지에서 object를 찾을 때, grid를 사용합니다. 이를 간략하게 살펴보면</p>
+<ul>
+<li>이미지를 <strong>S×S</strong>개의 grid로 나눕니다.</li>
+<li>각 grid cell에서 <strong>B</strong>개의 bounding box의 좌표(x, y, w, h)와 그 bounding box의 confidence score(c)를 예측합니다.</li>
+<li>각 grid cell마다 <strong>C</strong>개의 class probability를 예측합니다.</li>
+<li>confidence score과 class probability로 최종 score와 class를 결정하고, 이 때 score가 threshold보다 높은 bounding box가 최종 object detection의 결과가 됩니다.</li>
+</ul>
+<p><img src="/ko/p/yolov1_review/bboxes.png"
+	width="1186"
+	height="822"
+	srcset="/ko/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_480x0_resize_box_3.png 480w, /ko/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Bounding Box 예측 예시"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="144"
+		data-flex-basis="346px"
+	
+></p>
+<ul>
+<li>위 이미지는 <strong>S=7</strong>, <strong>B=2</strong>일 때 하나의 grid에 대한 예측의 예시입니다.</li>
+<li>각 grid cell마다 bounding box(x, y, w, h, c)를 두 세트씩 예측합니다.</li>
+<li><strong>C=20</strong>일 때, 각 grid cell마다 20개의 class에 대한 class probability를 예측합니다.</li>
+</ul>
+<p>지금까지 YOLO가 어떻게 object를 찾는지 대략적으로 살펴봤습니다. 아래에서는 각 예측값들이 어떻게 계산되고 어떤 의미를 갖는지 살펴보겠습니다.</p>
+<h2 id="bounding-box">Bounding Box
+</h2><p>bounding box는 (x, y, w, h, c)로 이루어져 있습니다.</p>
+<ul>
+<li>(x, y): bounding box <strong>중심의 좌표</strong>.
+<ul>
+<li>각 grid cell마다 B개의 bounding box를 가진다는 의미는, 이 B개의 bounding box의 중심이 해당 grid cell 안에 있다는 의미입니다.</li>
+<li>box의 네 꼭지점은 bounding box 밖에 있어도 상관이 없습니다.</li>
+<li>grid cell 안에서 상대적으로 어느 위치에 있는지를 표시하며, 0~1 사이의 값을 가집니다.</li>
+</ul>
+</li>
+<li>(w, h): bounding box의 <strong>너비, 높이</strong>.
+<ul>
+<li>전체 이미지 너비, 높이에 대해 상대적인 값을 사용하며 0~1 사이의 값을 가집니다.</li>
+</ul>
+</li>
+<li>c: box가 <strong>object를 갖는 것</strong>에 대해 얼마나 확신하고, 그 box의 <strong>좌표가 얼마나 정확한</strong> 가에 대한 값입니다.
+<ul>
+<li>$ Pr(Object) * IOU^{truth}_{pred} $</li>
+<li>좌표가 얼마나 정확한지를 계산할 때에는 <strong>예측한 좌표와 Ground Truth</strong>(<strong>GT</strong>) <strong>사이의 Intersection Over Union</strong>(<strong>IOU</strong>)를 계산합니다.</li>
+</ul>
+</li>
+</ul>
+<h2 id="class-probability">Class Probability
+</h2><ul>
+<li>C: 각 grid cell이 object를 가지고 있을 때의 class probability입니다.
+<ul>
+<li>$ Pr(Class_i|Object) $</li>
+<li>bounding box 갯수와 상관 없이 grid cell마다 한 세트의 class probability만 예측합니다.</li>
+</ul>
+</li>
+</ul>
+<h2 id="output">Output
+</h2><ul>
+<li>이미지를 S×S grid로 나누고, 각 grid마다 B개의 bounding box와 C개 class에 대한 class probability가 있다고 할 때, 최종 output tensor의 shape은 <strong>S×S×</strong>(<strong>B*5+C</strong>)가 됩니다.</li>
+<li>PASCAL VOC 실험 예를 들면, S=7, B=2, C=20입니다. 따라서 총 49개의 grid가 있고, 각 grid cell마다 30개의 예측값을 갖게 됩니다. 아래는 30개의 예측값 중 하나의 예시입니다.
+<ul>
+<li>[x, y, w, h, c, 배경일 확률, 비행기일 확률, &hellip;, 모니터일 확률]</li>
+<li>[0.4, 0.3, 0.8, 0.7, 0.9, 0.003, 0.8, &hellip; , 0.012]</li>
+</ul>
+</li>
+</ul>
+<h2 id="네트워크-구조">네트워크 구조
+</h2><ul>
+<li>GoogLeNet과 유사한 구조를 사용했습니다.
+<img src="/ko/p/yolov1_review/architecture.png"
+	width="670"
+	height="272"
+	srcset="/ko/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_480x0_resize_box_3.png 480w, /ko/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Architecture"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="246"
+		data-flex-basis="591px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
+    ><em>Redmon, Joseph, et al. &ldquo;You only look once: Unified, real-time object detection.&rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 3.</em></a></span></li>
+</ul>
+<h2 id="loss">Loss
+</h2><ul>
+<li>
+<p>sum-squared error를 사용했습니다.</p>
+</li>
+<li>
+<p>$ \lambda_{coor} $, $ \lambda_{noobj} $ 사용</p>
+<ul>
+<li>대부분의 이미지는 object가 있는 grid cell보다 object가 없는 grid cell이 더 많습니다. 그래서 object가 없는 grid cell의 confidence score는 0에 가까워질 때의 gradient가 object가 있는 grid cell의 gradient보다 훨씬 커서 학습 초기에 모델이 diverge 하는 현상이 생길 수 있습니다. 이를 막기 위해, $ \lambda_{coor}=5 $를 사용하여 bounding box 좌표 예측 loss는 증가시키고, $ \lambda_{noobj}=0.5 $를 사용하여 object가 없는 box의 confidence 예측 loss는 감소시켰습니다.</li>
+</ul>
+</li>
+<li>
+<p>$ \sqrt w $, $ \sqrt h $ 예측</p>
+<ul>
+<li>큰 box는 편차가 조금 있어도 크게 상관 없지만 작은 box에는 큰 영향을 끼칩니다. 이 문제를 해결하기 위해 bounding box 너비와 높이 값에 루트를 씌워 줬습니다.</li>
+</ul>
+</li>
+<li>
+<p>각 object에 가장 IOU가 높은 하나의 bounding box predictor만 할당했습니다.</p>
+</li>
+<li>
+<p>Loss function<br>
+$ \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj}  [(x_i-\hat x_i)^2 + (y_i-\hat y_i)^2] $<br>
+$ + \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj}  [(\sqrt{w_i} - \sqrt{\hat w_i})^2 + (\sqrt{h_i} - \sqrt{\hat h_i})^2] $<br>
+$ + \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj} (C_i-\hat C_i)^2 $
+$ + \lambda_{noobj} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{noobj} (C_i-\hat C_i)^2 $<br>
+$ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈classwa}} (p_i(c)-\hat p_i(c))^2 $</p>
+<ul>
+<li>1<sup>obj</sup><sub>i</sub>: cell i에 object가 나타났는지 여부를 의미합니다.</li>
+<li>1<sup>obj</sup><sub>ij</sub>: cell i에 있는 j번째 bounding box가 cell i에 있는 GT에 해당하는 예측값인지 여부입니다. 즉, cell i에 있는 j번째 bounding box가 GT와의 IOU가 가장 큰 지 여부입니다.</li>
+</ul>
+</li>
+</ul>
+<h2 id="테스트">테스트
+</h2><ul>
+<li>$ Pr(Class_i|Object) * Pr(Object) * {IOU}^{truth}_{pred} = Pr({Class}_i) * {IOU}^{truth}_{pred} $</li>
+<li>테스트할 때는 class probability와 confidence score를 곱해서 최종 score를 계산합니다.</li>
+<li>최종 score는 해당 박스에 class가 나타날 확률과 예측한 box가 실제 object에 얼마나 잘 맞는 지 두 가지 의미를 모두 갖고 있습니다.</li>
+<li>아래 그림의 bounding box 선의 굵기가 confidence를 의미합니다. 이 confidence와 class probability를 곱하여 threshold 이상의 결과가 최종 결과가 됩니다.
+<img src="/ko/p/yolov1_review/figure2.png"
+	width="642"
+	height="404"
+	srcset="/ko/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_480x0_resize_box_3.png 480w, /ko/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Image 5"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="158"
+		data-flex-basis="381px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
+    ><em>Redmon, Joseph, et al. &ldquo;You only look once: Unified, real-time object detection.&rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 2.</em></a></span></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/ko/tags/yolov1/">YOLOv1</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">관련 글</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/ko/p/xlnet_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">XLNet 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/bert_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">BERT 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov3_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv3 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv2 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2025 Kimberly&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>로 만듦 <br />
+        <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>의 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> 테마 사용 중
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

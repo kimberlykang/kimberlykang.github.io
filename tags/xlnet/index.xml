@@ -5,102 +5,102 @@
         <link>https://kimberlykang.github.io/tags/xlnet/</link>
         <description>Recent content in XLNet on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
-        <language>ko-kr</language>
+        <language>en-us</language>
         <lastBuildDate>Thu, 31 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/xlnet/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>XLNet 리뷰</title>
+        <title>XLNet Review</title>
         <link>https://kimberlykang.github.io/p/xlnet_review/</link>
         <pubDate>Thu, 31 Aug 2023 00:17:41 +0900</pubDate>
         
         <guid>https://kimberlykang.github.io/p/xlnet_review/</guid>
-        <description>&lt;p&gt;본 포스트에서는 2019년 Google이 발표한 &amp;ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&amp;quot;을 살펴보겠습니다.&lt;br&gt;
+        <description>&lt;p&gt;In this post, we’ll look at &lt;strong&gt;&amp;ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&amp;rdquo;&lt;/strong&gt;, published by Google in 2019.&lt;br&gt;
 &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://arxiv.org/pdf/1906.08237.pdf&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&#34;목차&#34;&gt;목차&lt;/h1&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#autoregressive-vs-auto-encoding&#34; &gt;AutoRegressive vs. Auto Encoding &lt;/a&gt;&lt;/li&gt;
+&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#autoregressive-vs-autoencoding&#34; &gt;AutoRegressive vs. AutoEncoding&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#permutation-language-modeling&#34; &gt;Permutation Language Modeling&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#two-stream-self-attention&#34; &gt;Two-Stream Self-Attention&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h2 id=&#34;autoregressive-vs-auto-encoding&#34;&gt;AutoRegressive vs. Auto Encoding&lt;/h2&gt;
-&lt;h3 id=&#34;autoregressive-ar-lauguage-modeling&#34;&gt;AutoRegressive (AR) Lauguage Modeling&lt;/h3&gt;
+&lt;h2 id=&#34;autoregressive-vs-autoencoding&#34;&gt;AutoRegressive vs. AutoEncoding
+&lt;/h2&gt;&lt;h3 id=&#34;autoregressive-ar-language-modeling&#34;&gt;AutoRegressive (AR) Language Modeling
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Given an input token sequence, predicts the next token.&lt;/li&gt;
+&lt;li&gt;Pre-training maximizes the following likelihood:
 &lt;ul&gt;
-&lt;li&gt;input token sequence가 주어졌을 때, 다음 token을 예측합니다.&lt;/li&gt;
-&lt;li&gt;아래 likelihood를 최대화하도록 pre-training합니다.
-&lt;ul&gt;
-&lt;li&gt;$ \underset{θ}{max} \log p_θ ({\bf x} )
+&lt;li&gt;$ \underset{θ}{\max} \log p_θ ({\bf x} )
 = \displaystyle{\sum_{t=1}^{T}} \log p_θ (x_t | {\bf x_{\rm &amp;lt; t}})
 = \displaystyle{\sum_{t=1}^{T}} \log \frac{exp(h_θ({\bf x_{\rm 1:t-1}})_t^{\top} e(x_t))}{ \sum _{x&#39;} exp(h_θ({\bf x _{\rm 1:t-1}})^{\top} e(x&#39;))}
 $
 &lt;ul&gt;
 &lt;li&gt;$ {\bf x} = [x_1, &amp;hellip;, x_T]$: text sequence&lt;/li&gt;
-&lt;li&gt;$ h_θ({\bf x _{\rm 1:t-1}}) $: RNNs, Transformer와 같은 neural model을 통해서 얻은 context representation&lt;/li&gt;
-&lt;li&gt;$ e(x) $: x의 embedding&lt;/li&gt;
-&lt;li&gt;exp는 softmax를 위해 사용되었습니다.&lt;/li&gt;
-&lt;li&gt;각 단어는 그 단어 이전에 나온 단어들을 보고 예측이 됩니다.&lt;/li&gt;
+&lt;li&gt;$ h_θ({\bf x _{\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers&lt;/li&gt;
+&lt;li&gt;$ e(x) $: embedding of x&lt;/li&gt;
+&lt;li&gt;exp is used for softmax&lt;/li&gt;
+&lt;li&gt;Each word is predicted by referring only to the words that come before it.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;auto-encodingae&#34;&gt;Auto Encoding(AE)&lt;/h3&gt;
+&lt;h3 id=&#34;autoencoding-ae&#34;&gt;AutoEncoding (AE)
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Example: BERT&lt;/li&gt;
+&lt;li&gt;Randomly masks some tokens in the input sequence, and predicts the original tokens for those masked positions.&lt;/li&gt;
+&lt;li&gt;Pre-training maximizes the following likelihood:
 &lt;ul&gt;
-&lt;li&gt;ex) BERT&lt;/li&gt;
-&lt;li&gt;input sequence의 일부 token을 mask한 뒤, mask된 token의 원래 token을 예측합니다.&lt;/li&gt;
-&lt;li&gt;아래 likelihood를 최대화하도록 pre-training합니다.
-&lt;ul&gt;
-&lt;li&gt;$ \underset{θ}{max} \log p_θ ({\bf \bar x} | {\bf \hat x})
+&lt;li&gt;$ \underset{θ}{\max} \log p_θ ({\bf \bar x} | {\bf \hat x})
 ≈ \displaystyle{\sum_{t=1}^{T}}m_t \log p_θ (x_t | {\bf \hat x})
 = \displaystyle{\sum_{t=1}^{T}}m_t \log \frac{exp(H_θ({\bf \hat x})_t^{\top} e(x_t))}{ \sum _{x&#39;} exp(H_θ({\bf \hat x})_t^{\top} e(x&#39;))}
 $
 &lt;ul&gt;
 &lt;li&gt;$ {\bf x} = [x_1, &amp;hellip;, x_T]$: text sequence&lt;/li&gt;
-&lt;li&gt;$ {\bf \hat x} $: random하게 $ {\bf x}$의 token을 [MASK]으로 바꾼 corrupted version&lt;/li&gt;
-&lt;li&gt;$ {\bf \bar x} $: masked token&lt;/li&gt;
-&lt;li&gt;$ m_t=1 $: $x_t$가 masked&lt;/li&gt;
-&lt;li&gt;$ H_θ $: text sequence를 hidden vector로 매핑하는 Transformer&lt;/li&gt;
-&lt;li&gt;$ e(x) $: x의 embedding&lt;/li&gt;
-&lt;li&gt;exp는 softmax를 위해 사용되었습니다.&lt;/li&gt;
-&lt;li&gt;approximate factorization입니다.&lt;/li&gt;
+&lt;li&gt;$ {\bf \hat x} $: corrupted version where some tokens from $ {\bf x} $ are randomly replaced with [MASK]&lt;/li&gt;
+&lt;li&gt;$ {\bf \bar x} $: masked tokens&lt;/li&gt;
+&lt;li&gt;$ m_t=1 $ if $x_t$ is masked&lt;/li&gt;
+&lt;li&gt;$ H_θ $: Transformer that maps text sequence to hidden vectors&lt;/li&gt;
+&lt;li&gt;$ e(x) $: embedding of x&lt;/li&gt;
+&lt;li&gt;exp is used for softmax&lt;/li&gt;
+&lt;li&gt;This is an approximate factorization.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;학습 목표는 $ {\bf \hat x} $로부터 $ {\bf \bar x} $를 복원하는 것입니다.&lt;/li&gt;
+&lt;li&gt;The training objective is to recover $ {\bf \bar x} $ from $ {\bf \hat x} $.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;permutation-language-modeling&#34;&gt;Permutation Language Modeling&lt;/h2&gt;
-&lt;h3 id=&#34;independence-assumption&#34;&gt;Independence Assumption&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;BERT에서는 모든 masked token들은 독립적이라고 가정하고, 따로 예측을 합니다.&lt;/li&gt;
-&lt;li&gt;ex) [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;city&lt;/code&gt;]에서 [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;]를 prediction target이라고 할 때 BERT와 XLNet의 objectives는 아래와 같습니다.
+&lt;h2 id=&#34;permutation-language-modeling&#34;&gt;Permutation Language Modeling
+&lt;/h2&gt;&lt;h3 id=&#34;independence-assumption&#34;&gt;Independence Assumption
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;In BERT, all masked tokens are predicted independently.&lt;/li&gt;
+&lt;li&gt;For example, given [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;city&lt;/code&gt;] and [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;] as prediction targets, the objectives for BERT and XLNet are:
 &lt;ul&gt;
 &lt;li&gt;$ {\cal J}_{BERT} = \log p(\text{New} | \text{is a city}) + \log p(\text{York} | \text{is a city})$&lt;/li&gt;
 &lt;li&gt;$ {\cal J}_{XLNet} = \log p(\text{New} | \text{is a city}) + \log p(\text{York} | \textcolor{red}{\text{New}} \text{, is a city})$&lt;/li&gt;
-&lt;li&gt;BERT에서 &lt;code&gt;York&lt;/code&gt;의 예측은 &lt;code&gt;New&lt;/code&gt;의 예측에 independent합니다.&lt;/li&gt;
-&lt;li&gt;BERT에서는 (&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;) 사이의 dependency를 찾지 못하지만, XLNet은 이를 고려하여 학습합니다.&lt;/li&gt;
-&lt;li&gt;AutoRegressive를 사용하면 [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;]를 보고 &lt;code&gt;a&lt;/code&gt;를 예측해야 합니다. XLNet은 이러한 한계를 순열을 사용하여 극복합니다.&lt;/li&gt;
+&lt;li&gt;In BERT, the prediction for ‘York’ is independent of ‘New’.&lt;/li&gt;
+&lt;li&gt;BERT cannot model the dependency between (‘New’, ‘York’), but XLNet considers these dependencies during training.&lt;/li&gt;
+&lt;li&gt;Using AutoRegressive, you’d have to predict ‘a’ after seeing [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;]. XLNet overcomes such limitations through permutation.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;permutation-language-modeling-objective&#34;&gt;Permutation Language Modeling Objective&lt;/h3&gt;
+&lt;h3 id=&#34;permutation-language-modeling-objective&#34;&gt;Permutation Language Modeling Objective
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;For a sequence x of length T, there are T! possible orders.&lt;/li&gt;
+&lt;li&gt;By sharing parameters across all factorization orders, the model can learn information in both directions at all positions.&lt;/li&gt;
+&lt;li&gt;Without the independence assumption; and since [MASK] is not used, there is no pretrain-finetune discrepancy.&lt;/li&gt;
+&lt;li&gt;Only the factorization order is permuted; the input sequence order remains unchanged, so positional encoding is based on the original sequence order.&lt;/li&gt;
+&lt;li&gt;The objective:
 &lt;ul&gt;
-&lt;li&gt;길이가 T인 sequence x에 대해 T!개의 각기 다른 순서가 존재합니다.&lt;/li&gt;
-&lt;li&gt;모든 factorization 순서에 대해 parameter를 공유함으로써 모델은 모든 위치에서 양 방향의 정보를 학습하게 됩니다.&lt;/li&gt;
-&lt;li&gt;independence assumption을 하지 않고, &lt;code&gt;[MASK]&lt;/code&gt;를 사용하지 않기 때문에 pretrain-finetune discrepancy도 없게 됩니다.&lt;/li&gt;
-&lt;li&gt;factorization order에만 순열을 사용하고 sequence order는 기존 순서를 사용합니다. 즉, positional encoding는 기존 sequence order에 따라 이루어집니다.&lt;/li&gt;
-&lt;li&gt;objective는 아래와 같습니다.
-&lt;ul&gt;
-&lt;li&gt;$ \underset{θ}{max} \Bbb E_{{\bf z} \sim \cal Z_t} [\displaystyle{\sum_{t=1}^{T}} \log p_θ (x_{z_t} | {\bf x_{z \rm &amp;lt; t}})] $&lt;/li&gt;
-&lt;li&gt;$ \cal Z_t $: 가능한 모든 순열입니다.&lt;/li&gt;
-&lt;li&gt;$ z_t $: 순열의 t번째 값입니다.&lt;/li&gt;
-&lt;li&gt;factorization order $ {\bf z} $를 샘플링한 후 factorization order에 따라 likelihood $ \log p_θ $를 계산합니다.&lt;/li&gt;
+&lt;li&gt;$ \underset{θ}{\max} \Bbb E_{{\bf z} \sim \cal Z_t} [\displaystyle{\sum_{t=1}^{T}} \log p_θ (x_{z_t} | {\bf x_{z \rm &amp;lt; t}})] $&lt;/li&gt;
+&lt;li&gt;$ \cal Z_t $: all possible permutations.&lt;/li&gt;
+&lt;li&gt;$ z_t $: the t-th value in the permutation.&lt;/li&gt;
+&lt;li&gt;After sampling a factorization order ${\bf z}$, likelihood $ \log p_θ $ is computed according to that order.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;ex) New York is a city
+&lt;li&gt;Example: New York is a city
 &lt;ul&gt;
-&lt;li&gt;순열 1: [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;city&lt;/code&gt;]. &lt;code&gt;New&lt;/code&gt; -&amp;gt; &lt;code&gt;York&lt;/code&gt; -&amp;gt;&lt;code&gt;is&lt;/code&gt; 를 보고 &lt;code&gt;a&lt;/code&gt;를 예측합니다.&lt;/li&gt;
-&lt;li&gt;순열 2: [&lt;code&gt;city&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;New&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;]. &lt;code&gt;city&lt;/code&gt; -&amp;gt; &lt;code&gt;York&lt;/code&gt; -&amp;gt; &lt;code&gt;New&lt;/code&gt; -&amp;gt; &lt;code&gt;is&lt;/code&gt;를 보고 &lt;code&gt;a&lt;/code&gt;를 예측합니다.&lt;/li&gt;
-&lt;li&gt;위치상으로 &lt;code&gt;a&lt;/code&gt; 뒤에 있는 &lt;code&gt;city&lt;/code&gt;를 보고 &lt;code&gt;a&lt;/code&gt;를 예측하게 됩니다.&lt;/li&gt;
-&lt;li&gt;순열을 사용함으로써 bidirectional context를 학습하게 됩니다.&lt;/li&gt;
+&lt;li&gt;Permutation 1: [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;city&lt;/code&gt;]. After seeing &lt;code&gt;New&lt;/code&gt; → &lt;code&gt;York&lt;/code&gt; → &lt;code&gt;is&lt;/code&gt;, predict &lt;code&gt;a&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Permutation 2: [&lt;code&gt;city&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;New&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;]. After seeing &lt;code&gt;city&lt;/code&gt; → &lt;code&gt;York&lt;/code&gt; → &lt;code&gt;New&lt;/code&gt; → &lt;code&gt;is&lt;/code&gt;, predict &lt;code&gt;a&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;The model can see &lt;code&gt;city&lt;/code&gt; (which comes after &lt;code&gt;a&lt;/code&gt; in the sequence) and use it to predict &lt;code&gt;a&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;By using permutations, the model learns bidirectional context.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -118,16 +118,16 @@ $
 		data-flex-basis=&#34;316px&#34;
 	
 &gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;em&gt;Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;위의 순열로 뽑은 factorization order에 따른 $ \log p_θ $를 구한 뒤 expectation을 구합니다.&lt;/li&gt;
-&lt;li&gt;mem는 transformer XL의 특징으로 긴 sequence 학습이 가능하게 해 주는 것으로 gradient가 적용이 안 됩니다.&lt;/li&gt;
+&lt;li&gt;After calculating $ \log p_θ $ with the given factorization order sampled by permutation, the expectation is computed.&lt;/li&gt;
+&lt;li&gt;‘mem’ is a feature of Transformer-XL, which enables learning of long sequences; gradients are not applied to it.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;two-stream-self-attention&#34;&gt;Two-Stream Self-Attention&lt;/h2&gt;
-&lt;h3 id=&#34;target-position을-고려한-re-parameterization&#34;&gt;Target Position을 고려한 Re-parameterization&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;기존 transformer 사용시 t까지 순서가 동일하고 t에서의 순서는 다른 순열 $ {\bf z}^{(1)} $, $ {\bf z}^{(2)} $가 있을 때, 기존의 방법을 사용하면 아래와 같은 문제가 발생합니다.
+&lt;h2 id=&#34;two-stream-self-attention&#34;&gt;Two-Stream Self-Attention
+&lt;/h2&gt;&lt;h3 id=&#34;re-parameterization-considering-target-position&#34;&gt;Re-parameterization Considering Target Position
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;In a vanilla transformer, if two permutations $ {\bf z}^{(1)} $ and $ {\bf z}^{(2)} $ are identical up to position t, but differ at t, the following problem arises:
 &lt;img src=&#34;https://kimberlykang.github.io/p/xlnet_review/problems_original_transformer.png&#34;
 	width=&#34;1188&#34;
 	height=&#34;166&#34;
@@ -143,36 +143,36 @@ $
 	
 &gt;
 &lt;ul&gt;
-&lt;li&gt;$ {\bf z}^{(1)}_t $, $ {\bf z}^{(2)}_t $ 값이 달라 서로 다른 target position을 갖고 따라서 다른 ground-truth를 갖지만, 동일한 model prediction을 하게 됩니다.&lt;/li&gt;
+&lt;li&gt;$ {\bf z}^{(1)}_t $ and $ {\bf z}^{(2)}_t $ have different target positions and ground truths, but yield the same model prediction.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;$ {\bf x_{z \rm &amp;lt; t}} $와 함께 target position $ z_t $를 추가로 input으로 받는 새로운 representation $ g_θ({\bf x_{z \rm &amp;lt; t}}, z_t) $를 사용하여 아래와 같이 prediction을 합니다.
+&lt;li&gt;To address this, instead of only using $ {\bf x_{z \rm &amp;lt; t}} $, XLNet introduces a new representation $ g_θ({\bf x_{z \rm &amp;lt; t}}, z_t) $ that also receives the target position $ z_t $ as input:
 &lt;ul&gt;
 &lt;li&gt;$ p_θ (X_{x_{z_t}}=x | x_{z &amp;lt; t}) = \frac{exp(e(x)^{\top} g_θ({\bf x_{z \rm &amp;lt; t}}, z_t))}{ \sum _{x&#39;} exp(e(x&#39;)^{\top} g_θ({\bf x _{z \rm &amp;lt; t}}, z_t) )}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;두-개의-hidden-representation을-사용&#34;&gt;두 개의 hidden representation을 사용&lt;/h3&gt;
+&lt;h3 id=&#34;using-two-hidden-representations&#34;&gt;Using Two Hidden Representations
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;For $ g_θ({\bf x_{z &amp;lt; t}}, z_t) $:
 &lt;ul&gt;
-&lt;li&gt;$ g_θ({\bf x _{z \rm &amp;lt; t}}, z_t) $의 조건
-&lt;ul&gt;
-&lt;li&gt;content $ x_{z_t} $를 사용하면 학습이 일어나지 않기 때문에, content $ x_{z_t} $는 사용하지 않고 position $ z_t $만 사용해야 합니다.&lt;/li&gt;
-&lt;li&gt;j&amp;gt;t인 $ x_{z_j} $를 예측하기 위해서는 content $ x_{z_t}$는 사용하지 않지만 contextual information을 갖고 있긴 해야 합니다.&lt;/li&gt;
+&lt;li&gt;If the content $ x_{z_t} $ is used, no learning will occur, so only the position $ z_t $ is used, not the content $ x_{z_t} $.&lt;/li&gt;
+&lt;li&gt;To predict $ x_{z_j} $ for $j&amp;gt;t$, the content $ x_{z_t}$ is not used, but the contextual information must be available.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;hidden representation
+&lt;li&gt;Hidden representations:
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;content representation&lt;/strong&gt; $ h_θ({\bf x_{z \rm ≤ t}}) $: 기존 Transformer의 hidden state와 비슷한 역할을 합니다. context와 $ x_{z_t} $를 모두 encode합니다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;query representation&lt;/strong&gt; $ g_θ({\bf x_{z \rm &amp;lt; t}}, z_t) $ t 이전의 contextual information과 position $ z_t $를 encode합니다.&lt;/li&gt;
-&lt;li&gt;$ h_i^{(0)}=e(x_i) $. content stream은 첫 layer는 word embedding입니다.&lt;/li&gt;
-&lt;li&gt;$ g_i^{(0)}=w $. query stream은 첫 layer는 학습이 되는 vector로 initialize 됩니다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Content representation&lt;/strong&gt; $ h_θ({\bf x_{z \leq t}}) $: Acts similarly to the hidden state in a standard Transformer, encoding both the context and $ x_{z_t} $.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Query representation&lt;/strong&gt; $ g_θ({\bf x_{z &amp;lt; t}}, z_t) $: Encodes the contextual information prior to $ t $ and the position $ z_t $.&lt;/li&gt;
+&lt;li&gt;$ h_i^{(0)}=e(x_i) $. For the content stream, the first layer is the word embedding.&lt;/li&gt;
+&lt;li&gt;$ g_i^{(0)}=w $. For the query stream, the first layer is initialized as a learnable vector.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;update
+&lt;li&gt;Update:
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;query stream&lt;/strong&gt;: $ g_{z_t}^{(m)} ← Attention(Q=g_{z_t}^{(m-1)}, KV=h_\textcolor{red}{{\bf z} &amp;lt; t}^{(m-1)}; θ)$&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;content stream&lt;/strong&gt;: $ h_{z_t}^{(m)} ← Attention(Q=h_{z_t}^{(m-1)}, KV=h_\textcolor{red}{{\bf z} ≤ t}^{(m-1)}; θ)$&lt;/li&gt;
-&lt;li&gt;query stream에서는  &lt;code&gt;$z_t$&lt;/code&gt;는 사용하지만, &lt;code&gt;$ x_{z_t} $&lt;/code&gt;는 사용하지 않습니다. 반면에 content stream에서는 &lt;code&gt;$z_t$&lt;/code&gt;, &lt;code&gt;$ x_{z_t} $&lt;/code&gt; 둘 다 사용합니다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Query stream&lt;/strong&gt;: $ g_{z_t}^{(m)} \leftarrow \text{Attention}(Q=g_{z_t}^{(m-1)}, KV=h_{{\bf z} &amp;lt; t}^{(m-1)}; θ)$&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Content stream&lt;/strong&gt;: $ h_{z_t}^{(m)} \leftarrow \text{Attention}(Q=h_{z_t}^{(m-1)}, KV=h_{{\bf z} \leq t}^{(m-1)}; θ)$&lt;/li&gt;
+&lt;li&gt;In the query stream, &lt;code&gt;$z_t$&lt;/code&gt; is used, but &lt;code&gt;$ x_{z_t} $&lt;/code&gt; is not. On the other hand, in the content stream, both &lt;code&gt;$z_t$&lt;/code&gt; and &lt;code&gt;$ x_{z_t} $&lt;/code&gt; are used.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -190,14 +190,14 @@ $
 		data-flex-basis=&#34;521px&#34;
 	
 &gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;em&gt;Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;factorization order이 3 -&amp;gt; 2 -&amp;gt; 4 -&amp;gt; 1일 때,&lt;/li&gt;
-&lt;li&gt;다음 layer의 $h_3^{(1)}$ 자기 자신을 포함한 이전 시점의 이전 layer를 attend합니다. 즉, $h_1^{(0)}, h_2^{(0)}, h_3^{(0)}$을 attend 합니다.&lt;/li&gt;
-&lt;li&gt;다음 layer의 $g_3^{(1)}$ 이전 시점의 이전 layer만을 attend합니다. 즉, $h_1^{(0)}, h_2^{(0)}$을 attend 합니다.&lt;/li&gt;
-&lt;li&gt;마지막 layer에서는 g에서 token을 예측합니다.&lt;/li&gt;
-&lt;li&gt;위와 같은 attention 방식으로 인해 prediction layer에서는 현재 word embedding의 정보를 직접적으로 얻지 못하기 때문에 학습이 잘 됩니다.&lt;/li&gt;
+&lt;li&gt;When the factorization order is 3 → 2 → 4 → 1:&lt;/li&gt;
+&lt;li&gt;In the next layer, $h_3^{(1)}$ attends to all previous layer states up to and including itself; i.e., it attends to $h_1^{(0)}, h_2^{(0)}, h_3^{(0)}$.&lt;/li&gt;
+&lt;li&gt;In the next layer, $g_3^{(1)}$ only attends to prior positions in the previous layer; i.e., $h_1^{(0)}, h_2^{(0)}$.&lt;/li&gt;
+&lt;li&gt;In the final layer, predictions are made from &lt;code&gt;g&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;With this attention mechanism, the prediction layer cannot access the current word embedding directly, which encourages better learning.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/xlnet_review/content_stream.png&#34;
 	width=&#34;755&#34;
@@ -213,7 +213,7 @@ $
 		data-flex-basis=&#34;194px&#34;
 	
 &gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;em&gt;Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 5.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;br&gt;
 &lt;img src=&#34;https://kimberlykang.github.io/p/xlnet_review/query_stream.png&#34;
 	width=&#34;756&#34;
@@ -229,7 +229,7 @@ $
 		data-flex-basis=&#34;194px&#34;
 	
 &gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;em&gt;Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 6.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
 </description>
         </item>

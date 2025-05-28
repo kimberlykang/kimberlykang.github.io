@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko-kr" dir="ltr">
+<html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='본 포스트에서는 2018년 Google이 발표한 &amp;ldquo;BERT : Pre-training of Deep Bidirectional Trnasformers for Language Understanding&amp;quot;을 살펴보겠습니다. https://arxiv.org/pdf/1810.04805.pdf 목차 모델 구조 Input Pre-training Fine-tuning 네'>
-<title>BERT 리뷰</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we’ll take a look at &ldquo;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding&rdquo;, published by Google in 2018. https://arxiv.org/pdf/1810.04805.pdf Table of Contents  Model Architecture Input Pre-training Fine-tuning Network Structure Training Testing  Model Architecture Source: Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 3.   GPT: Uses a left-to-right Transformer.   ELMo: Trains left-to-right and right-to-left LSTMs separately and then concatenates them.">
+<title>BERT Review</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/bert_review/'>
 
-<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='BERT 리뷰'>
-<meta property='og:description' content='본 포스트에서는 2018년 Google이 발표한 &amp;ldquo;BERT : Pre-training of Deep Bidirectional Trnasformers for Language Understanding&amp;quot;을 살펴보겠습니다. https://arxiv.org/pdf/1810.04805.pdf 목차 모델 구조 Input Pre-training Fine-tuning 네'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="BERT Review">
+<meta property='og:description' content="In this post, we’ll take a look at &ldquo;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding&rdquo;, published by Google in 2018. https://arxiv.org/pdf/1810.04805.pdf Table of Contents  Model Architecture Input Pre-training Fine-tuning Network Structure Training Testing  Model Architecture Source: Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 3.   GPT: Uses a left-to-right Transformer.   ELMo: Trains left-to-right and right-to-left LSTMs separately and then concatenates them.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/bert_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='BERT' /><meta property='article:published_time' content='2023-08-02T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-08-02T00:17:41&#43;09:00'/>
-<meta name="twitter:title" content="BERT 리뷰">
-<meta name="twitter:description" content="본 포스트에서는 2018년 Google이 발표한 &amp;ldquo;BERT : Pre-training of Deep Bidirectional Trnasformers for Language Understanding&amp;quot;을 살펴보겠습니다. https://arxiv.org/pdf/1810.04805.pdf 목차 모델 구조 Input Pre-training Fine-tuning 네">
+<meta name="twitter:title" content="BERT Review">
+<meta name="twitter:description" content="In this post, we’ll take a look at &ldquo;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding&rdquo;, published by Google in 2018. https://arxiv.org/pdf/1810.04805.pdf Table of Contents  Model Architecture Input Pre-training Fine-tuning Network Structure Training Testing  Model Architecture Source: Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 3.   GPT: Uses a left-to-right Transformer.   ELMo: Trains left-to-right and right-to-left LSTMs separately and then concatenates them.">
     </head>
     <body class="
     article-page
@@ -153,12 +153,35 @@
             </a>
         </li>
         
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
 
-        <div class="menu-bottom-section">
-            
-            
-                <li id="dark-mode-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="8" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -166,7 +189,7 @@
 
 
 
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="16" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -174,10 +197,11 @@
 
 
 
-                    <span>Dark Mode</span>
-                </li>
-            
-        </div>
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
     </ol>
 </aside>
 
@@ -203,12 +227,12 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#모델-구조">모델 구조</a></li>
+    <li><a href="#model-architecture">Model Architecture</a></li>
     <li><a href="#input">Input</a></li>
     <li><a href="#pre-training">Pre-training</a>
       <ol>
-        <li><a href="#task1-masked-lmmlm">Task1: Masked LM(MLM)</a></li>
-        <li><a href="#task2-next-sentence-predictionnsp">Task2: Next Sentence Prediction(NSP)</a></li>
+        <li><a href="#task-1-masked-lm-mlm">Task 1: Masked LM (MLM)</a></li>
+        <li><a href="#task-2-next-sentence-prediction-nsp">Task 2: Next Sentence Prediction (NSP)</a></li>
       </ol>
     </li>
     <li><a href="#fine-tuning">Fine-tuning</a>
@@ -246,7 +270,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/bert_review/">BERT 리뷰</a>
+            <a href="/p/bert_review/">BERT Review</a>
         </h2>
     
         
@@ -291,6 +315,25 @@
     
 
     
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/bert_review/" class="link">Korean</a>
+                
+            </div>
+        </footer>
+    
 </div>
 
 </header>
@@ -298,27 +341,27 @@
     <section class="article-content">
     
     
-    <p>본 포스트에서는 2018년 Google이 발표한 &ldquo;BERT : Pre-training of Deep Bidirectional Trnasformers for Language Understanding&quot;을 살펴보겠습니다.<br>
+    <p>In this post, we’ll take a look at <strong>&ldquo;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding&rdquo;</strong>, published by Google in 2018.<br>
 <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     >https://arxiv.org/pdf/1810.04805.pdf</a></p>
-<h1 id="목차">목차</h1>
-<ol>
-<li><a class="link" href="#%eb%aa%a8%eb%8d%b8-%ea%b5%ac%ec%a1%b0" >모델 구조</a></li>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
+<li><a class="link" href="#model-architecture" >Model Architecture</a></li>
 <li><a class="link" href="#input" >Input</a></li>
 <li><a class="link" href="#pre-training" >Pre-training</a></li>
 <li><a class="link" href="#fine-tuning" >Fine-tuning</a></li>
-<li><a class="link" href="#%eb%84%a4%ed%8a%b8%ec%9b%8c%ed%81%ac-%ea%b5%ac%ec%a1%b0" >네트워크 구조</a></li>
-<li><a class="link" href="#%ed%95%99%ec%8a%b5" >학습</a></li>
-<li><a class="link" href="#%ed%85%8c%ec%8a%a4%ed%8a%b8" >테스트</a></li>
+<li><a class="link" href="#network-structure" >Network Structure</a></li>
+<li><a class="link" href="#training" >Training</a></li>
+<li><a class="link" href="#testing" >Testing</a></li>
 </ol>
-<h2 id="모델-구조">모델 구조</h2>
-<p><img src="/p/bert_review/bert_gpt_elmo.png"
+<h2 id="model-architecture">Model Architecture
+</h2><p><img src="/p/bert_review/bert_gpt_elmo.png"
 	width="1495"
 	height="346"
 	srcset="/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_480x0_resize_box_3.png 480w, /p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="BERT, GPT, ELMO 비교"
+		alt="BERT, GPT, ELMO Comparison"
 	
 	
 		class="gallery-image" 
@@ -326,41 +369,41 @@
 		data-flex-basis="1036px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 3.</em></a></span></p>
 <ul>
 <li>
-<p><strong>GPT</strong>: left-to-right Transformer를 사용합니다.</p>
+<p><strong>GPT</strong>: Uses a left-to-right Transformer.</p>
 </li>
 <li>
-<p><strong>ELMo</strong>: left-to-right LSTM, right-to-left LSTM을 따로 학습 후, concatenate해서 사용합니다. feature-based approach입니다.</p>
+<p><strong>ELMo</strong>: Trains left-to-right and right-to-left LSTMs separately and then concatenates them. This is a feature-based approach.</p>
 </li>
 <li>
 <p><strong>BERT</strong></p>
 <ul>
-<li>bi-directional transformer를 사용합니다.</li>
-<li>예측을 하지 않고 자기 자신의 token을 참조할 수 있는 bi-directional 모델의 문제점을 두 가지 pre-training task로 극복합니다.</li>
-<li>parameter 갯수는 BERT base가 110M, BERT large가 340M입니다.</li>
+<li>Uses a bi-directional Transformer.</li>
+<li>Overcomes the challenge of a bi-directional model referencing its own token (which makes naive predictions impossible) by introducing two pre-training tasks.</li>
+<li>BERT base has 110M parameters, and BERT large has 340M parameters.</li>
 </ul>
 </li>
 <li>
-<p><strong>GPT</strong>와 <strong>BERT</strong>의 차이점</p>
+<p>Differences between <strong>GPT</strong> and <strong>BERT</strong>:</p>
 <ul>
-<li>GPT는 BooksCorpus(800M 단어)로만 학습하고, BERT는 BooksCorpus와 Wikipedia(2,500M 단어)로 학습했습니다.</li>
-<li>GPT는 <code>[SEP]</code>와 <code>[CLS]</code>를 fine-tuning에서만 사용했고, BERT는 <code>[SEP]</code>, <code>[CLS]</code>, sentence A/B embedding을 pre-training에도 사용했습니다.</li>
-<li>GPT는 32,000 단어의 batch size로 1M step을 학습했고, BERT는 128,000 단어의 batch size로 1M step을 학습했습니다.</li>
-<li>GPT는 전체 fine-tuning 실험에서 동일한 learning rate를 사용했고, BERT는 task-specific한 learning rate을 사용했습니다.</li>
+<li>GPT was trained only on BooksCorpus (800M words), while BERT used both BooksCorpus and Wikipedia (2,500M words).</li>
+<li>GPT used <code>[SEP]</code> and <code>[CLS]</code> tokens only for fine-tuning, but BERT also used these in pre-training, along with sentence A/B embeddings.</li>
+<li>GPT was trained for 1M steps with a batch size of 32,000 words; BERT was trained for the same number of steps, but with a batch size of 128,000 words.</li>
+<li>GPT used the same learning rate for all fine-tuning tasks, while BERT used task-specific learning rates.</li>
 </ul>
 </li>
 </ul>
-<h2 id="input">Input</h2>
-<p><img src="/p/bert_review/input.png"
+<h2 id="input">Input
+</h2><p><img src="/p/bert_review/input.png"
 	width="863"
 	height="263"
 	srcset="/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_480x0_resize_box_3.png 480w, /p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="Input 구성 요소"
+		alt="Input Composition"
 	
 	
 		class="gallery-image" 
@@ -368,36 +411,36 @@
 		data-flex-basis="787px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 2.</em></a></span></p>
 <ul>
-<li>Token embeddings
+<li>Token embeddings:
 <ul>
-<li>WordPiece embedding을 사용합니다.(We use WordPiece emgeddings with a 30,000 token vocabulary.)</li>
-<li>vocab_size=30522로 522개는 빈 토큰인 것으로 보입니다.</li>
-<li><code>[CLS]</code>: 모든 sequence는 <code>[CLS]</code> token으로 시작하며, classification task에 사용됩니다.</li>
-<li><code>[SEP]</code>: Sequence 안의 sentence를 나누기 위해서 사용됩니다.</li>
+<li>Uses WordPiece embeddings (with a 30,000 token vocabulary).</li>
+<li>The vocab_size is 30,522 (it looks like 522 tokens are reserved/unused).</li>
+<li><code>[CLS]</code>: Every sequence starts with a <code>[CLS]</code> token, which is used for classification tasks.</li>
+<li><code>[SEP]</code>: Used to separate sentences within a sequence.</li>
 </ul>
 </li>
-<li>Segment Embeddings: 첫 번째 sentence인지 두 번째 sentence인지 구분하기 위해 사용됩니다.</li>
-<li>Position Embeddings: 각 토큰이 얼마나 떨어져 있는지 나타내기 위해 사용됩니다.</li>
+<li>Segment Embeddings: Distinguishes between the first sentence and the second sentence.</li>
+<li>Position Embeddings: Indicates the positional distance of each token.</li>
 </ul>
-<h2 id="pre-training">Pre-training</h2>
-<ul>
+<h2 id="pre-training">Pre-training
+</h2><ul>
 <li>
-<p>unlabled data를 사용하여 두 가지 unsupervised task를 학습합니다.</p>
-<h3 id="task1-masked-lmmlm">Task1: Masked LM(MLM)</h3>
-<ul>
-<li>전체 input token의 15%를 random하게 mask한 뒤, 이에 해당하는 마지막 hidden vector가 전체 vocabulary에 대한 softmax를 수행합니다.</li>
-<li>fine-tuning에서는 <code>[MASK]</code> token이 없기 때문에, mask하도록 선택된 15% 중, 80%는 <code>[MASK]</code> token으로 바꾸고, 10%는 random한 다른 token으로 바꾸며 나머지 10%는 바꾸지 않은 채 예측을 합니다.</li>
-<li>아래 그림은 sequence &quot;my dog is cutep [SEP] he likes play ###ing[SEP]&quot;에 mask 적용 후 예측을 하는 그림입니다.<br>
+<p>Pre-training uses unlabeled data with two unsupervised tasks.</p>
+<h3 id="task-1-masked-lm-mlm">Task 1: Masked LM (MLM)
+</h3><ul>
+<li>Randomly masks 15% of the input tokens, then predicts those masked tokens using a softmax over the vocabulary based on the final hidden vector.</li>
+<li>Since there are no <code>[MASK]</code> tokens during fine-tuning, of the chosen 15%, 80% are replaced by <code>[MASK]</code>, 10% by a random token, and the remaining 10% are left unchanged for prediction.</li>
+<li>The figure below shows an example where the sequence &ldquo;my dog is cutep [SEP] he likes play ###ing[SEP]&rdquo; is masked and predicted:
 <img src="/p/bert_review/mlm.png"
 	width="457"
 	height="230"
 	srcset="/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_480x0_resize_box_3.png 480w, /p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="Masked LM 예시"
+		alt="Masked LM Example"
 	
 	
 		class="gallery-image" 
@@ -405,23 +448,23 @@
 		data-flex-basis="476px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://wikidocs.net/115055"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://wikidocs.net/115055"  target="_blank" rel="noopener"
     ><em>https://wikidocs.net/115055</em></a></span>
 <ul>
-<li>&lsquo;dog&rsquo;은 [MASK]로 변경되었습니다.</li>
-<li>&lsquo;he&rsquo;는 &lsquo;king으로 변경되었습니다.</li>
-<li>&lsquo;play&rsquo;는 변경되지 않았습니다.</li>
-<li>&lsquo;dog&rsquo;, &lsquo;he&rsquo;, &lsquo;play&rsquo;에 해당되는 토큰의 마지막 hidden vector는 Fully Connected Layer를 거쳐 softmax를 하여 전체 vocabulary에 대한 확률을 구합니다.</li>
+<li>&lsquo;dog&rsquo; is replaced with [MASK].</li>
+<li>&lsquo;he&rsquo; is replaced with &lsquo;king&rsquo;.</li>
+<li>&lsquo;play&rsquo; is left unchanged.</li>
+<li>The last hidden vectors for &lsquo;dog&rsquo;, &lsquo;he&rsquo;, and &lsquo;play&rsquo; go through a fully connected layer and softmax to predict probabilities over the vocabulary.</li>
 </ul>
 </li>
 </ul>
-<h3 id="task2-next-sentence-predictionnsp">Task2: Next Sentence Prediction(NSP)</h3>
-<ul>
+<h3 id="task-2-next-sentence-prediction-nsp">Task 2: Next Sentence Prediction (NSP)
+</h3><ul>
 <li>
-<p>sentence A, B를 선택할 때, 50%의 경우에는 B로 A 다음에 이어지는 sentence를, 나머지 50%의 경우에는 B로 corpus에서 random한 sentence를 선택합니다.</p>
+<p>When choosing sentences A and B, 50% of the data uses the actual next sentence, while the other 50% uses a random sentence from the corpus as B.</p>
 </li>
 <li>
-<p>아래는 sentence 예시입니다.</p>
+<p>Sample:</p>
 <blockquote>
 <p>Input = [CLS] the man went to [MASK] store [SEP] <br/>
 he bought a gallon [MASK] milk [SEP] <br/>
@@ -432,14 +475,14 @@ Label = NotNext</p>
 </blockquote>
 </li>
 <li>
-<p><code>[CLS]</code> toekn의 마지막 hidden vector가 <code>IsNext</code>/<code>NotNext</code> classification을 하는 데 사용됩니다.
+<p>The final hidden vector of the <code>[CLS]</code> token is used for IsNext/NotNext classification.
 <img src="/p/bert_review/nsp.png"
 	width="486"
 	height="237"
 	srcset="/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_480x0_resize_box_3.png 480w, /p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="Next Sentence Prediction 예시"
+		alt="Next Sentence Prediction Example"
 	
 	
 		class="gallery-image" 
@@ -447,34 +490,34 @@ Label = NotNext</p>
 		data-flex-basis="492px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://wikidocs.net/115055"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://wikidocs.net/115055"  target="_blank" rel="noopener"
     ><em>https://wikidocs.net/115055</em></a></span></p>
 </li>
 </ul>
 </li>
 </ul>
-<h2 id="fine-tuning">Fine-tuning</h2>
-<ul>
+<h2 id="fine-tuning">Fine-tuning
+</h2><ul>
 <li>
-<p>pre-train 한 parameter로 initialize한 뒤, downstream task를 위한 labeled data로 fine-tune 합니다.</p>
+<p>After initializing with pre-trained parameters, BERT is fine-tuned with labeled data for downstream tasks.</p>
 </li>
 <li>
-<p>output layer 하나만 추가되므로, scratch부터 학습되는 parameter 갯수는 매우 적습니다.</p>
-<h3 id="sentence-pair-classification-tasks">Sentence Pair Classification Tasks</h3>
+<p>Only a small number of parameters are newly learned, since just a single output layer is added on top.</p>
+<h3 id="sentence-pair-classification-tasks">Sentence Pair Classification Tasks
+</h3><ul>
+<li>Datasets
 <ul>
-<li>Dataset
-<ul>
-<li>MNLI: 첫 번째 sentence를 고려했을 때, 두 번째 sentence가 참, 거짓, 판단불가인지 선택합니다.</li>
-<li>QQP: 질문 두 개가 의미상으로 동일한지 판단합니다.</li>
-<li>QNLI: 질문에 대한 정확한 대답이 있는지 판단합니다.</li>
-<li>STS-B: 두 문장이 얼마나 비슷한지 1~5점 중 선택합니다.</li>
-<li>MRPC: 두 문장이 의미상으로 동일한지 판단합니다.</li>
-<li>RTE: 첫 번째 sentence를 고려했을 때, 두 번째 sentence가 참, 거짓, 판단불가인지 선택합니다.</li>
-<li>SWAG: sentence가 주어졌을 때 네 개의 선택지 중 가장 다음 문장으로 적합한 문장을 고르는 문제를 네 개로 나누어 적합한지 판단하는 문제로 변경합니다.</li>
+<li>MNLI: Classifies the relationship of the second sentence to the first as entailment, contradiction, or neutral.</li>
+<li>QQP: Checks if two questions are semantically equivalent.</li>
+<li>QNLI: Checks whether there is a correct answer to the question.</li>
+<li>STS-B: Scores sentence similarity on a scale from 1 to 5.</li>
+<li>MRPC: Checks if two sentences are semantically equivalent.</li>
+<li>RTE: Determines if the second sentence is true, false, or unknown, given the first.</li>
+<li>SWAG: Given a sentence, chooses which of four options is the most likely next sentence.</li>
 </ul>
 </li>
-<li>C는 <code>[CLS]</code> token의 마지막 hidden vector로 $C∈R^H$입니다. H는 hidden size로 $BERT_{BASE}$는 768, $BERT_{LARGE}$는 1024입니다.</li>
-<li>새로 학습해야 하는 parameter는 classification layer의 weight $W∈\mathbb R^{K \times H}$입니다. K는 클래스 갯수입니다.
+<li>C is the final hidden vector of the <code>[CLS]</code> token, $C\in\mathbb{R}^H$. H is the hidden size (768 for BERT_BASE, 1024 for BERT_LARGE).</li>
+<li>The only new parameters to be trained are the classification layer weights $W\in\mathbb R^{K \times H}$, where K is the number of classes.
 <img src="/p/bert_review/sentence_pair_classification.png"
 	width="564"
 	height="503"
@@ -489,9 +532,9 @@ Label = NotNext</p>
 		data-flex-basis="269px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (a).</em></a></span></li>
-<li>결과
+<li>Results
 <img src="/p/bert_review/result_glue.png"
 	width="766"
 	height="162"
@@ -506,7 +549,7 @@ Label = NotNext</p>
 		data-flex-basis="1134px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 1.</em></a></span><br>
 <img src="/p/bert_review/result_swag.png"
 	width="248"
@@ -522,18 +565,18 @@ Label = NotNext</p>
 		data-flex-basis="323px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 4.</em></a></span></li>
 </ul>
-<h3 id="single-sentence-classification-tasks">Single Sentence Classification Tasks</h3>
+<h3 id="single-sentence-classification-tasks">Single Sentence Classification Tasks
+</h3><ul>
+<li>Datasets
 <ul>
-<li>Dataset
-<ul>
-<li>SST-2: sentiment를 판단합니다.</li>
-<li>CoLA: 문장이 언어학적으로 &ldquo;acceptable&rdquo; 한 지 판단합니다.</li>
+<li>SST-2: Sentiment classification.</li>
+<li>CoLA: Determines if the sentence is linguistically &ldquo;acceptable&rdquo;.</li>
 </ul>
 </li>
-<li>Sentence Pair Classification Tasks에서와 같이 fine-tuning과 더불어 classification layer의 weight $W∈\mathbb R^{K \times H}$를 학습합니다.<br>
+<li>Just like in sentence pair tasks, the classification layer weights $W\in\mathbb R^{K \times H}$ are trained during fine-tuning.<br>
 <img src="/p/bert_review/single_sentence_classification.png"
 	width="564"
 	height="503"
@@ -548,27 +591,27 @@ Label = NotNext</p>
 		data-flex-basis="269px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (b).</em></a></span></li>
 </ul>
-<h3 id="question-answering-tasks">Question Answering Tasks</h3>
+<h3 id="question-answering-tasks">Question Answering Tasks
+</h3><ul>
+<li>Datasets
 <ul>
-<li>Dataset
-<ul>
-<li>SQuAD v1.1: Question에 대한 answer을 passage 안에서 찾습니다.</li>
+<li>SQuAD v1.1: Answers are found in the passage for each question.</li>
 <li>SQuAD v2.0</li>
 </ul>
 </li>
-<li>Question을 <code>A embedding</code>으로, passage를 <code>B embedding</code>으로 나타냅니다.</li>
-<li>fine-tuning에서 start vector $S∈R^H$와 end vector $E∈R^H$를 학습합니다.</li>
-<li>각 token의 마지막 hidden vector T와 S와 E와 사이의 dot product와 softmax를 구해 start와 end 를 결정합니다.<br>
+<li>The question is represented as an <code>A embedding</code>, and the passage as a <code>B embedding</code>.</li>
+<li>During fine-tuning, the start vector $S \in \mathbb{R}^H$ and end vector $E \in \mathbb{R}^H$ are learned.</li>
+<li>To determine start and end positions, the dot product and softmax are calculated between each token&rsquo;s final hidden vector T and S or E, respectively.<br>
 <img src="/p/bert_review/qa.png"
 	width="565"
 	height="487"
 	srcset="/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_480x0_resize_box_3.png 480w, /p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="Single Sentence Classification Tasks"
+		alt="Question Answering Tasks"
 	
 	
 		class="gallery-image" 
@@ -576,11 +619,11 @@ Label = NotNext</p>
 		data-flex-basis="278px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (c).</em></a></span></li>
 </ul>
-<h3 id="single-sentence-tagging-tasks">Single Sentence Tagging Tasks</h3>
-<ul>
+<h3 id="single-sentence-tagging-tasks">Single Sentence Tagging Tasks
+</h3><ul>
 <li>Dataset
 <ul>
 <li>CoNLL-2003 NER<br>
@@ -598,13 +641,13 @@ Label = NotNext</p>
 		data-flex-basis="278px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (d).</em></a></span></li>
 </ul>
 </li>
-<li>결과<br>
+<li>Results<br>
 <img style="max-width:60%; height:auto;" src="conll_2003.png" alt="CoNLL-2003 Named Entity Recognition Tasks" /><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1810.04805.pdf"  target="_blank" rel="noopener"
     ><em>Devlin, Jacob, et al. &ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 7.</em></a></span></li>
 </ul>
 </li>
@@ -640,18 +683,19 @@ Label = NotNext</p>
     
         <link 
                 rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
             ><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
                 defer
                 >
             </script><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
                 defer
                 >
             </script><script>
     window.addEventListener("DOMContentLoaded", () => {
-        renderMathInElement(document.querySelector(`.article-content`), {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
             delimiters: [
                 { left: "$$", right: "$$", display: true },
                 { left: "$", right: "$", display: false },
@@ -661,6 +705,7 @@ Label = NotNext</p>
             ignoredClasses: ["gist"]
         });})
 </script>
+
     
 </article>
 
@@ -680,7 +725,7 @@ Label = NotNext</p>
         
 
         <div class="article-details">
-            <h2 class="article-title">XLNet 리뷰</h2>
+            <h2 class="article-title">XLNet Review</h2>
         </div>
     </a>
 </article>
@@ -693,7 +738,7 @@ Label = NotNext</p>
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv3 리뷰</h2>
+            <h2 class="article-title">YOLOv3 Review</h2>
         </div>
     </a>
 </article>
@@ -706,7 +751,7 @@ Label = NotNext</p>
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv2 리뷰</h2>
+            <h2 class="article-title">YOLOv2 Review</h2>
         </div>
     </a>
 </article>
@@ -719,7 +764,7 @@ Label = NotNext</p>
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv1 리뷰</h2>
+            <h2 class="article-title">YOLOv1 Review</h2>
         </div>
     </a>
 </article>
@@ -786,12 +831,12 @@ Label = NotNext</p>
         
             2023 - 
         
-        2024 Kimberly&#39;s Blog
+        2025 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -880,7 +925,7 @@ Label = NotNext</p>
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

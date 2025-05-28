@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>YOLOv3 on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/ko/tags/yolov3/</link>
+        <description>Recent content in YOLOv3 on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Tue, 04 Jul 2023 00:09:40 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/tags/yolov3/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>YOLOv3 리뷰</title>
+        <link>https://kimberlykang.github.io/ko/p/yolov3_review/</link>
+        <pubDate>Tue, 04 Jul 2023 00:09:40 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/ko/p/yolov3_review/</guid>
+        <description>&lt;p&gt;본 포스트에서는 2018년 발표된 &amp;ldquo;YOLOv3: An Incremental Improvement&amp;quot;를 살펴보겠습니다.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1804.02767.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;YOLOv3: An Incremental Improvement&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ec%97%ac%eb%9f%ac-scale%eb%a1%9c-%ec%98%88%ec%b8%a1&#34; &gt;여러 Scale로 예측&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ea%b2%b0%ea%b3%bc&#34; &gt;결과&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;여러-scale로-예측&#34;&gt;여러 Scale로 예측
+&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov3_review/architecture.png&#34;
+	width=&#34;1604&#34;
+	height=&#34;1652&#34;
+	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov3_review/architecture_hu9c6a99adb0743d0e7bdbfc1484679b91_300157_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov3_review/architecture_hu9c6a99adb0743d0e7bdbfc1484679b91_300157_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 1&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;97&#34;
+		data-flex-basis=&#34;233px&#34;
+	
+&gt; &lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/174008&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;https://wikidocs.net/174008&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다.&lt;/li&gt;
+&lt;li&gt;base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다.&lt;/li&gt;
+&lt;li&gt;논문에서는 grid cell마다 3개의 ahchor box를 사용했습니다. 따라서 N이 feature map의 grid 갯수일 때, 각 feature map의 예측값은 N×N×[3*(4+1+80)]이 됩니다.&lt;/li&gt;
+&lt;li&gt;3가지 scale에서 3종류의 achor를 사용하므로, anchor 갯수는 총 9개가 됩니다. k=9로 k-means를 수행하여 anchor를 구합니다.&lt;/li&gt;
+&lt;li&gt;COCO dataset의 경우, (10×13), (16×30), (33×23), (30×61), (62×45), (59×119), (116×90), (159×198), (373×326)의 anchor box를 사용합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;결과&#34;&gt;결과
+&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov3_review/table3.png&#34;
+	width=&#34;636&#34;
+	height=&#34;221&#34;
+	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov3_review/table3_hubca3cfb4d7515664152572e9ddf4bed4_56185_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov3_review/table3_hubca3cfb4d7515664152572e9ddf4bed4_56185_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 2&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;287&#34;
+		data-flex-basis=&#34;690px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1804.02767.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;Yolov3: An incremental improvement.&amp;rdquo; arXiv preprint arXiv:1804.02767 (2018), Table 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

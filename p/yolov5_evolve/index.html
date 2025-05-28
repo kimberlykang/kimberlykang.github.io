@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko-kr" dir="ltr">
+<html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='본 포스트에서는 YOLOv5가 hyperparameter를 선정하는 방법인 evolve에 대해 살펴보도록 하겠습니다. 목차 Evolve Fitness Meta 부모 선정 Mutation Hyperparameter 저장 Evolve'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we&rsquo;ll look at evolve, YOLOv5&rsquo;s method for selecting hyperparameters. Table of Contents  Evolve Fitness Meta Parent Selection Mutation Saving Hyperparameters  Evolve YOLOv5 uses a Genetic Algorithm for hyperparameter optimization, called hyperparameter evolution. You can run it by passing the --evolve argument to train.py. Below is an example of using evolve from the YOLOv5 GitHub. 1 2 3 4 5 6 7 8  # Single-GPU python train.">
 <title>YOLOv5 Evolve</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov5_evolve/'>
 
-<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='YOLOv5 Evolve'>
-<meta property='og:description' content='본 포스트에서는 YOLOv5가 hyperparameter를 선정하는 방법인 evolve에 대해 살펴보도록 하겠습니다. 목차 Evolve Fitness Meta 부모 선정 Mutation Hyperparameter 저장 Evolve'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 Evolve">
+<meta property='og:description' content="In this post, we&rsquo;ll look at evolve, YOLOv5&rsquo;s method for selecting hyperparameters. Table of Contents  Evolve Fitness Meta Parent Selection Mutation Saving Hyperparameters  Evolve YOLOv5 uses a Genetic Algorithm for hyperparameter optimization, called hyperparameter evolution. You can run it by passing the --evolve argument to train.py. Below is an example of using evolve from the YOLOv5 GitHub. 1 2 3 4 5 6 7 8  # Single-GPU python train.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov5_evolve/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-02-28T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-02-28T00:20:00&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv5 Evolve">
-<meta name="twitter:description" content="본 포스트에서는 YOLOv5가 hyperparameter를 선정하는 방법인 evolve에 대해 살펴보도록 하겠습니다. 목차 Evolve Fitness Meta 부모 선정 Mutation Hyperparameter 저장 Evolve">
+<meta name="twitter:description" content="In this post, we&rsquo;ll look at evolve, YOLOv5&rsquo;s method for selecting hyperparameters. Table of Contents  Evolve Fitness Meta Parent Selection Mutation Saving Hyperparameters  Evolve YOLOv5 uses a Genetic Algorithm for hyperparameter optimization, called hyperparameter evolution. You can run it by passing the --evolve argument to train.py. Below is an example of using evolve from the YOLOv5 GitHub. 1 2 3 4 5 6 7 8  # Single-GPU python train.">
     </head>
     <body class="
     article-page
@@ -153,12 +153,35 @@
             </a>
         </li>
         
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
 
-        <div class="menu-bottom-section">
-            
-            
-                <li id="dark-mode-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="8" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -166,7 +189,7 @@
 
 
 
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="16" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -174,10 +197,11 @@
 
 
 
-                    <span>Dark Mode</span>
-                </li>
-            
-        </div>
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
     </ol>
 </aside>
 
@@ -206,9 +230,9 @@
     <li><a href="#evolve">Evolve</a></li>
     <li><a href="#fitness">Fitness</a></li>
     <li><a href="#meta">Meta</a></li>
-    <li><a href="#부모-선정">부모 선정</a></li>
+    <li><a href="#parent-selection">Parent Selection</a></li>
     <li><a href="#mutation">Mutation</a></li>
-    <li><a href="#hyperparameter-저장">Hyperparameter 저장</a></li>
+    <li><a href="#saving-hyperparameters">Saving Hyperparameters</a></li>
   </ol>
 </nav>
         </div>
@@ -273,13 +297,32 @@
 
 
                 <time class="article-time--reading">
-                    4 minute read
+                    6 minute read
                 </time>
             </div>
         
     </footer>
     
 
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/yolov5_evolve/" class="link">Korean</a>
+                
+            </div>
+        </footer>
     
 </div>
 
@@ -288,18 +331,18 @@
     <section class="article-content">
     
     
-    <p>본 포스트에서는 YOLOv5가 hyperparameter를 선정하는 방법인 evolve에 대해 살펴보도록 하겠습니다.</p>
-<h1 id="목차">목차</h1>
-<ol>
+    <p>In this post, we&rsquo;ll look at evolve, YOLOv5&rsquo;s method for selecting hyperparameters.</p>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
 <li><a class="link" href="#evolve" >Evolve</a></li>
 <li><a class="link" href="#fitness" >Fitness</a></li>
 <li><a class="link" href="#meta" >Meta</a></li>
-<li><a class="link" href="#%eb%b6%80%eb%aa%a8-%ec%84%a0%ec%a0%95" >부모 선정</a></li>
+<li><a class="link" href="#parent-selection" >Parent Selection</a></li>
 <li><a class="link" href="#mutation" >Mutation</a></li>
-<li><a class="link" href="#hyperparameter-%ec%a0%80%ec%9e%a5" >Hyperparameter 저장</a></li>
+<li><a class="link" href="#saving-hyperparameters" >Saving Hyperparameters</a></li>
 </ol>
-<h2 id="evolve">Evolve</h2>
-<p>YOLOv5는 Genetic Algorithm을 사용하여 hyperparameter를 optimize하는데, 이를 hyperparameter evolution이라고 합니다. train.py에 &ndash;evovle argument를 주어 수행합니다. 아래는 YOLOv5 github에 있는 evolve 사용 예시입니다.</p>
+<h2 id="evolve">Evolve
+</h2><p>YOLOv5 uses a Genetic Algorithm for hyperparameter optimization, called hyperparameter evolution. You can run it by passing the --evolve argument to train.py. Below is an example of using evolve from the YOLOv5 GitHub.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -310,26 +353,24 @@
 </span><span class="lnt">6
 </span><span class="lnt">7
 </span><span class="lnt">8
-</span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-console" data-lang="console"><span class="gp"># </span>Single-GPU
 <span class="go">python train.py --epochs 10 --data coco128.yaml --weights yolov5s.pt --cache --evolve
-</span><span class="go"></span><span class="err">
-</span><span class="err"></span><span class="gp"># </span>Multi-GPU
+</span><span class="go"></span><span class="gp"># </span>Multi-GPU
 <span class="go">for i in 0 1 2 3 4 5 6 7; do
-</span><span class="go">  sleep $(expr 30 \* $i) &amp;&amp;  # 30-second delay (optional)
-</span><span class="go">  echo &#39;Starting GPU &#39;$i&#39;...&#39; &amp;&amp;
-</span><span class="go">  nohup python train.py --epochs 10 --data coco128.yaml --weights yolov5s.pt --cache --device $i --evolve &gt; evolve_gpu_$i.log &amp;
+</span><span class="go">    sleep $(expr 30 \* $i) &amp;&amp; # 30-second delay (optional)
+</span><span class="go">    echo &#39;Starting GPU &#39;$i&#39;...&#39; &amp;&amp;
+</span><span class="go">    nohup python train.py --epochs 10 --data coco128.yaml --weights yolov5s.pt --cache --device $i --evolve &gt; evolve_gpu_$i.log &amp;
 </span><span class="go">done
 </span></code></pre></td></tr></table>
 </div>
 </div><ul>
-<li><code>--evolve</code> 뒤에 generation 횟수를 명시해 주지 않는다면 default로는 300번 hyperparameter를 generation합니다.</li>
-<li>300개의 hyperparameter에 대해 10 epoch씩 학습을 한 뒤 가장 <strong>fintness</strong>가 높은 hyperparameter를 알려줍니다.</li>
+<li>If you do not specify the number of generations after <code>--evolve</code>, it will by default generate 300 sets of hyperparameters.</li>
+<li>For these 300 hyperparameter sets, training is run for 10 epochs each, and the hyperparameter with the highest <strong>fitness</strong> is reported.</li>
 </ul>
-<h2 id="fitness">Fitness</h2>
-<div class="highlight"><div class="chroma">
+<h2 id="fitness">Fitness
+</h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
@@ -339,18 +380,18 @@
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">fitness</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># Model fitness as a weighted combination of metrics</span>
-    <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>  <span class="c1"># weights for [P, R, mAP@0.5, mAP@0.5:0.95]</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span> <span class="c1"># weights for [P, R, mAP@0.5, mAP@0.5:0.95]</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </code></pre></td></tr></table>
 </div>
 </div><ul>
-<li>위는 default로 사용되는 fitness 함수입니다.</li>
-<li>x는 차례로 precision, recall, <a class="link" href="mailto:mAP@0.5" >mAP@0.5</a>, <a class="link" href="mailto:mAP@0.5" >mAP@0.5</a>:0.95 값입니다.</li>
-<li>위의 fitness 함수에선 precision과 recall은 사용하지 않고, <a class="link" href="mailto:mAP@0.5" >mAP@0.5</a> 10%, <a class="link" href="mailto:mAP@0.5" >mAP@0.5</a>:0.95 90%로 fitness 점수를 매깁니다.</li>
-<li>데이터나, 풀고자 하는 문제의 종류에 따라 Precision, recall, mAP 중 높아야 하는 항목이 다를 수 있습니다. 따라서, 위의 fitness를 그대로 사용하지 않고, 상황에 맞춰 수정하여 사용하는 것이 좋습니다.</li>
+<li>The above is the default fitness function.</li>
+<li>x contains values in order: precision, recall, <a class="link" href="mailto:mAP@0.5" >mAP@0.5</a>, <a class="link" href="mailto:mAP@0.5" >mAP@0.5</a>:0.95.</li>
+<li>In this fitness function, precision and recall are not used. The score uses 10% <a class="link" href="mailto:mAP@0.5" >mAP@0.5</a> and 90% <a class="link" href="mailto:mAP@0.5" >mAP@0.5</a>:0.95.</li>
+<li>Depending on the dataset or the nature of the problem, the most important metric (precision, recall, or mAP) may differ. So, instead of using the fitness function as-is, you should adjust it as appropriate for your case.</li>
 </ul>
-<h2 id="meta">Meta</h2>
-<p>Genetic Algorithm으로 hyperparameter를 선정하기 전, <code>meta</code>를 정의하여 mutation을 적용할 정도, 최솟값, 최댓값을 정의해 줍니다. 아래는 train.py에 기본으로 설정되어 있는 meta 값입니다.</p>
+<h2 id="meta">Meta
+</h2><p>Before selecting hyperparameters using the Genetic Algorithm, <code>meta</code> is defined to set the mutation scale, minimum, and maximum for each hyperparameter. Below are the default meta values set in train.py.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -387,40 +428,40 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Hyperparameter evolution metadata (mutation scale 0-1, lower_limit, upper_limit)</span>
-        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;lr0&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>  <span class="c1"># initial learning rate (SGD=1E-2, Adam=1E-3)</span>
-            <span class="s1">&#39;lrf&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>  <span class="c1"># final OneCycleLR learning rate (lr0 * lrf)</span>
-            <span class="s1">&#39;momentum&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">),</span>  <span class="c1"># SGD momentum/Adam beta1</span>
-            <span class="s1">&#39;weight_decay&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),</span>  <span class="c1"># optimizer weight decay</span>
-            <span class="s1">&#39;warmup_epochs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span>  <span class="c1"># warmup epochs (fractions ok)</span>
-            <span class="s1">&#39;warmup_momentum&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span>  <span class="c1"># warmup initial momentum</span>
-            <span class="s1">&#39;warmup_bias_lr&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>  <span class="c1"># warmup initial bias lr</span>
-            <span class="s1">&#39;box&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>  <span class="c1"># box loss gain</span>
-            <span class="s1">&#39;cls&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span>  <span class="c1"># cls loss gain</span>
-            <span class="s1">&#39;cls_pw&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>  <span class="c1"># cls BCELoss positive_weight</span>
-            <span class="s1">&#39;obj&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span>  <span class="c1"># obj loss gain (scale with pixels)</span>
-            <span class="s1">&#39;obj_pw&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>  <span class="c1"># obj BCELoss positive_weight</span>
-            <span class="s1">&#39;iou_t&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>  <span class="c1"># IoU training threshold</span>
-            <span class="s1">&#39;anchor_t&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>  <span class="c1"># anchor-multiple threshold</span>
-            <span class="s1">&#39;anchors&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span>  <span class="c1"># anchors per output grid (0 to ignore)</span>
-            <span class="s1">&#39;fl_gamma&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>  <span class="c1"># focal loss gamma (efficientDet default gamma=1.5)</span>
-            <span class="s1">&#39;hsv_h&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>  <span class="c1"># image HSV-Hue augmentation (fraction)</span>
-            <span class="s1">&#39;hsv_s&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>  <span class="c1"># image HSV-Saturation augmentation (fraction)</span>
-            <span class="s1">&#39;hsv_v&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>  <span class="c1"># image HSV-Value augmentation (fraction)</span>
-            <span class="s1">&#39;degrees&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">45.0</span><span class="p">),</span>  <span class="c1"># image rotation (+/- deg)</span>
-            <span class="s1">&#39;translate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>  <span class="c1"># image translation (+/- fraction)</span>
-            <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>  <span class="c1"># image scale (+/- gain)</span>
-            <span class="s1">&#39;shear&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span>  <span class="c1"># image shear (+/- deg)</span>
-            <span class="s1">&#39;perspective&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),</span>  <span class="c1"># image perspective (+/- fraction), range 0-0.001</span>
-            <span class="s1">&#39;flipud&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>  <span class="c1"># image flip up-down (probability)</span>
-            <span class="s1">&#39;fliplr&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>  <span class="c1"># image flip left-right (probability)</span>
-            <span class="s1">&#39;mosaic&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>  <span class="c1"># image mixup (probability)</span>
-            <span class="s1">&#39;mixup&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>  <span class="c1"># image mixup (probability)</span>
-            <span class="s1">&#39;copy_paste&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)}</span>  <span class="c1"># segment copy-paste (probability)</span>
+<span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;lr0&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span> <span class="c1"># initial learning rate (SGD=1E-2, Adam=1E-3)</span>
+    <span class="s1">&#39;lrf&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="c1"># final OneCycleLR learning rate (lr0 * lrf)</span>
+    <span class="s1">&#39;momentum&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">),</span> <span class="c1"># SGD momentum/Adam beta1</span>
+    <span class="s1">&#39;weight_decay&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),</span> <span class="c1"># optimizer weight decay</span>
+    <span class="s1">&#39;warmup_epochs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="c1"># warmup epochs (fractions ok)</span>
+    <span class="s1">&#39;warmup_momentum&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span> <span class="c1"># warmup initial momentum</span>
+    <span class="s1">&#39;warmup_bias_lr&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="c1"># warmup initial bias lr</span>
+    <span class="s1">&#39;box&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="c1"># box loss gain</span>
+    <span class="s1">&#39;cls&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span> <span class="c1"># cls loss gain</span>
+    <span class="s1">&#39;cls_pw&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="c1"># cls BCELoss positive_weight</span>
+    <span class="s1">&#39;obj&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span> <span class="c1"># obj loss gain (scale with pixels)</span>
+    <span class="s1">&#39;obj_pw&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="c1"># obj BCELoss positive_weight</span>
+    <span class="s1">&#39;iou_t&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span> <span class="c1"># IoU training threshold</span>
+    <span class="s1">&#39;anchor_t&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span> <span class="c1"># anchor-multiple threshold</span>
+    <span class="s1">&#39;anchors&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span> <span class="c1"># anchors per output grid (0 to ignore)</span>
+    <span class="s1">&#39;fl_gamma&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="c1"># focal loss gamma (efficientDet default gamma=1.5)</span>
+    <span class="s1">&#39;hsv_h&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="c1"># image HSV-Hue augmentation (fraction)</span>
+    <span class="s1">&#39;hsv_s&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span> <span class="c1"># image HSV-Saturation augmentation (fraction)</span>
+    <span class="s1">&#39;hsv_v&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span> <span class="c1"># image HSV-Value augmentation (fraction)</span>
+    <span class="s1">&#39;degrees&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">45.0</span><span class="p">),</span> <span class="c1"># image rotation (+/- deg)</span>
+    <span class="s1">&#39;translate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span> <span class="c1"># image translation (+/- fraction)</span>
+    <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span> <span class="c1"># image scale (+/- gain)</span>
+    <span class="s1">&#39;shear&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span> <span class="c1"># image shear (+/- deg)</span>
+    <span class="s1">&#39;perspective&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),</span> <span class="c1"># image perspective (+/- fraction), range 0-0.001</span>
+    <span class="s1">&#39;flipud&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="c1"># image flip up-down (probability)</span>
+    <span class="s1">&#39;fliplr&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="c1"># image flip left-right (probability)</span>
+    <span class="s1">&#39;mosaic&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="c1"># image mosaic (probability)</span>
+    <span class="s1">&#39;mixup&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="c1"># image mixup (probability)</span>
+    <span class="s1">&#39;copy_paste&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)}</span> <span class="c1"># segment copy-paste (probability)</span>
 </code></pre></td></tr></table>
 </div>
-</div><h2 id="부모-선정">부모 선정</h2>
-<div class="highlight"><div class="chroma">
+</div><h2 id="parent-selection">Parent Selection
+</h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
@@ -436,27 +477,27 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Select parent(s)</span>
-<span class="n">parent</span> <span class="o">=</span> <span class="s1">&#39;single&#39;</span>  <span class="c1"># parent selection method: &#39;single&#39; or &#39;weighted&#39;</span>
+<span class="n">parent</span> <span class="o">=</span> <span class="s1">&#39;single&#39;</span> <span class="c1"># parent selection method: &#39;single&#39; or &#39;weighted&#39;</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">evolve_csv</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">n</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>  <span class="c1"># number of previous results to consider</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">fitness</span><span class="p">(</span><span class="n">x</span><span class="p">))][:</span><span class="n">n</span><span class="p">]</span>  <span class="c1"># top n mutations</span>
-<span class="n">w</span> <span class="o">=</span> <span class="n">fitness</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">fitness</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1E-6</span>  <span class="c1"># weights (sum &gt; 0)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="c1"># number of previous results to consider</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">fitness</span><span class="p">(</span><span class="n">x</span><span class="p">))][:</span><span class="n">n</span><span class="p">]</span> <span class="c1"># top n mutations</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">fitness</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">fitness</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1E-6</span> <span class="c1"># weights (sum &gt; 0)</span>
 <span class="k">if</span> <span class="n">parent</span> <span class="o">==</span> <span class="s1">&#39;single&#39;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="c1"># x = x[random.randint(0, n - 1)]  # random selection</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">weights</span><span class="o">=</span><span class="n">w</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>  <span class="c1"># weighted selection</span>
+    <span class="c1"># x = x[random.randint(0, n - 1)] # random selection</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">weights</span><span class="o">=</span><span class="n">w</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="c1"># weighted selection</span>
 <span class="k">elif</span> <span class="n">parent</span> <span class="o">==</span> <span class="s1">&#39;weighted&#39;</span><span class="p">:</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">w</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>  <span class="c1"># weighted combination</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">w</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="c1"># weighted combination</span>
 </code></pre></td></tr></table>
 </div>
 </div><ul>
-<li><em><strong>fitness</strong></em>가 높은 순으로 5개의 부모를 선택합니다.</li>
-<li>각 부모의 <em><strong>fitness</strong></em>를 확률로 사용합니다.</li>
-<li><code>single</code>: 확률을 고려하여 부모 하나를 랜덥으로 뽑습니다.</li>
-<li><code>weighted</code>: 5개 부모의 평균 값을 사용합니다.</li>
-<li>기본으로는 <code>single</code> 방식을 사용합니다.</li>
+<li>Select the top 5 parents according to <em><strong>fitness</strong></em> score.</li>
+<li>The <em><strong>fitness</strong></em> score of each parent is used as its selection probability.</li>
+<li><code>single</code>: Randomly selects one parent considering probabilities.</li>
+<li><code>weighted</code>: Uses the average values of the 5 parents.</li>
+<li>By default, the <code>single</code> method is used.</li>
 </ul>
-<h2 id="mutation">Mutation</h2>
-<div class="highlight"><div class="chroma">
+<h2 id="mutation">Mutation
+</h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
@@ -472,30 +513,30 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Mutate</span>
-<span class="n">mp</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span>  <span class="c1"># mutation probability, sigma</span>
+<span class="n">mp</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span> <span class="c1"># mutation probability, sigma</span>
 <span class="n">npr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span>
 <span class="n">npr</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
-<span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">meta</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">hyp</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>  <span class="c1"># gains 0-1</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">meta</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">hyp</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span> <span class="c1"># gains 0-1</span>
 <span class="n">ng</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
 <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ng</span><span class="p">)</span>
-<span class="k">while</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># mutate until a change occurs (prevent duplicates)</span>
+<span class="k">while</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> <span class="c1"># mutate until a change occurs (prevent duplicates)</span>
     <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">npr</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">ng</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">mp</span><span class="p">)</span> <span class="o">*</span> <span class="n">npr</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">ng</span><span class="p">)</span> <span class="o">*</span> <span class="n">npr</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hyp</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>  <span class="c1"># plt.hist(v.ravel(), 300)</span>
-    <span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">7</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>  <span class="c1"># mutate</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hyp</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span> <span class="c1"># plt.hist(v.ravel(), 300)</span>
+    <span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">7</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="c1"># mutate</span>
 </code></pre></td></tr></table>
 </div>
 </div><ul>
-<li><code>g</code>: mutation을 적용할 정도입니다.</li>
-<li><em><strong>randn</strong></em> 함수는 평균 0, 분산 1인 normal distribution을 만듭니다.</li>
-<li><code>npr.randn(ng)</code>에 <code>s</code>를 곱한 후 <code>1</code>을 더해주면, 평균이 1, 분산이 s인 normal distribution이 만들어집니다.</li>
-<li><code>(npr.random(ng) &lt; mp)</code>: mutation 적용 여부를 mp의 확률로 결정합니다.</li>
-<li>모든 값이 1이던 <code>v</code> array가 랜덤 샘플링을 통해 일부 값이 변하고, 이를 부모 hyperparameter에 곱해줍니다. 아래는 v값의 예시입니다.
+<li><code>g</code>: The mutation scale for each hyperparameter.</li>
+<li>The <em><strong>randn</strong></em> function generates a normal distribution with mean 0 and variance 1.</li>
+<li>By multiplying <code>npr.randn(ng)</code> with <code>s</code> and then adding <code>1</code>, you get a normal distribution with mean 1 and variance s.</li>
+<li><code>(npr.random(ng) &lt; mp)</code>: Decides whether to apply mutation with probability mp for each hyperparameter.</li>
+<li>The initial <code>v</code> array (all 1s) has some values randomly changed; these are multiplied to the parent hyperparameters. Example values for v:
 <ul>
 <li>[1.003, 1.0048, 1.028, 0.8988, 1, 1, 0.99587, 1.032, 0.99873, 1, 1, 0.92108, 1, 0.99281, 1, 1.0333, 0.91948, 0.9941, 1.0725, 0.95916, 1, 1, 1, 1.0628, 1, 1.0312, 0.95677, 1]</li>
 </ul>
 </li>
 </ul>
-<p>mutation 후 <code>meta</code>에서 정의한 최소, 최댓값으로 걸러줍니다.</p>
+<p>After mutation, the values are constrained within the min and max defined in the <code>meta</code>.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -507,13 +548,13 @@
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Constrain to limits</span>
 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># lower limit</span>
-    <span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># upper limit</span>
-    <span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>  <span class="c1"># significant digits</span>
+    <span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># lower limit</span>
+    <span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="c1"># upper limit</span>
+    <span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">hyp</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span> <span class="c1"># significant digits</span>
 </code></pre></td></tr></table>
 </div>
-</div><h2 id="hyperparameter-저장">Hyperparameter 저장</h2>
-<div class="highlight"><div class="chroma">
+</div><h2 id="saving-hyperparameters">Saving Hyperparameters
+</h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
@@ -534,8 +575,8 @@
 </code></pre></td></tr></table>
 </div>
 </div><ul>
-<li>학습 후, <em><strong>print_mutation</strong></em>을 통해 학습 결과 및 가장 결과가 좋은 hyperparameter를 저장합니다.</li>
-<li>아래는 저장된 hyperparameter의 예시입니다.</li>
+<li>After training, the <em><strong>print_mutation</strong></em> function saves the training results and the best hyperparameters.</li>
+<li>Below is an example of saved hyperparameters.</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -573,15 +614,13 @@
 </span><span class="lnt">32
 </span><span class="lnt">33
 </span><span class="lnt">34
-</span><span class="lnt">35
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c"># YOLOv5 Hyperparameter Evolution Results</span><span class="w">
 </span><span class="w"></span><span class="c"># Best generation: 118</span><span class="w">
 </span><span class="w"></span><span class="c"># Last generation: 164</span><span class="w">
-</span><span class="w"></span><span class="c">#    metrics/precision,       metrics/recall,      metrics/mAP_0.5, metrics/mAP_0.5:0.95,         val/box_loss,         val/obj_loss,         val/cls_loss</span><span class="w">
-</span><span class="w"></span><span class="c">#              0.79541,              0.81562,              0.82932,              0.52318,             0.017451,             0.046121,            0.0056865</span><span class="w">
-</span><span class="w">
+</span><span class="w"></span><span class="c"># metrics/precision, metrics/recall, metrics/mAP_0.5, metrics/mAP_0.5:0.95, val/box_loss, val/obj_loss, val/cls_loss</span><span class="w">
+</span><span class="w"></span><span class="c"># 0.79541, 0.81562, 0.82932, 0.52318, 0.017451, 0.046121, 0.0056865</span><span class="w">
 </span><span class="w"></span><span class="nt">lr0</span><span class="p">:</span><span class="w"> </span><span class="m">0.01498</span><span class="w">
 </span><span class="w"></span><span class="nt">lrf</span><span class="p">:</span><span class="w"> </span><span class="m">0.01813</span><span class="w">
 </span><span class="w"></span><span class="nt">momentum</span><span class="p">:</span><span class="w"> </span><span class="m">0.89668</span><span class="w">
@@ -644,18 +683,19 @@
     
         <link 
                 rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
             ><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
                 defer
                 >
             </script><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
                 defer
                 >
             </script><script>
     window.addEventListener("DOMContentLoaded", () => {
-        renderMathInElement(document.querySelector(`.article-content`), {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
             delimiters: [
                 { left: "$$", right: "$$", display: true },
                 { left: "$", right: "$", display: false },
@@ -665,6 +705,7 @@
             ignoredClasses: ["gist"]
         });})
 </script>
+
     
 </article>
 
@@ -736,7 +777,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv5 학습</h2>
+            <h2 class="article-title">YOLOv5 Training</h2>
         </div>
     </a>
 </article>
@@ -803,12 +844,12 @@
         
             2023 - 
         
-        2024 Kimberly&#39;s Blog
+        2025 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -897,7 +938,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

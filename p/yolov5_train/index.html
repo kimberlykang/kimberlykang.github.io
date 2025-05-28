@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko-kr" dir="ltr">
+<html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='본 포스트에서는 YOLOv5 리파지토리의 train.py 코드를 전체적으로 살펴보도록 하겠습니다. 목차 Data parellel 학습 조건 프린트 및 저장 Logger torch_distributed_zero_first Dataloader Data parellel 학습 코드 중간 중간 RANK라는 var'>
-<title>YOLOv5 학습</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents  Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader  Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code.">
+<title>YOLOv5 Training</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov5_train/'>
 
-<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='YOLOv5 학습'>
-<meta property='og:description' content='본 포스트에서는 YOLOv5 리파지토리의 train.py 코드를 전체적으로 살펴보도록 하겠습니다. 목차 Data parellel 학습 조건 프린트 및 저장 Logger torch_distributed_zero_first Dataloader Data parellel 학습 코드 중간 중간 RANK라는 var'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 Training">
+<meta property='og:description' content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents  Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader  Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov5_train/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-02-06T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-02-06T00:20:00&#43;09:00'/>
-<meta name="twitter:title" content="YOLOv5 학습">
-<meta name="twitter:description" content="본 포스트에서는 YOLOv5 리파지토리의 train.py 코드를 전체적으로 살펴보도록 하겠습니다. 목차 Data parellel 학습 조건 프린트 및 저장 Logger torch_distributed_zero_first Dataloader Data parellel 학습 코드 중간 중간 RANK라는 var">
+<meta name="twitter:title" content="YOLOv5 Training">
+<meta name="twitter:description" content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents  Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader  Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code.">
     </head>
     <body class="
     article-page
@@ -153,12 +153,35 @@
             </a>
         </li>
         
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
 
-        <div class="menu-bottom-section">
-            
-            
-                <li id="dark-mode-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="8" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -166,7 +189,7 @@
 
 
 
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="16" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -174,10 +197,11 @@
 
 
 
-                    <span>Dark Mode</span>
-                </li>
-            
-        </div>
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
     </ol>
 </aside>
 
@@ -203,8 +227,8 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#data-parellel">Data parellel</a></li>
-    <li><a href="#학습-조건-프린트-및-저장">학습 조건 프린트 및 저장</a></li>
+    <li><a href="#data-parallel">Data parallel</a></li>
+    <li><a href="#printing-and-saving-training-configurations">Printing and Saving Training Configurations</a></li>
     <li><a href="#logger">Logger</a></li>
     <li><a href="#torch_distributed_zero_first">torch_distributed_zero_first</a></li>
     <li><a href="#optimizer--learning-rate-schedule">Optimizer &amp; Learning rate schedule</a></li>
@@ -236,7 +260,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/yolov5_train/">YOLOv5 학습</a>
+            <a href="/p/yolov5_train/">YOLOv5 Training</a>
         </h2>
     
         
@@ -273,13 +297,32 @@
 
 
                 <time class="article-time--reading">
-                    5 minute read
+                    6 minute read
                 </time>
             </div>
         
     </footer>
     
 
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/yolov5_train/" class="link">Korean</a>
+                
+            </div>
+        </footer>
     
 </div>
 
@@ -288,22 +331,22 @@
     <section class="article-content">
     
     
-    <p>본 포스트에서는 YOLOv5 리파지토리의 train.py 코드를 전체적으로 살펴보도록 하겠습니다.</p>
-<h1 id="목차">목차</h1>
-<ol>
-<li><a class="link" href="#data-parellel" >Data parellel</a></li>
-<li><a class="link" href="#%ed%95%99%ec%8a%b5-%ec%a1%b0%ea%b1%b4-%ed%94%84%eb%a6%b0%ed%8a%b8-%eb%b0%8f-%ec%a0%80%ec%9e%a5" >학습 조건 프린트 및 저장</a></li>
+    <p>In this post, I will take an overall look at the train.py code from the YOLOv5 repository.</p>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
+<li><a class="link" href="#data-parallel" >Data parallel</a></li>
+<li><a class="link" href="#printing-and-saving-training-configurations" >Printing and Saving Training Configurations</a></li>
 <li><a class="link" href="#logger" >Logger</a></li>
 <li><a class="link" href="#torch_distributed_zero_first" >torch_distributed_zero_first</a></li>
 <li><a class="link" href="#dataloader" >Dataloader</a></li>
 </ol>
-<h2 id="data-parellel">Data parellel</h2>
-<p>학습 코드 중간 중간 <code>RANK</code>라는 variable이 나오는데, 이를 이해하기 위해선 <strong>data parellel</strong>의 몇 가지 용어들을 이해해야 합니다. 코드를 보기 전에 먼저 용어를 간단히 살펴보겠습니다.</p>
+<h2 id="data-parallel">Data parallel
+</h2><p>Throughout the training code, you will come across a variable called <code>RANK</code>. To understand this, you need to learn about some terms related to <strong>data parallel</strong>. Let’s briefly go over these terms before examining the code.</p>
 <ul>
-<li><strong>data parellel</strong>:  모델 학습 방법 중 하나입니다. 모델 복사본 여러 개를 만들어, 각 복사된 모델에서 동시에 parellel하게 학습이 이루어집니다. 이 때 각 복사된 모델은 각기 다른 데이터를 학습하고, local gradients/sub-gradients를 계산한 뒤, synchronization 작업을 통해 복사본 전체의 gradients를 계산하게 됩니다.</li>
-<li><strong>node</strong>: <strong>data parellel</strong> 학습을 할 때, 학습이 이루어지는 머신 혹은 서버입니다 각 <strong>node</strong>에서는 여러 개의 process를 만들어 모델을 복사한 뒤, 복사된 모델에서 학습이 진행됩니다.</li>
-<li><strong>rank</strong>: <strong>node</strong>에 복사된 각 process의 id입니다. <strong>node</strong>가 여러 개 있을 때, <strong>rank</strong>는 <strong>local rank</strong>와 <strong>global rank</strong>로 나뉘게 되는데, <strong>local rank</strong>는 한 <strong>node</strong> 안에서의 id이고, <strong>global rank</strong>는 전체 <strong>node</strong> 안에 있는 모든 process에 id를 매긴 것입니다.</li>
-<li><strong>world</strong>: 전체 <strong>node</strong> 안의 모든 process를 포함하는 그룹입니다. <strong>world</strong> 안에 있는 process 갯수를 <strong>world size</strong>라고 합니다. 보통 모델 복사본 하나가 GPU 하나를 사용하고, 따라서 process 하나를 만들기 때문에 <strong>world size</strong>는 주로 GPU 갯수인 경우가 많습니다. 하지만 경우에 따라 모델이 큰 경우에 모델 복사본 하나가 GPU 여러 개를 사용하는 경우도 있습니다.</li>
+<li><strong>data parallel</strong>: This is one way of training models. Multiple copies of the model are created, and each copy is trained in parallel. Each copied model learns with different data, calculates its own local gradients/sub-gradients, and then, through synchronization, the gradients from all copies are calculated together.</li>
+<li><strong>node</strong>: When using <strong>data parallel</strong> training, this refers to the machine or server where training occurs. Each <strong>node</strong> creates multiple processes, makes copies of the model, and trains on those copies.</li>
+<li><strong>rank</strong>: The ID of each process that has been copied onto a <strong>node</strong>. When there are multiple nodes, <strong>rank</strong> is divided into <strong>local rank</strong> and <strong>global rank</strong>. <strong>Local rank</strong> is the ID within a single <strong>node</strong>, and <strong>global rank</strong> is the ID assigned across all processes in all nodes.</li>
+<li><strong>world</strong>: The group that contains all processes across all nodes. The number of processes in this <strong>world</strong> is called the <strong>world size</strong>. Usually, every model copy runs on one GPU, so often the <strong>world size</strong> equals the number of GPUs. If the model is large, sometimes one model copy uses multiple GPUs.</li>
 </ul>
 <p><img src="/p/yolov5_train/ddp.png"
 	width="690"
@@ -319,11 +362,12 @@
 		data-flex-basis="644px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md"  target="_blank" rel="noopener"
-    ><em>https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md</em></a>  </span></p>
-<p>위 그림은 두 개 노드에서 학습을 하는 <strong>data parellel</strong> application입니다. 위 모델은 모델 복사본 하나 당 GPU 두 개를 사용하여 학습하여, 각 <strong>node</strong>안의 <code>GPU0</code>, <code>GPU1</code>에서 <code>LOCAL RANK0</code>을 가진 process가, <code>GPU2</code>, <code>GPU3</code>에서 <code>LOCAL RANK1</code>을 가진 process가 학습을 진행하게 됩니다. <code>GLOBAL RANK</code>는 <strong>node</strong>에 상관 없이 전체 process에 대해 0~3까지 할당됩니다.</p>
-<h2 id="학습-조건-프린트-및-저장">학습 조건 프린트 및 저장</h2>
-<p>main 함수가 시작되면 아래와 같이 현재 args를 프린트하고, 학습에 필요한 것들을 체크하는 코드가 있습니다. 이 때 위에서 살펴본 <code>RANK</code>가 나오는데, <code>RANK</code>가 <code>-1</code>인 경우는 <strong>data parellel</strong>을 사용하지 않는 경우입니다. 하나의 process에서만 프린트하기 위해 아래와 같이 rank가 0일 경우에만 코드를 실행합니다. <em><strong>check_git_status</strong></em>는 현재 브랜치의 커밋 내역을 확인하여 pull 받을 커밋이 있다면 자동으로 <code>git pull</code> 해 주는 함수입니다. 개인적으로는 코드 관리 및 재현에 용이하게 하기 위해 아래와 같이 코멘트처리 한 뒤 필요할 때마다 수동으로 <code>git pull</code>해서 사용하고 있습니다.</p>
+<span style="font-size:70%"> Source: <a class="link" href="https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md"  target="_blank" rel="noopener"
+    >https://github.com/pytorch/examples/blob/main/distributed/ddp/README.md</a> </span><br>
+The image above shows a <strong>data parallel</strong> application running on two nodes. In this case, each model copy trains on two GPUs, so on each <strong>node</strong>, the process with <code>LOCAL RANK0</code> runs on <code>GPU0</code> and <code>GPU1</code>, and the process with <code>LOCAL RANK1</code> runs on <code>GPU2</code> and <code>GPU3</code>. The <code>GLOBAL RANK</code> is assigned as 0 to 3 across all processes, regardless of the node.</p>
+<h2 id="printing-and-saving-training-configurations">Printing and Saving Training Configurations
+</h2><p>When the main function starts, it prints the current args and checks for what is needed for training, as shown below. At this point, the <code>RANK</code> variable appears as mentioned earlier; when <code>RANK</code> is <code>-1</code>, it means data parallel is not being used. To ensure only one process prints, the code below is executed only when the rank is 0.<br>
+The function <em><strong>check_git_status</strong></em> checks your current branch’s commit history and automatically runs <code>git pull</code> if there are any new commits available. For easier code management and reproducibility, I personally comment this out and run <code>git pull</code> manually as needed.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -333,14 +377,14 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># main 함수</span>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># main function</span>
 <span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
     <span class="n">print_args</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
     <span class="c1"># check_git_status()</span>
     <span class="n">check_requirements</span><span class="p">()</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>학습이 시작되면 아래에서 현재 학습에 사용하고 있는 하이퍼파라미터와 학습 관련된 세팅을 저장합니다. 각 파일은 <code>runs/train/exp</code> 폴더에 저장되어 학습이 종료 후 학습에 사용한 설정을 확인할 수 있습니다. <code>exp</code> 폴더는 학습을 새로 할 때마다 <code>exp1</code> <code>exp2</code>와 같이 자동으로 숫자가 커지며 폴더가 새로 생성됩니다.</p>
+</div><p>When training starts, the hyperparameters and training-related settings being used are saved as shown below. Each file is saved in the <code>runs/train/exp</code> folder, so you can check the settings used after training finishes. The <code>exp</code> folder is automatically created with an incremented number (such as <code>exp1</code>, <code>exp2</code>, etc.) every time you start new training.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -349,14 +393,14 @@
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># train 함수</span>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># train function</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">evolve</span><span class="p">:</span>
     <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;hyp.yaml&#39;</span><span class="p">,</span> <span class="n">hyp</span><span class="p">)</span>
     <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;opt.yaml&#39;</span><span class="p">,</span> <span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
 </code></pre></td></tr></table>
 </div>
-</div><h2 id="logger">Logger</h2>
-<div class="highlight"><div class="chroma">
+</div><h2 id="logger">Logger
+</h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
@@ -374,7 +418,7 @@
         <span class="n">callbacks</span><span class="o">.</span><span class="n">register_action</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">loggers</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>로깅을 한 번만 하기 위해 rank가 0일 경우 Logger 객체를 만듭니다. 그런 다음 loggers의 함수를 각 함수의 이름으로 callback에 등록해 줍니다. 함수를 호출 할 때에는 함수 이름을 이용하여 아래와 같이 호출해줍니다.</p>
+</div><p>To ensure logging happens only once, the Logger object is created only when the rank is 0. Then, the methods of the loggers object are registered as callbacks with their respective function names. When calling a function, you use its name as shown below.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -383,9 +427,9 @@
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">callbacks</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;on_pretrain_routine_end&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>예를 들면 위 코드는 학습을 위한 설정 후 실행됩니다. 위 코드가 실행되면 <code>Loggers</code> 클래스의 <em><strong>on_pretrain_routine_end</strong></em> 함수가 실행되어 레이블에 관한 정보를 이미지로 저장합니다.</p>
-<h2 id="torch_distributed_zero_first">torch_distributed_zero_first</h2>
-<p>첫 번째 rank가 먼저 수행되어야 하는 코드가 있을 때, yolov5에서는 <em><strong>torch_distributed_zero_first</strong></em> 함수를 만들어 이를 수행하고 있습니다.</p>
+</div><p>For example, the above code is executed after the training setup is complete. When this code runs, the <em><strong>on_pretrain_routine_end</strong></em> method of the <code>Loggers</code> class is called, and it saves label information as an image.</p>
+<h2 id="torch_distributed_zero_first">torch_distributed_zero_first
+</h2><p>If there is code that must be executed by the first rank before other processes, YOLOv5 provides the <em><strong>torch_distributed_zero_first</strong></em> function to handle this.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -408,11 +452,11 @@
         <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </code></pre></td></tr></table>
 </div>
-</div><p><em><strong>torch_distributed_zero_first</strong></em> 함수는 torch의 contextmanager decorator와 <em><strong>barrier</strong></em> 함수를 이용하여 정의되어 있습니다.</p>
+</div><p>The <em><strong>torch_distributed_zero_first</strong></em> function is implemented using torch&rsquo;s contextmanager decorator and the <em><strong>barrier</strong></em> function.</p>
 <ul>
-<li><em><strong>@contextmanager</strong></em>와 함께 정의된 함수는 <code>yield</code> 전에 선언된 코드는 <code>with</code> 코드 블록이 실행되기 전에 수행이 되고, <code>yield</code> 후에 선언된 코드는 <code>with</code> 코드 블록이 실행된 후 수행이 됩니다.</li>
-<li><em><strong>barrier</strong></em> 함수는 전체 그룹이 <em><strong>barrier</strong></em> 함수에 도달할 때까지 process를 block합니다.</li>
-<li>위의 <em><strong>torch_distributed_zero_first</strong></em>에서는 <code>rank0</code>을 제외한 나머지 process는 <code>yield</code> 전에서 <code>rank0</code>를 기다리게 되고, <code>rank0</code> 혼자 <code>yield</code>를 만나 with 코드 블록을 수행합니다. 후에 <code>rank0</code>이 <em><strong>barrier</strong></em>를 만나게 되면 나머지 process들도 yield를 만나 with 코드 블록을 수행하게 됩니다. 이 과정을 통해 <code>rank0</code>가 항상 with 코드 블록을 다른 process보다 먼저 수행하게 됩니다.</li>
+<li>In a function defined with <em><strong>@contextmanager</strong></em>, the code before <code>yield</code> is executed before the <code>with</code> block, and the code after <code>yield</code> is executed after the <code>with</code> block.</li>
+<li>The <em><strong>barrier</strong></em> function blocks all processes until the whole group reaches the barrier.</li>
+<li>In the <em><strong>torch_distributed_zero_first</strong></em> function above, all processes except <code>rank0</code> wait before <code>yield</code> for <code>rank0</code>. Only <code>rank0</code> encounters <code>yield</code> and executes the <code>with</code> code block first. Then, when <code>rank0</code> reaches the <em><strong>barrier</strong></em> after the block, the remaining processes pass <code>yield</code> and execute the <code>with</code> code block. This ensures that <code>rank0</code> always executes the <code>with</code> code block before the other processes.</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -424,14 +468,15 @@
     <span class="n">data_dict</span> <span class="o">=</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="n">check_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>위는 학습 코드에서 <em><strong>torch_distributed_zero_first</strong></em>가 사용된 예입니다.  * <code>rank0</code>을 제외한 나머지 process는 <code>rank0</code>가 <em><strong>check_dataset</strong></em>(<em><strong>data</strong></em>)를 수행 후 <em><strong>barrier</strong></em>를 만날 때까지 기다립니다.</p>
+</div><p>The above is an example of how <em><strong>torch_distributed_zero_first</strong></em> is used in the training code.</p>
 <ul>
-<li><code>rank0</code>는 <em><strong>check_dataset</strong></em>를 수행하여 데이터가 없으면 다운받습니다. <em><strong>check_dataset</strong></em> 함수 수행이 끝난 후  <code>rank0</code>는 <em><strong>barrier</strong></em> 를 만납니다.</li>
-<li>나머지 process들도 <em><strong>check_dataset</strong></em>를 수행하게 됩니다. 이 때, 데이터는 이미 <code>rank0</code>에서 다운받았기 때문에 다시 다운받지 않습니다.</li>
-<li><em><strong>torch_distributed_zero_first</strong></em> 함수를 사용함으로써 다운로드를 한 번만 받게 됩니다.</li>
+<li>All processes except <code>rank0</code> wait until <code>rank0</code> completes <em><strong>check_dataset</strong></em> and reaches the <em><strong>barrier</strong></em>.</li>
+<li><code>rank0</code> runs <em><strong>check_dataset</strong></em> and downloads the data if it does not exist. After finishing the <em><strong>check_dataset</strong></em> function, <code>rank0</code> reaches the <em><strong>barrier</strong></em>.</li>
+<li>The other processes also execute <em><strong>check_dataset</strong></em>. At this point, since the data has already been downloaded by <code>rank0</code>, they do not download it again.</li>
+<li>By using the <em><strong>torch_distributed_zero_first</strong></em> function, the download is performed only once.</li>
 </ul>
-<h2 id="optimizer--learning-rate-schedule">Optimizer &amp; Learning rate schedule</h2>
-<p>train을 시작할 때 optimizer argument를 주지 않는다면 default인 SGD가 사용됩니다. lr0, momentum, weight_decay는 학습 시작시 지정한 하이퍼파라미터에서 가져옵니다.</p>
+<h2 id="optimizer--learning-rate-schedule">Optimizer &amp; Learning rate schedule
+</h2><p>If you do not specify the optimizer argument when starting training, the default SGD is used. The values for lr0, momentum, and weight_decay are taken from the hyperparameters specified before starting the training.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -440,7 +485,7 @@
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">smart_optimizer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lr0&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;momentum&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;weight_decay&#39;</span><span class="p">])</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>Learning rate은 default로 Linear learning rate을 사용합니다. 아래와 같이 <code>LambdaLR</code>을 사용하여 구현되어 있습니다.</p>
+</div><p>By default, a linear learning rate is used. This is implemented using <code>LambdaLR</code> as shown below.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -451,14 +496,14 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cos_lr</span><span class="p">:</span>
-    <span class="n">lf</span> <span class="o">=</span> <span class="n">one_cycle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">],</span> <span class="n">epochs</span><span class="p">)</span>  <span class="c1"># cosine 1-&gt;hyp[&#39;lrf&#39;]</span>
+    <span class="n">lf</span> <span class="o">=</span> <span class="n">one_cycle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">],</span> <span class="n">epochs</span><span class="p">)</span> <span class="c1"># cosine 1-&gt;hyp[&#39;lrf&#39;]</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">lf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span> <span class="o">/</span> <span class="n">epochs</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">]</span>  <span class="c1"># linear</span>
+    <span class="n">lf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span> <span class="o">/</span> <span class="n">epochs</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">]</span> <span class="c1"># linear</span>
 <span class="n">scheduler</span> <span class="o">=</span> <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">LambdaLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">lr_lambda</span><span class="o">=</span><span class="n">lf</span><span class="p">)</span>
 </code></pre></td></tr></table>
 </div>
-</div><h2 id="dataloader">Dataloader</h2>
-<p>각 rank마다 dataloader가 생기므로, 전체 batch size를 <code>WORLD_SIZE</code>로 나눈 것이 새로운 batch size가 되어 dataloader를 만들게 됩니다.</p>
+</div><h2 id="dataloader">Dataloader
+</h2><p>Since each rank has its own dataloader, the total batch size is divided by <code>WORLD_SIZE</code> to compute the new batch size for each dataloader.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -480,24 +525,24 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">train_loader</span><span class="p">,</span> <span class="n">dataset</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span>
-                                            <span class="n">imgsz</span><span class="p">,</span>
-                                            <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span><span class="p">,</span>
-                                            <span class="n">gs</span><span class="p">,</span>
-                                            <span class="n">single_cls</span><span class="p">,</span>
-                                            <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
-                                            <span class="n">augment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                            <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
-                                            <span class="n">rect</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">rect</span><span class="p">,</span>
-                                            <span class="n">rank</span><span class="o">=</span><span class="n">LOCAL_RANK</span><span class="p">,</span>
-                                            <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
-                                            <span class="n">image_weights</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">image_weights</span><span class="p">,</span>
-                                            <span class="n">quad</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">quad</span><span class="p">,</span>
-                                            <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;train: &#39;</span><span class="p">),</span>
-                                            <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                            <span class="n">seed</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">imgsz</span><span class="p">,</span>
+    <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span><span class="p">,</span>
+    <span class="n">gs</span><span class="p">,</span>
+    <span class="n">single_cls</span><span class="p">,</span>
+    <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
+    <span class="n">augment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+    <span class="n">rect</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">rect</span><span class="p">,</span>
+    <span class="n">rank</span><span class="o">=</span><span class="n">LOCAL_RANK</span><span class="p">,</span>
+    <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
+    <span class="n">image_weights</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">image_weights</span><span class="p">,</span>
+    <span class="n">quad</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">quad</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;train: &#39;</span><span class="p">),</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
 </code></pre></td></tr></table>
 </div>
-</div><p>현재 YOLOv5에서는 validation은 single-GPU만 지원하고 있습니다.</p>
+</div><p>Currently, YOLOv5 supports validation on a single GPU only.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -517,17 +562,17 @@
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
     <span class="n">val_loader</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">val_path</span><span class="p">,</span>
-                                    <span class="n">imgsz</span><span class="p">,</span>
-                                    <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-                                    <span class="n">gs</span><span class="p">,</span>
-                                    <span class="n">single_cls</span><span class="p">,</span>
-                                    <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
-                                    <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">noval</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
-                                    <span class="n">rect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                    <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
-                                    <span class="n">workers</span><span class="o">=</span><span class="n">workers</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-                                    <span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-                                    <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;val: &#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">imgsz</span><span class="p">,</span>
+        <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">gs</span><span class="p">,</span>
+        <span class="n">single_cls</span><span class="p">,</span>
+        <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
+        <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">noval</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+        <span class="n">rect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">workers</span><span class="o">=</span><span class="n">workers</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;val: &#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
 </code></pre></td></tr></table>
 </div>
 </div>
@@ -561,18 +606,19 @@
     
         <link 
                 rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
             ><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
                 defer
                 >
             </script><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
                 defer
                 >
             </script><script>
     window.addEventListener("DOMContentLoaded", () => {
-        renderMathInElement(document.querySelector(`.article-content`), {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
             delimiters: [
                 { left: "$$", right: "$$", display: true },
                 { left: "$", right: "$", display: false },
@@ -582,6 +628,7 @@
             ignoredClasses: ["gist"]
         });})
 </script>
+
     
 </article>
 
@@ -720,12 +767,12 @@
         
             2023 - 
         
-        2024 Kimberly&#39;s Blog
+        2025 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -814,7 +861,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

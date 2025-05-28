@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>YOLOv1 on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/ko/tags/yolov1/</link>
+        <description>Recent content in YOLOv1 on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Mon, 29 May 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/tags/yolov1/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>YOLOv1 리뷰</title>
+        <link>https://kimberlykang.github.io/ko/p/yolov1_review/</link>
+        <pubDate>Mon, 29 May 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/ko/p/yolov1_review/</guid>
+        <description>&lt;p&gt;본 포스트에서는 2016년 CVPR에 발표된 논문 &amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;quot;을 살펴보겠습니다.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ea%b0%9c%eb%85%90-%ec%9d%b4%ed%95%b4&#34; &gt;개념 이해&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#bounding-box&#34; &gt;Bounding Box&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#class-probability&#34; &gt;Class Probability&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#output&#34; &gt;Output&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%eb%84%a4%ed%8a%b8%ec%9b%8c%ed%81%ac-%ea%b5%ac%ec%a1%b0&#34; &gt;네트워크 구조&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#loss&#34; &gt;Loss&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ed%85%8c%ec%8a%a4%ed%8a%b8&#34; &gt;테스트&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;개념-이해&#34;&gt;개념 이해
+&lt;/h2&gt;&lt;p&gt;YOLO에서는 이미지에서 object를 찾을 때, grid를 사용합니다. 이를 간략하게 살펴보면&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;이미지를 &lt;strong&gt;S×S&lt;/strong&gt;개의 grid로 나눕니다.&lt;/li&gt;
+&lt;li&gt;각 grid cell에서 &lt;strong&gt;B&lt;/strong&gt;개의 bounding box의 좌표(x, y, w, h)와 그 bounding box의 confidence score(c)를 예측합니다.&lt;/li&gt;
+&lt;li&gt;각 grid cell마다 &lt;strong&gt;C&lt;/strong&gt;개의 class probability를 예측합니다.&lt;/li&gt;
+&lt;li&gt;confidence score과 class probability로 최종 score와 class를 결정하고, 이 때 score가 threshold보다 높은 bounding box가 최종 object detection의 결과가 됩니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov1_review/bboxes.png&#34;
+	width=&#34;1186&#34;
+	height=&#34;822&#34;
+	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Bounding Box 예측 예시&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;144&#34;
+		data-flex-basis=&#34;346px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;위 이미지는 &lt;strong&gt;S=7&lt;/strong&gt;, &lt;strong&gt;B=2&lt;/strong&gt;일 때 하나의 grid에 대한 예측의 예시입니다.&lt;/li&gt;
+&lt;li&gt;각 grid cell마다 bounding box(x, y, w, h, c)를 두 세트씩 예측합니다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;C=20&lt;/strong&gt;일 때, 각 grid cell마다 20개의 class에 대한 class probability를 예측합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;지금까지 YOLO가 어떻게 object를 찾는지 대략적으로 살펴봤습니다. 아래에서는 각 예측값들이 어떻게 계산되고 어떤 의미를 갖는지 살펴보겠습니다.&lt;/p&gt;
+&lt;h2 id=&#34;bounding-box&#34;&gt;Bounding Box
+&lt;/h2&gt;&lt;p&gt;bounding box는 (x, y, w, h, c)로 이루어져 있습니다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;(x, y): bounding box &lt;strong&gt;중심의 좌표&lt;/strong&gt;.
+&lt;ul&gt;
+&lt;li&gt;각 grid cell마다 B개의 bounding box를 가진다는 의미는, 이 B개의 bounding box의 중심이 해당 grid cell 안에 있다는 의미입니다.&lt;/li&gt;
+&lt;li&gt;box의 네 꼭지점은 bounding box 밖에 있어도 상관이 없습니다.&lt;/li&gt;
+&lt;li&gt;grid cell 안에서 상대적으로 어느 위치에 있는지를 표시하며, 0~1 사이의 값을 가집니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;(w, h): bounding box의 &lt;strong&gt;너비, 높이&lt;/strong&gt;.
+&lt;ul&gt;
+&lt;li&gt;전체 이미지 너비, 높이에 대해 상대적인 값을 사용하며 0~1 사이의 값을 가집니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;c: box가 &lt;strong&gt;object를 갖는 것&lt;/strong&gt;에 대해 얼마나 확신하고, 그 box의 &lt;strong&gt;좌표가 얼마나 정확한&lt;/strong&gt; 가에 대한 값입니다.
+&lt;ul&gt;
+&lt;li&gt;$ Pr(Object) * IOU^{truth}_{pred} $&lt;/li&gt;
+&lt;li&gt;좌표가 얼마나 정확한지를 계산할 때에는 &lt;strong&gt;예측한 좌표와 Ground Truth&lt;/strong&gt;(&lt;strong&gt;GT&lt;/strong&gt;) &lt;strong&gt;사이의 Intersection Over Union&lt;/strong&gt;(&lt;strong&gt;IOU&lt;/strong&gt;)를 계산합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;class-probability&#34;&gt;Class Probability
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;C: 각 grid cell이 object를 가지고 있을 때의 class probability입니다.
+&lt;ul&gt;
+&lt;li&gt;$ Pr(Class_i|Object) $&lt;/li&gt;
+&lt;li&gt;bounding box 갯수와 상관 없이 grid cell마다 한 세트의 class probability만 예측합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;output&#34;&gt;Output
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;이미지를 S×S grid로 나누고, 각 grid마다 B개의 bounding box와 C개 class에 대한 class probability가 있다고 할 때, 최종 output tensor의 shape은 &lt;strong&gt;S×S×&lt;/strong&gt;(&lt;strong&gt;B*5+C&lt;/strong&gt;)가 됩니다.&lt;/li&gt;
+&lt;li&gt;PASCAL VOC 실험 예를 들면, S=7, B=2, C=20입니다. 따라서 총 49개의 grid가 있고, 각 grid cell마다 30개의 예측값을 갖게 됩니다. 아래는 30개의 예측값 중 하나의 예시입니다.
+&lt;ul&gt;
+&lt;li&gt;[x, y, w, h, c, 배경일 확률, 비행기일 확률, &amp;hellip;, 모니터일 확률]&lt;/li&gt;
+&lt;li&gt;[0.4, 0.3, 0.8, 0.7, 0.9, 0.003, 0.8, &amp;hellip; , 0.012]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;네트워크-구조&#34;&gt;네트워크 구조
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;GoogLeNet과 유사한 구조를 사용했습니다.
+&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov1_review/architecture.png&#34;
+	width=&#34;670&#34;
+	height=&#34;272&#34;
+	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;246&#34;
+		data-flex-basis=&#34;591px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Redmon, Joseph, et al. &amp;ldquo;You only look once: Unified, real-time object detection.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;loss&#34;&gt;Loss
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;sum-squared error를 사용했습니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$ \lambda_{coor} $, $ \lambda_{noobj} $ 사용&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;대부분의 이미지는 object가 있는 grid cell보다 object가 없는 grid cell이 더 많습니다. 그래서 object가 없는 grid cell의 confidence score는 0에 가까워질 때의 gradient가 object가 있는 grid cell의 gradient보다 훨씬 커서 학습 초기에 모델이 diverge 하는 현상이 생길 수 있습니다. 이를 막기 위해, $ \lambda_{coor}=5 $를 사용하여 bounding box 좌표 예측 loss는 증가시키고, $ \lambda_{noobj}=0.5 $를 사용하여 object가 없는 box의 confidence 예측 loss는 감소시켰습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$ \sqrt w $, $ \sqrt h $ 예측&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;큰 box는 편차가 조금 있어도 크게 상관 없지만 작은 box에는 큰 영향을 끼칩니다. 이 문제를 해결하기 위해 bounding box 너비와 높이 값에 루트를 씌워 줬습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;각 object에 가장 IOU가 높은 하나의 bounding box predictor만 할당했습니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Loss function&lt;br&gt;
+$ \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj}  [(x_i-\hat x_i)^2 + (y_i-\hat y_i)^2] $&lt;br&gt;
+$ + \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj}  [(\sqrt{w_i} - \sqrt{\hat w_i})^2 + (\sqrt{h_i} - \sqrt{\hat h_i})^2] $&lt;br&gt;
+$ + \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj} (C_i-\hat C_i)^2 $
+$ + \lambda_{noobj} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{noobj} (C_i-\hat C_i)^2 $&lt;br&gt;
+$ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈classwa}} (p_i(c)-\hat p_i(c))^2 $&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1&lt;sup&gt;obj&lt;/sup&gt;&lt;sub&gt;i&lt;/sub&gt;: cell i에 object가 나타났는지 여부를 의미합니다.&lt;/li&gt;
+&lt;li&gt;1&lt;sup&gt;obj&lt;/sup&gt;&lt;sub&gt;ij&lt;/sub&gt;: cell i에 있는 j번째 bounding box가 cell i에 있는 GT에 해당하는 예측값인지 여부입니다. 즉, cell i에 있는 j번째 bounding box가 GT와의 IOU가 가장 큰 지 여부입니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;테스트&#34;&gt;테스트
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;$ Pr(Class_i|Object) * Pr(Object) * {IOU}^{truth}_{pred} = Pr({Class}_i) * {IOU}^{truth}_{pred} $&lt;/li&gt;
+&lt;li&gt;테스트할 때는 class probability와 confidence score를 곱해서 최종 score를 계산합니다.&lt;/li&gt;
+&lt;li&gt;최종 score는 해당 박스에 class가 나타날 확률과 예측한 box가 실제 object에 얼마나 잘 맞는 지 두 가지 의미를 모두 갖고 있습니다.&lt;/li&gt;
+&lt;li&gt;아래 그림의 bounding box 선의 굵기가 confidence를 의미합니다. 이 confidence와 class probability를 곱하여 threshold 이상의 결과가 최종 결과가 됩니다.
+&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov1_review/figure2.png&#34;
+	width=&#34;642&#34;
+	height=&#34;404&#34;
+	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Image 5&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;158&#34;
+		data-flex-basis=&#34;381px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Redmon, Joseph, et al. &amp;ldquo;You only look once: Unified, real-time object detection.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

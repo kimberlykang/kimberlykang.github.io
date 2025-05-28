@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko-kr" dir="ltr">
+<html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='본 포스트에서는 2018년 발표된 &amp;ldquo;YOLOv3: An Incremental Improvement&amp;quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차 여러 Scale로 예측 결과 여러 Scale로'>
-<title>YOLOv3 리뷰</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we will look at the paper &ldquo;YOLOv3: An Incremental Improvement&rdquo;, published in 2018. YOLOv3: An Incremental Improvement Table of Contents  Prediction at Multiple Scales Results  Prediction at Multiple Scales Source: https://wikidocs.net/174008  YOLOv3 predicts bounding boxes at three different scales, similar to a Feature Pyramid Network. Several convolutional layers are attached to the base feature extractor, with the final layer predicting bounding boxes, objectness, and class probabilities.">
+<title>YOLOv3 Review</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov3_review/'>
 
-<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='YOLOv3 리뷰'>
-<meta property='og:description' content='본 포스트에서는 2018년 발표된 &amp;ldquo;YOLOv3: An Incremental Improvement&amp;quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차 여러 Scale로 예측 결과 여러 Scale로'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv3 Review">
+<meta property='og:description' content="In this post, we will look at the paper &ldquo;YOLOv3: An Incremental Improvement&rdquo;, published in 2018. YOLOv3: An Incremental Improvement Table of Contents  Prediction at Multiple Scales Results  Prediction at Multiple Scales Source: https://wikidocs.net/174008  YOLOv3 predicts bounding boxes at three different scales, similar to a Feature Pyramid Network. Several convolutional layers are attached to the base feature extractor, with the final layer predicting bounding boxes, objectness, and class probabilities.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov3_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv3' /><meta property='article:published_time' content='2023-07-04T00:09:40&#43;09:00'/><meta property='article:modified_time' content='2023-07-04T00:09:40&#43;09:00'/>
-<meta name="twitter:title" content="YOLOv3 리뷰">
-<meta name="twitter:description" content="본 포스트에서는 2018년 발표된 &amp;ldquo;YOLOv3: An Incremental Improvement&amp;quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차 여러 Scale로 예측 결과 여러 Scale로">
+<meta name="twitter:title" content="YOLOv3 Review">
+<meta name="twitter:description" content="In this post, we will look at the paper &ldquo;YOLOv3: An Incremental Improvement&rdquo;, published in 2018. YOLOv3: An Incremental Improvement Table of Contents  Prediction at Multiple Scales Results  Prediction at Multiple Scales Source: https://wikidocs.net/174008  YOLOv3 predicts bounding boxes at three different scales, similar to a Feature Pyramid Network. Several convolutional layers are attached to the base feature extractor, with the final layer predicting bounding boxes, objectness, and class probabilities.">
     </head>
     <body class="
     article-page
@@ -153,12 +153,35 @@
             </a>
         </li>
         
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
 
-        <div class="menu-bottom-section">
-            
-            
-                <li id="dark-mode-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="8" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -166,7 +189,7 @@
 
 
 
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="16" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -174,10 +197,11 @@
 
 
 
-                    <span>Dark Mode</span>
-                </li>
-            
-        </div>
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
     </ol>
 </aside>
 
@@ -203,8 +227,8 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#여러-scale로-예측">여러 Scale로 예측</a></li>
-    <li><a href="#결과">결과</a></li>
+    <li><a href="#prediction-at-multiple-scales">Prediction at Multiple Scales</a></li>
+    <li><a href="#results">Results</a></li>
   </ol>
 </nav>
         </div>
@@ -232,7 +256,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/yolov3_review/">YOLOv3 리뷰</a>
+            <a href="/p/yolov3_review/">YOLOv3 Review</a>
         </h2>
     
         
@@ -277,6 +301,25 @@
     
 
     
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/yolov3_review/" class="link">Korean</a>
+                
+            </div>
+        </footer>
+    
 </div>
 
 </header>
@@ -284,16 +327,16 @@
     <section class="article-content">
     
     
-    <p>본 포스트에서는 2018년 발표된 &ldquo;YOLOv3: An Incremental Improvement&quot;를 살펴보겠습니다.<br>
+    <p>In this post, we will look at the paper <strong>&ldquo;YOLOv3: An Incremental Improvement&rdquo;</strong>, published in 2018.<br>
 <a class="link" href="https://arxiv.org/pdf/1804.02767.pdf"  target="_blank" rel="noopener"
     >YOLOv3: An Incremental Improvement</a></p>
-<h1 id="목차">목차</h1>
-<ol>
-<li><a class="link" href="#%ec%97%ac%eb%9f%ac-scale%eb%a1%9c-%ec%98%88%ec%b8%a1" >여러 Scale로 예측</a></li>
-<li><a class="link" href="#%ea%b2%b0%ea%b3%bc" >결과</a></li>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
+<li><a class="link" href="#prediction-at-multiple-scales" >Prediction at Multiple Scales</a></li>
+<li><a class="link" href="#results" >Results</a></li>
 </ol>
-<h2 id="여러-scale로-예측">여러 Scale로 예측</h2>
-<p><img src="/p/yolov3_review/architecture.png"
+<h2 id="prediction-at-multiple-scales">Prediction at Multiple Scales
+</h2><p><img src="/p/yolov3_review/architecture.png"
 	width="1604"
 	height="1652"
 	srcset="/p/yolov3_review/architecture_hu9c6a99adb0743d0e7bdbfc1484679b91_300157_480x0_resize_box_3.png 480w, /p/yolov3_review/architecture_hu9c6a99adb0743d0e7bdbfc1484679b91_300157_1024x0_resize_box_3.png 1024w"
@@ -307,17 +350,17 @@
 		data-flex-basis="233px"
 	
 > <br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://wikidocs.net/174008"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://wikidocs.net/174008"  target="_blank" rel="noopener"
     ><em>https://wikidocs.net/174008</em></a></span></p>
 <ul>
-<li>Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다.</li>
-<li>base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다.</li>
-<li>논문에서는 grid cell마다 3개의 ahchor box를 사용했습니다. 따라서 N이 feature map의 grid 갯수일 때, 각 feature map의 예측값은 N×N×[3*(4+1+80)]이 됩니다.</li>
-<li>3가지 scale에서 3종류의 achor를 사용하므로, anchor 갯수는 총 9개가 됩니다. k=9로 k-means를 수행하여 anchor를 구합니다.</li>
-<li>COCO dataset의 경우, (10×13), (16×30), (33×23), (30×61), (62×45), (59×119), (116×90), (159×198), (373×326)의 anchor box를 사용합니다.</li>
+<li>YOLOv3 predicts bounding boxes at three different scales, similar to a Feature Pyramid Network.</li>
+<li>Several convolutional layers are attached to the base feature extractor, with the final layer predicting bounding boxes, objectness, and class probabilities.</li>
+<li>In this paper, 3 anchor boxes are used per grid cell. Therefore, if N is the number of grids in the feature map, each feature map predicts N×N×[3 * (4+1+80)] values.</li>
+<li>Since 3 types of anchors are used at 3 different scales, there are a total of 9 anchors. Anchors are obtained using k-means clustering with k=9.</li>
+<li>For the COCO dataset, the following anchor boxes are used: (10×13), (16×30), (33×23), (30×61), (62×45), (59×119), (116×90), (159×198), (373×326).</li>
 </ul>
-<h2 id="결과">결과</h2>
-<p><img src="/p/yolov3_review/table3.png"
+<h2 id="results">Results
+</h2><p><img src="/p/yolov3_review/table3.png"
 	width="636"
 	height="221"
 	srcset="/p/yolov3_review/table3_hubca3cfb4d7515664152572e9ddf4bed4_56185_480x0_resize_box_3.png 480w, /p/yolov3_review/table3_hubca3cfb4d7515664152572e9ddf4bed4_56185_1024x0_resize_box_3.png 1024w"
@@ -331,7 +374,7 @@
 		data-flex-basis="690px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/1804.02767.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/1804.02767.pdf"  target="_blank" rel="noopener"
     ><em>Redmon, Joseph, and Ali Farhadi. &ldquo;Yolov3: An incremental improvement.&rdquo; arXiv preprint arXiv:1804.02767 (2018), Table 3.</em></a></span></p>
 
 </section>
@@ -364,18 +407,19 @@
     
         <link 
                 rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
             ><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
                 defer
                 >
             </script><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
                 defer
                 >
             </script><script>
     window.addEventListener("DOMContentLoaded", () => {
-        renderMathInElement(document.querySelector(`.article-content`), {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
             delimiters: [
                 { left: "$$", right: "$$", display: true },
                 { left: "$", right: "$", display: false },
@@ -385,6 +429,7 @@
             ignoredClasses: ["gist"]
         });})
 </script>
+
     
 </article>
 
@@ -404,7 +449,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">XLNet 리뷰</h2>
+            <h2 class="article-title">XLNet Review</h2>
         </div>
     </a>
 </article>
@@ -417,7 +462,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">BERT 리뷰</h2>
+            <h2 class="article-title">BERT Review</h2>
         </div>
     </a>
 </article>
@@ -430,7 +475,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv2 리뷰</h2>
+            <h2 class="article-title">YOLOv2 Review</h2>
         </div>
     </a>
 </article>
@@ -443,7 +488,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv1 리뷰</h2>
+            <h2 class="article-title">YOLOv1 Review</h2>
         </div>
     </a>
 </article>
@@ -510,12 +555,12 @@
         
             2023 - 
         
-        2024 Kimberly&#39;s Blog
+        2025 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -604,7 +649,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

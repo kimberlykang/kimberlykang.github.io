@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko-kr" dir="ltr">
+<html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='본 포스트에서는 2016년 CVPR에 발표된 논문 &amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;quot;을 살펴보겠습니다. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf 목차 개념 이해 Bounding Box Class Probability Output 네트워크 구'>
-<title>YOLOv1 리뷰</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we’ll take a look at the paper &ldquo;You Only Look Once: Unified, Real-Time Object Detection&rdquo; presented at CVPR 2016. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf Table of Contents  Overview Bounding Box Class Probability Output Network Architecture Loss Testing  Overview YOLO uses a grid to detect objects in an image. In short:  The input image is divided into S×S grid cells. Each grid cell predicts the coordinates (x, y, w, h) for B bounding boxes and a confidence score (c) for each bounding box.">
+<title>YOLOv1 Review</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov1_review/'>
 
-<link rel="stylesheet" href="/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css"><meta property='og:title' content='YOLOv1 리뷰'>
-<meta property='og:description' content='본 포스트에서는 2016년 CVPR에 발표된 논문 &amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;quot;을 살펴보겠습니다. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf 목차 개념 이해 Bounding Box Class Probability Output 네트워크 구'>
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv1 Review">
+<meta property='og:description' content="In this post, we’ll take a look at the paper &ldquo;You Only Look Once: Unified, Real-Time Object Detection&rdquo; presented at CVPR 2016. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf Table of Contents  Overview Bounding Box Class Probability Output Network Architecture Loss Testing  Overview YOLO uses a grid to detect objects in an image. In short:  The input image is divided into S×S grid cells. Each grid cell predicts the coordinates (x, y, w, h) for B bounding boxes and a confidence score (c) for each bounding box.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov1_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv1' /><meta property='article:published_time' content='2023-05-29T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-05-29T00:17:41&#43;09:00'/>
-<meta name="twitter:title" content="YOLOv1 리뷰">
-<meta name="twitter:description" content="본 포스트에서는 2016년 CVPR에 발표된 논문 &amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;quot;을 살펴보겠습니다. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf 목차 개념 이해 Bounding Box Class Probability Output 네트워크 구">
+<meta name="twitter:title" content="YOLOv1 Review">
+<meta name="twitter:description" content="In this post, we’ll take a look at the paper &ldquo;You Only Look Once: Unified, Real-Time Object Detection&rdquo; presented at CVPR 2016. https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf Table of Contents  Overview Bounding Box Class Probability Output Network Architecture Loss Testing  Overview YOLO uses a grid to detect objects in an image. In short:  The input image is divided into S×S grid cells. Each grid cell predicts the coordinates (x, y, w, h) for B bounding boxes and a confidence score (c) for each bounding box.">
     </head>
     <body class="
     article-page
@@ -153,12 +153,35 @@
             </a>
         </li>
         
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
 
-        <div class="menu-bottom-section">
-            
-            
-                <li id="dark-mode-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="8" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -166,7 +189,7 @@
 
 
 
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <circle cx="16" cy="12" r="2" />
   <rect x="2" y="6" width="20" height="12" rx="6" />
@@ -174,10 +197,11 @@
 
 
 
-                    <span>Dark Mode</span>
-                </li>
-            
-        </div>
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
     </ol>
 </aside>
 
@@ -203,13 +227,13 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#개념-이해">개념 이해</a></li>
+    <li><a href="#overview">Overview</a></li>
     <li><a href="#bounding-box">Bounding Box</a></li>
     <li><a href="#class-probability">Class Probability</a></li>
     <li><a href="#output">Output</a></li>
-    <li><a href="#네트워크-구조">네트워크 구조</a></li>
+    <li><a href="#network-architecture">Network Architecture</a></li>
     <li><a href="#loss">Loss</a></li>
-    <li><a href="#테스트">테스트</a></li>
+    <li><a href="#testing">Testing</a></li>
   </ol>
 </nav>
         </div>
@@ -237,7 +261,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/yolov1_review/">YOLOv1 리뷰</a>
+            <a href="/p/yolov1_review/">YOLOv1 Review</a>
         </h2>
     
         
@@ -282,6 +306,25 @@
     
 
     
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/yolov1_review/" class="link">Korean</a>
+                
+            </div>
+        </footer>
+    
 </div>
 
 </header>
@@ -289,26 +332,26 @@
     <section class="article-content">
     
     
-    <p>본 포스트에서는 2016년 CVPR에 발표된 논문 &ldquo;You Only Look Once: Unified, Real-Time Object Detection&quot;을 살펴보겠습니다.<br>
+    <p>In this post, we’ll take a look at the paper <strong>&ldquo;You Only Look Once: Unified, Real-Time Object Detection&rdquo;</strong> presented at CVPR 2016.<br>
 <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
     >https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf</a></p>
-<h1 id="목차">목차</h1>
-<ol>
-<li><a class="link" href="#%ea%b0%9c%eb%85%90-%ec%9d%b4%ed%95%b4" >개념 이해</a></li>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
+<li><a class="link" href="#overview" >Overview</a></li>
 <li><a class="link" href="#bounding-box" >Bounding Box</a></li>
 <li><a class="link" href="#class-probability" >Class Probability</a></li>
 <li><a class="link" href="#output" >Output</a></li>
-<li><a class="link" href="#%eb%84%a4%ed%8a%b8%ec%9b%8c%ed%81%ac-%ea%b5%ac%ec%a1%b0" >네트워크 구조</a></li>
-<li><a class="link" href="#%ed%95%99%ec%8a%b5" >학습</a></li>
-<li><a class="link" href="#%ed%85%8c%ec%8a%a4%ed%8a%b8" >테스트</a></li>
+<li><a class="link" href="#network-architecture" >Network Architecture</a></li>
+<li><a class="link" href="#loss" >Loss</a></li>
+<li><a class="link" href="#testing" >Testing</a></li>
 </ol>
-<h2 id="개념-이해">개념 이해</h2>
-<p>YOLO에서는 이미지에서 object를 찾을 때, grid를 사용합니다. 이를 간략하게 살펴보면</p>
+<h2 id="overview">Overview
+</h2><p>YOLO uses a grid to detect objects in an image. In short:</p>
 <ul>
-<li>이미지를 <strong>S×S</strong>개의 grid로 나눕니다.</li>
-<li>각 grid cell에서 <strong>B</strong>개의 bounding box의 좌표(x, y, w, h)와 그 bounding box의 confidence score(c)를 예측합니다.</li>
-<li>각 grid cell마다 <strong>C</strong>개의 class probability를 예측합니다.</li>
-<li>confidence score과 class probability로 최종 score와 class를 결정하고, 이 때 score가 threshold보다 높은 bounding box가 최종 object detection의 결과가 됩니다.</li>
+<li>The input image is divided into <strong>S×S</strong> grid cells.</li>
+<li>Each grid cell predicts the coordinates (x, y, w, h) for <strong>B</strong> bounding boxes and a confidence score (c) for each bounding box.</li>
+<li>Each grid cell also predicts <strong>C</strong> class probabilities.</li>
+<li>The final score and class are determined by multiplying the confidence score and class probability. Bounding boxes with scores above a threshold become the final detection results.</li>
 </ul>
 <p><img src="/p/yolov1_review/bboxes.png"
 	width="1186"
@@ -316,7 +359,7 @@
 	srcset="/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_480x0_resize_box_3.png 480w, /p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
-		alt="Bounding Box 예측 예시"
+		alt="Bounding Box Prediction Example"
 	
 	
 		class="gallery-image" 
@@ -325,55 +368,55 @@
 	
 ></p>
 <ul>
-<li>위 이미지는 <strong>S=7</strong>, <strong>B=2</strong>일 때 하나의 grid에 대한 예측의 예시입니다.</li>
-<li>각 grid cell마다 bounding box(x, y, w, h, c)를 두 세트씩 예측합니다.</li>
-<li><strong>C=20</strong>일 때, 각 grid cell마다 20개의 class에 대한 class probability를 예측합니다.</li>
+<li>The above image shows an example with <strong>S=7</strong> and <strong>B=2</strong> for a single grid cell.</li>
+<li>Each grid cell predicts two sets of bounding boxes (x, y, w, h, c).</li>
+<li>For <strong>C=20</strong>, each grid cell predicts class probabilities for 20 classes.</li>
 </ul>
-<p>지금까지 YOLO가 어떻게 object를 찾는지 대략적으로 살펴봤습니다. 아래에서는 각 예측값들이 어떻게 계산되고 어떤 의미를 갖는지 살펴보겠습니다.</p>
-<h2 id="bounding-box">Bounding Box</h2>
-<p>bounding box는 (x, y, w, h, c)로 이루어져 있습니다.</p>
+<p>This is a brief overview of how YOLO finds objects. Below, we’ll look at how each prediction value is calculated and what they mean.</p>
+<h2 id="bounding-box">Bounding Box
+</h2><p>A bounding box is composed of (x, y, w, h, c).</p>
 <ul>
-<li>(x, y): bounding box <strong>중심의 좌표</strong>.
+<li>(x, y): <strong>Coordinates for the center of the bounding box</strong>.
 <ul>
-<li>각 grid cell마다 B개의 bounding box를 가진다는 의미는, 이 B개의 bounding box의 중심이 해당 grid cell 안에 있다는 의미입니다.</li>
-<li>box의 네 꼭지점은 bounding box 밖에 있어도 상관이 없습니다.</li>
-<li>grid cell 안에서 상대적으로 어느 위치에 있는지를 표시하며, 0~1 사이의 값을 가집니다.</li>
-</ul>
-</li>
-<li>(w, h): bounding box의 <strong>너비, 높이</strong>.
-<ul>
-<li>전체 이미지 너비, 높이에 대해 상대적인 값을 사용하며 0~1 사이의 값을 가집니다.</li>
+<li>Each grid cell has B bounding boxes, meaning the center of each of these B bounding boxes is inside that grid cell.</li>
+<li>The corners of the box can be outside the grid cell.</li>
+<li>(x, y) specifies the relative location within the grid cell — values range from 0 to 1.</li>
 </ul>
 </li>
-<li>c: box가 <strong>object를 갖는 것</strong>에 대해 얼마나 확신하고, 그 box의 <strong>좌표가 얼마나 정확한</strong> 가에 대한 값입니다.
+<li>(w, h): <strong>Width and height of the bounding box</strong>.
+<ul>
+<li>These are relative to the width and height of the entire image, and are values from 0 to 1.</li>
+</ul>
+</li>
+<li>c: Represents how confident the model is that the box contains an object <strong>and</strong> how accurately the predicted box fits the object.
 <ul>
 <li>$ Pr(Object) * IOU^{truth}_{pred} $</li>
-<li>좌표가 얼마나 정확한지를 계산할 때에는 <strong>예측한 좌표와 Ground Truth</strong>(<strong>GT</strong>) <strong>사이의 Intersection Over Union</strong>(<strong>IOU</strong>)를 계산합니다.</li>
+<li>The IOU (Intersection Over Union) between the predicted box and the ground truth (GT) box is calculated to measure localization accuracy.</li>
 </ul>
 </li>
 </ul>
-<h2 id="class-probability">Class Probability</h2>
-<ul>
-<li>C: 각 grid cell이 object를 가지고 있을 때의 class probability입니다.
+<h2 id="class-probability">Class Probability
+</h2><ul>
+<li>C: The class probabilities for each grid cell when it contains an object.
 <ul>
 <li>$ Pr(Class_i|Object) $</li>
-<li>bounding box 갯수와 상관 없이 grid cell마다 한 세트의 class probability만 예측합니다.</li>
+<li>Each grid cell predicts only one set of class probabilities, regardless of the number of bounding boxes.</li>
 </ul>
 </li>
 </ul>
-<h2 id="output">Output</h2>
+<h2 id="output">Output
+</h2><ul>
+<li>If the image is divided into S×S grid cells, and each grid cell predicts B bounding boxes and C class probabilities, the final output tensor shape is <strong>S×S×</strong>(<strong>B*5+C</strong>).</li>
+<li>For example, in PASCAL VOC, S=7, B=2, C=20, so there are 49 grid cells, each predicting 30 values. Here is how one such prediction might look:
 <ul>
-<li>이미지를 S×S grid로 나누고, 각 grid마다 B개의 bounding box와 C개 class에 대한 class probability가 있다고 할 때, 최종 output tensor의 shape은 <strong>S×S×</strong>(<strong>B*5+C</strong>)가 됩니다.</li>
-<li>PASCAL VOC 실험 예를 들면, S=7, B=2, C=20입니다. 따라서 총 49개의 grid가 있고, 각 grid cell마다 30개의 예측값을 갖게 됩니다. 아래는 30개의 예측값 중 하나의 예시입니다.
-<ul>
-<li>[x, y, w, h, c, 배경일 확률, 비행기일 확률, &hellip;, 모니터일 확률]</li>
+<li>[x, y, w, h, c, probability for background, probability for airplane, &hellip;, probability for monitor]</li>
 <li>[0.4, 0.3, 0.8, 0.7, 0.9, 0.003, 0.8, &hellip; , 0.012]</li>
 </ul>
 </li>
 </ul>
-<h2 id="네트워크-구조">네트워크 구조</h2>
-<ul>
-<li>GoogLeNet과 유사한 구조를 사용했습니다.
+<h2 id="network-architecture">Network Architecture
+</h2><ul>
+<li>YOLO uses an architecture similar to GoogLeNet.
 <img src="/p/yolov1_review/architecture.png"
 	width="670"
 	height="272"
@@ -388,28 +431,28 @@
 		data-flex-basis="591px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
     ><em>Redmon, Joseph, et al. &ldquo;You only look once: Unified, real-time object detection.&rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 3.</em></a></span></li>
 </ul>
-<h2 id="loss">Loss</h2>
-<ul>
+<h2 id="loss">Loss
+</h2><ul>
 <li>
-<p>sum-squared error를 사용했습니다.</p>
+<p>Uses sum-squared error.</p>
 </li>
 <li>
-<p>$ \lambda_{coor} $, $ \lambda_{noobj} $ 사용</p>
+<p>$ \lambda_{coor} $, $ \lambda_{noobj} $ are used.</p>
 <ul>
-<li>대부분의 이미지는 object가 있는 grid cell보다 object가 없는 grid cell이 더 많습니다. 그래서 object가 없는 grid cell의 confidence score는 0에 가까워질 때의 gradient가 object가 있는 grid cell의 gradient보다 훨씬 커서 학습 초기에 모델이 diverge 하는 현상이 생길 수 있습니다. 이를 막기 위해, $ \lambda_{coor}=5 $를 사용하여 bounding box 좌표 예측 loss는 증가시키고, $ \lambda_{noobj}=0.5 $를 사용하여 object가 없는 box의 confidence 예측 loss는 감소시켰습니다.</li>
+<li>Most images have more grid cells without objects than with objects. The gradient for the confidence score in cells without objects becomes much larger than for cells with objects when the confidence is near 0, which can cause the model to diverge early in training. To address this, they used $ \lambda_{coor}=5 $ to increase the bounding box coordinate loss and $ \lambda_{noobj}=0.5 $ to decrease the confidence loss for boxes without objects.</li>
 </ul>
 </li>
 <li>
-<p>$ \sqrt w $, $ \sqrt h $ 예측</p>
+<p>Predicts $ \sqrt w $, $ \sqrt h $</p>
 <ul>
-<li>큰 box는 편차가 조금 있어도 크게 상관 없지만 작은 box에는 큰 영향을 끼칩니다. 이 문제를 해결하기 위해 bounding box 너비와 높이 값에 루트를 씌워 줬습니다.</li>
+<li>Small errors for large boxes are less significant, but for small boxes, the impact is much larger. To address this, the width and height values are square-rooted.</li>
 </ul>
 </li>
 <li>
-<p>각 object에 가장 IOU가 높은 하나의 bounding box predictor만 할당했습니다.</p>
+<p>Only one bounding box predictor (the one with the highest IOU for each object) is assigned to each object.</p>
 </li>
 <li>
 <p>Loss function<br>
@@ -419,17 +462,17 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}
 $ + \lambda_{noobj} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{noobj} (C_i-\hat C_i)^2 $<br>
 $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈classwa}} (p_i(c)-\hat p_i(c))^2 $</p>
 <ul>
-<li>1<sup>obj</sup><sub>i</sub>: cell i에 object가 나타났는지 여부를 의미합니다.</li>
-<li>1<sup>obj</sup><sub>ij</sub>: cell i에 있는 j번째 bounding box가 cell i에 있는 GT에 해당하는 예측값인지 여부입니다. 즉, cell i에 있는 j번째 bounding box가 GT와의 IOU가 가장 큰 지 여부입니다.</li>
+<li>1<sup>obj</sup><sub>i</sub>: Indicates whether there is an object in cell i.</li>
+<li>1<sup>obj</sup><sub>ij</sub>: Indicates whether the j-th bounding box in cell i is responsible for predicting the ground truth in cell i, i.e., whether that bounding box has the highest IOU with the GT.</li>
 </ul>
 </li>
 </ul>
-<h2 id="테스트">테스트</h2>
-<ul>
+<h2 id="testing">Testing
+</h2><ul>
 <li>$ Pr(Class_i|Object) * Pr(Object) * {IOU}^{truth}_{pred} = Pr({Class}_i) * {IOU}^{truth}_{pred} $</li>
-<li>테스트할 때는 class probability와 confidence score를 곱해서 최종 score를 계산합니다.</li>
-<li>최종 score는 해당 박스에 class가 나타날 확률과 예측한 box가 실제 object에 얼마나 잘 맞는 지 두 가지 의미를 모두 갖고 있습니다.</li>
-<li>아래 그림의 bounding box 선의 굵기가 confidence를 의미합니다. 이 confidence와 class probability를 곱하여 threshold 이상의 결과가 최종 결과가 됩니다.
+<li>At test time, the final score for each box is computed by multiplying the class probability and the confidence score.</li>
+<li>The final score reflects both the probability of the class being present in the box, and how well the predicted box fits the object.</li>
+<li>In the figure below, the thickness of the bounding box lines indicates the confidence. Multiplying this confidence score and the class probability, results above the threshold become the final outcomes.
 <img src="/p/yolov1_review/figure2.png"
 	width="642"
 	height="404"
@@ -444,7 +487,7 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
 		data-flex-basis="381px"
 	
 ><br>
-<span style="font-size:70%"> 출처: <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
+<span style="font-size:70%"> Source: <a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf"  target="_blank" rel="noopener"
     ><em>Redmon, Joseph, et al. &ldquo;You only look once: Unified, real-time object detection.&rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 2.</em></a></span></li>
 </ul>
 
@@ -478,18 +521,19 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
     
         <link 
                 rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
             ><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
                 defer
                 >
             </script><script 
-                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
                 defer
                 >
             </script><script>
     window.addEventListener("DOMContentLoaded", () => {
-        renderMathInElement(document.querySelector(`.article-content`), {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
             delimiters: [
                 { left: "$$", right: "$$", display: true },
                 { left: "$", right: "$", display: false },
@@ -499,6 +543,7 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
             ignoredClasses: ["gist"]
         });})
 </script>
+
     
 </article>
 
@@ -518,7 +563,7 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
         
 
         <div class="article-details">
-            <h2 class="article-title">XLNet 리뷰</h2>
+            <h2 class="article-title">XLNet Review</h2>
         </div>
     </a>
 </article>
@@ -531,7 +576,7 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
         
 
         <div class="article-details">
-            <h2 class="article-title">BERT 리뷰</h2>
+            <h2 class="article-title">BERT Review</h2>
         </div>
     </a>
 </article>
@@ -544,7 +589,7 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv3 리뷰</h2>
+            <h2 class="article-title">YOLOv3 Review</h2>
         </div>
     </a>
 </article>
@@ -557,7 +602,7 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
         
 
         <div class="article-details">
-            <h2 class="article-title">YOLOv2 리뷰</h2>
+            <h2 class="article-title">YOLOv2 Review</h2>
         </div>
     </a>
 </article>
@@ -624,12 +669,12 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
         
             2023 - 
         
-        2024 Kimberly&#39;s Blog
+        2025 Kimberly&#39;s Blog
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.21.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
@@ -718,7 +763,7 @@ $ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차  정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss  정보 이론   Information  사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information  확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy  Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy  $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$      Kullback–Leibler divergence(KL Divergence)">
+<title>YOLOv5 Loss</title>
+
+<link rel='canonical' href='https://kimberlykang.github.io/ko/p/yolov5_loss/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 Loss">
+<meta property='og:description' content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차  정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss  정보 이론   Information  사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information  확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy  Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy  $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$      Kullback–Leibler divergence(KL Divergence)">
+<meta property='og:url' content='https://kimberlykang.github.io/ko/p/yolov5_loss/'>
+<meta property='og:site_name' content='Kimberly&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-04-11T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-04-11T00:20:00&#43;09:00'/>
+<meta name="twitter:title" content="YOLOv5 Loss">
+<meta name="twitter:description" content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차  정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss  정보 이론   Information  사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information  확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy  Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy  $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$      Kullback–Leibler divergence(KL Divergence)">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="메뉴 여닫기">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/ko/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/ko">Kimberly&#39;s Blog</a></h1>
+            <h2 class="site-description">Vision Engineer</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/ko/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/ko/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" >English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" selected>Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>다크 모드</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">목차</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#정보-이론">정보 이론</a></li>
+  </ol>
+
+  <ol>
+    <li><a href="#iou-loss">IoU Loss</a></li>
+    <li><a href="#yolov5-loss">YOLOv5 Loss</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/ko/categories/yolov5/" >
+                YOLOv5
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/ko/p/yolov5_loss/">YOLOv5 Loss</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">4월 11, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 분 정도
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/p/yolov5_loss/" class="link">English</a>
+                
+            </div>
+        </footer>
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다.</p>
+<h1 id="목차">목차
+</h1><ol>
+<li><a class="link" href="#%ec%a0%95%eb%b3%b4-%ec%9d%b4%eb%a1%a0" >정보 이론</a></li>
+<li><a class="link" href="#binary-cross-entropy" >Binary Cross Entropy</a></li>
+<li><a class="link" href="#iou-loss" >IoU Loss</a></li>
+<li><a class="link" href="#yolov5-loss" >YOLOv5 Loss</a></li>
+</ol>
+<h2 id="정보-이론">정보 이론
+</h2><ul>
+<li>
+<p>Information</p>
+<ul>
+<li>사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\log P(A)$입니다.</li>
+<li>예) 동전 던지기 앞면이 나오는 사건의 Information
+<ul>
+<li>확률: $ \displaystyle \frac{1}{2}$</li>
+<li>$I=-\log  \displaystyle \frac{1}{2}$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Entropy</p>
+<ul>
+<li>Information의 기댓값입니다.</li>
+<li>$ H(X)=- \displaystyle \sum_{x}P(X) \log P(X)$</li>
+<li>예) 동전 던지기의 Entropy
+<ul>
+<li>$Entropy= \displaystyle{ -(\frac{1}{2} \times \log \frac{1}{2} + \frac{1}{2} \times \log \frac{1}{2})=-\log \frac{1}{2}}$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Kullback–Leibler divergence(KL Divergence)</p>
+<ul>
+<li>두 확률 분포의 다른 정도를 측정하는 값입니다.</li>
+<li>$ D_{KL}(P \Vert Q)= \displaystyle \sum_{x}P(X) \log \frac{P(X)}{Q(X)} $<br>
+                         
+$ = -\displaystyle \sum_{x}P(X) \log Q(X) +\sum_{x} P(X) \log P(X)$<br>
+                         
+<ul>
+<li>첫 번째 term은 확률 분포 P를 가지는 데이터에 대해, 확률 분포 Q를 사용하여 Information을 계산한 뒤, 이의 기댓값인 Entropy를 계산한 값입니다.</li>
+<li>두 번째 term은 확률분포 P의 Entropy 값입니다.</li>
+<li>즉, KL divergence는 확률 분포 Q로 Information 계산했을 때, 실제 P로 계산했을 때 보다 얼마나 더 많이 Information을 가지는지를 의미합니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Cross Entropy</p>
+<ul>
+<li>위 KL divergence 식의 첫 번째 term, 즉 확률 분포 P를 가지는 데이터에 대해, 확률 분포 Q를 사용하여 Information을 계산한 뒤, 이의 기댓값인 Entropy를 계산한 값을 Cross Entropy라고 합니다.</li>
+<li>$ H(P, Q)= -\displaystyle \sum_{x}P(X)\log Q(X) $</li>
+<li>KL divergence는 아래와 같이 정리할 수 있습니다.
+<ul>
+<li>$ D_{KL}(P \Vert Q)= H(P, Q) - H(P) $</li>
+<li>P가 실제 확률 분포이고, Q가 P를 근사한 모델이 만든 확률 분포라고 했을 때, H(P)는 변하지 않는 값입니다. 따라서, KL divergence에서 Cross Entropy H(P, Q)가 Model의 Loss로 자주 사용됩니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="binary-cross-entropy">Binary Cross Entropy
+</h1><ul>
+<li>Cross Entropy Loss
+<ul>
+<li>classification에서 data의 label y는 one-hot 벡터로 주어지는데, y가 위 Cross Entroy 식에서 확률분포 P가 됩니다.</li>
+<li>모델의 output $\hat y$ 은 주로 softmax function으로 계산한 각 클래스일 확률인데, 위 식에서 확률분포 Q가 됩니다.</li>
+<li>N이 데이터 갯수, y가 label, C가 클래스 갯수일 때, Cross Entropy Loss L는 아래와 같이 계산합니다.
+<ul>
+<li>$ L= - \displaystyle \sum_{n}^{N} \displaystyle \sum_{c}^{C}y_{n, c} \log \hat{y}_{n, c}$</li>
+</ul>
+</li>
+<li>이미지가 강아지, 고양이, 개구리 세 가지 클래스 중 어느 것인지 맞추는 classification 문제가 있다고 할 때,
+<ul>
+<li>$y=\begin{bmatrix} 0 \cr 1 \cr 0 \end{bmatrix} $ (실제 label)</li>
+<li>$\hat y=\begin{bmatrix} 0.1 \cr 0.7 \cr 0.2 \end{bmatrix} $ (예측 값)</li>
+<li>이 이미지에 대한 Cross Entropy Loss $l$ 은 아래와 같습니다.
+<ul>
+<li>$ l= -\displaystyle \sum_{c}^{C}y_c\log \hat{y}_c$<br>
+$=0⋅\log 0.1 + 1⋅\log 0.7 + 0⋅\log 0.2$  <br>
+$=\log 0.7$</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Binary Cross Entropy
+<ul>
+<li>클래스 갯수가 두 개일 때의 Cross Entropy Loss의 특별한 케이스입니다.</li>
+<li>모델의 output $\hat y$은 주로 Sigmoid function으로 계산한 확률입니다.</li>
+<li>$ L= - \displaystyle \sum_{n}^{N} [y_n\log \hat{y}_n + (1-y_n)\log (1-\hat{y}_n)]$</li>
+</ul>
+</li>
+<li>BCEWithLogitsLoss
+<ul>
+<li>Torch에서는 Sigmoid layer와 Binary Crosss Entropy를 합친 BCEWithLogitsLoss 클래스를 제공하고 있습니다.</li>
+<li>log-sum-exp trick을 사용하여 Sigmoid layer와 BCELoss를 따로 사용하는 것보다 numerically stable합니다.</li>
+<li>x가 Sigmoid의 input, y가 label, N이 데이터 갯수, w가 weight라고 할 때, unreduced loss L는 아래와 같이 계산합니다.
+<ul>
+<li>$ L=\begin{Bmatrix} l_{1}, \cr &hellip;, \cr l_{N} \end{Bmatrix}일 때, l_n= - w_n [(y_n\log \sigma (x_n)) + (1-y_n)\log (1-\sigma(x_n))]$</li>
+</ul>
+</li>
+<li>reduced loss L는 아래와 같이 계산합니다.
+<ul>
+<li>$ L=\begin{cases} mean(L), \text{if reduction=&lsquo;mean&rsquo;} \cr sum(L), \text{if reduction= &lsquo;sum&rsquo;} \end{cases} $</li>
+</ul>
+</li>
+<li>c가 class일 때, positive weight $p_c$를 사용하여 precision과 recall을 조절할 수 있습니다. 이 때, 식은 아래와 같이 바뀝니다.
+<ul>
+<li>$ L_c=\begin{Bmatrix} l_{1,c}, \cr &hellip;, \cr l_{N, c} \end{Bmatrix}일 때, l_{n, c}= - w_{n,c} [(p_c ​⋅ y_{n, c}\log \sigma (x_n)) + (1-y_{n, c})\log (1-\sigma(x_{n, c}))]$</li>
+<li>$p_c&gt;1$이면 recall이 증가하고, $p_c&lt;1$면 precision이 증가합니다.</li>
+<li>dataset에 하나의 클래스에 대해 100개의 positive example과 300의 negative example이 있다면 $p_c=\frac{300}{100}=3$이 되어야 합니다.</li>
+</ul>
+</li>
+<li><em><strong>torch.nn.BCEWithLogitsLoss</strong></em>(<code>weight</code>=None, <code>size_average</code>=None, <code>reduce</code>=None, <code>reduction</code>=&lsquo;mean&rsquo;, <code>pos_weight</code>=None)
+<ul>
+<li><code>size_average</code>, <code>reduce</code>는 deprecated된 parameter입니다.
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>  <span class="c1"># 64 classes, batch size = 10</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)</span>  <span class="c1"># A prediction (logit)</span>
+<span class="n">pos_weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">64</span><span class="p">])</span>  <span class="c1"># All weights are equal to 1</span>
+<span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">pos_weight</span><span class="o">=</span><span class="n">pos_weight</span><span class="p">)</span>
+<span class="n">criterion</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>  <span class="c1"># -log(sigmoid(1.5))</span>
+<span class="c1"># tensor(0.20...)</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="iou-loss">IoU Loss
+</h2><ul>
+<li>Intersection over Union(IoU)
+<ul>
+<li>scale invariant</li>
+<li>Convex A, B가 있을 때 IoU는 아래와 같이 계산됩니다.
+<ul>
+<li>$ IoU= \displaystyle  \frac{|A∩B|}{|A∪B|} $</li>
+</ul>
+</li>
+<li>$L_{IoU}=1-IoU$</li>
+<li>IoU가 0인 경우, 즉 두 Object Detection에서 타겟 box와 예측 box가 겹치지 않은 경우, IoU는 오차의 정도가 어느 정도인지를 나타내지 않습니다. 따라서 <strong>Gradient Vanishing</strong> 문제가 발생합니다.</li>
+</ul>
+</li>
+<li>Generalized-IoU(GIoU)
+<ul>
+<li><a class="link" href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Rezatofighi_Generalized_Intersection_Over_Union_A_Metric_and_a_Loss_for_CVPR_2019_paper.pdf"  target="_blank" rel="noopener"
+    >Generalized Intersection Over Union: A Metric and a Loss for Bounding Box Regression</a></li>
+<li>A, B를 포함하는 가장 작은 convex를 C라고 할 때, GIoU는 아래와 같이 계산됩니다.
+<ul>
+<li>$ GIoU=IoU- \displaystyle  \frac{|C \backslash (A∪B)|}{|C|} $</li>
+<li>$ C \backslash (A∪B)$ 차집합을 의미합니다.</li>
+</ul>
+</li>
+<li>$L_{GIoU}=1-GIoU$. 이 때, Loss 값의 범위는 0~2입니다.</li>
+<li>타겟 box가 예측 box를 포함하고 있을 때, 페널티 텀이 0이 되어서 $L_{IoU}$ 값과 같은 값을 가지게 됩니다.
+<img style="max-width:65%; height:auto;" src="iou_losses.png" alt="IoU Losses" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 2</em></a></span></li>
+<li>수렴 속도가 느리고, box의 정확도가 비교적 낮습니다.</li>
+</ul>
+</li>
+<li>Distance-IoU(DIoU) &amp; Complete IoU(CIoU)
+<ul>
+<li><a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    >Distance-IoU Loss: Faster and Better Learning for Bounding Box Regression</a></li>
+<li>일반적으로 IoU 기반의 loss를 $L_{IoU}=1-IoU + \mathcal{R}(B, B^{gt})$로 정의할 수 있습니다.</li>
+<li>DIoU
+<ul>
+<li>$ \mathcal{R}_{DIoU} =  \displaystyle  \frac{ρ^2(b, b^{gt})}{c^2}$. ρ는 두 box 중심 사이의 유클리디안 거리이고, c는 두 box를 포함하는 가장 작은 box의 대각 길이입니다.<br>
+<img style="max-width:25%; height:auto;" src="distance_for_diou.png" alt="Distance for DIoU" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 5</em></a></span></li>
+<li>$L_{DIoU}=1-IoU + \mathcal{R}_{DIoU}$. 이 때, Loss 값의 범위는 0~2입니다.</li>
+<li>두 box 사이의 거리를 minimize하기 때문에 GIoU Loss보다 빠르게 수렴합니다.</li>
+</ul>
+</li>
+<li>CIoU
+<ul>
+<li>DIoU에 aspect ratio를 추가적으로 고려한 방법입니다.</li>
+<li>$ \mathcal{R}_{CIoU} = \displaystyle \frac{ρ^2(b, b^{gt})}{c^2} + \alpha v$
+<ul>
+<li>$\alpha = \displaystyle \frac{v}{(1-IoU) + v}$
+<ul>
+<li>non-overlapping한 경우 regression에 더 높은 priority를 가지게 합니다.</li>
+</ul>
+</li>
+<li>$v = \displaystyle \frac{4}{\pi^2}(arctan\frac{w^{gt}}{h^{gt}} - arctan\frac{w}{h})^2$
+<ul>
+<li>aspect ratio가 일치하는 정도를 측정합니다.</li>
+<li>$ \displaystyle \frac{4}{\pi^2}$는 arctan 최댓값이 $\frac{\pi}{2}$이기 때문에 계산 결과 최댓값을 1로 만들기 위해 사용됩니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>$L_{CIoU}=1-IoU + \mathcal{R}_{CIoU}$</li>
+</ul>
+</li>
+<li>DIoU를 사용한 Non-Maximum Suppression(NMS)
+<ul>
+<li>기존의 NMS에서는 불필요한 detection box를 제거하는 데 IoU metric이 사용됩니다.</li>
+<li>IoU는 겹치는 영역만 고려하기 때문에, occlusion이 있는 경우 잘못된 box가 제거되기도 합니다.</li>
+<li>DIoU는 겹치는 영역과 함께 두 box의 중심 거리를 고려하기 때문에, occlusion이 있는 경우에 NMS에 더 적합한 criterion이 될 수 있습니다.</li>
+<li>가장 높은 score를 가진 예측 box를 $\mathcal{M}$, NMS를 적용하는 다른 box를 $B$, classification score를 s, NMS threshold를 $\epsilon$라고 했을 때, DIoU-NMS는 아래와 같이 정의됩니다.
+<ul>
+<li>$ s_i= \begin{cases} \displaystyle s_i, &amp; IoU -\mathcal{R}(\mathcal{M}, B_i) &lt; \epsilon \\ \displaystyle 0, &amp; IoU -\mathcal{R}(\mathcal{M}, B_i) ≥ \epsilon  \end{cases} $</li>
+</ul>
+</li>
+<li>PASCAL VOC07+12로 학습한 YOLOv3 모델로 MS COCO 2017 데이터 중 하나를 detect한 예시입니다. 
+<img style="max-width:80%; height:auto;" src="viz_result_diou_nms.png" alt="Visualization of Result with DIoU-NMS" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 8</em></a></span></li>
+</ul>
+</li>
+<li>실험 결과
+<ul>
+<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 YOLOv3 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<img style="max-width:80%; height:auto;" src="results_yolov3.png" alt="Results with YOLOv3" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 1</em></a></span></li>
+<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 SSD 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<img style="max-width:50%; height:auto;" src="results_ssd.png" alt="Results with SSD" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 2</em></a></span></li>
+<li>$ L_{IoU} $, $ L_{GIoU} $, $ L_{DIoU} $, $ L_{CIoU} $ 를 사용하여 Faster-RCNN 모델을 학습한 결과입니다. (D)는 NMS시 IoU-NMS를 사용한 것을 의미합니다.<br>
+<img style="max-width:90%; height:auto;" src="results_faster_rcnn.png" alt="Results with Faster-RCNN" /><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
+    ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Table 3</em></a></span></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="yolov5-loss">YOLOv5 Loss
+</h2><ul>
+<li>
+<p>Box Loss</p>
+<ul>
+<li><code>pbox</code>: (prediction 갯수, anchor 갯수)</li>
+<li><code>iou</code>: (prediction 갯수)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Regression</span>
+<span class="n">pxy</span> <span class="o">=</span> <span class="n">pxy</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.5</span>
+<span class="n">pwh</span> <span class="o">=</span> <span class="p">(</span><span class="n">pwh</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">anchors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="n">pbox</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">pxy</span><span class="p">,</span> <span class="n">pwh</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># predicted box </span>
+<span class="n">iou</span> <span class="o">=</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="n">pbox</span><span class="p">,</span> <span class="n">tbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">CIoU</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># iou</span>
+<span class="n">lbox</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">iou</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># iou loss</span>
+
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Objectness Loss</p>
+<ul>
+<li>target box와 prediction box 사이의 IoU가 GT가 됩니다.</li>
+<li>scale마다 weight를 다르게 주어 Objectness Loss를 계산합니다.
+<ul>
+<li>$ L_{obj}=4.0 ⋅L_{obj}^{small} +1.0 ⋅ L_{obj}^{medium} +0.4 ⋅ L_{obj}^{large}$</li>
+</ul>
+</li>
+<li><code>pi[..., 4]</code>: (batch size, anchor 갯수, grid 갯수, grid 갯수) 모델이 예측한 objectness를 의미합니다.</li>
+<li><code>tobj</code>: (batch size, anchor 갯수, grid 갯수, grid 갯수) 어떤 batch의 어떤 anchor의 어느 grid 위치에 해당되는 target objectness인지를 의미합니다.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Objectness</span>
+<span class="c1"># BCEobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h[&#39;obj_pw&#39;]], device=device))</span>
+<span class="n">iou</span> <span class="o">=</span> <span class="n">iou</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">tobj</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_obj_iou</span><span class="p">:</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">iou</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">gj</span><span class="p">,</span> <span class="n">gi</span><span class="p">,</span> <span class="n">iou</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">gj</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">gi</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">iou</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># default 1.0</span>
+    <span class="n">iou</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span> <span class="o">*</span> <span class="n">iou</span>
+<span class="n">tobj</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">gj</span><span class="p">,</span> <span class="n">gi</span><span class="p">]</span> <span class="o">=</span> <span class="n">iou</span>  <span class="c1"># iou ratio</span>
+
+<span class="n">obji</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BCEobj</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">tobj</span><span class="p">)</span>
+<span class="n">lobj</span> <span class="o">+=</span> <span class="n">obji</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># obj loss</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Classification Loss</p>
+<ul>
+<li><code>t</code>:  (detection 갯수, class 갯수)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Classification</span>
+<span class="c1"># BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h[&#39;cls_pw&#39;]], device=device))</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># cls loss (only if multiple classes)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">pcls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># targets</span>
+    <span class="n">t</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">tcls</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span>
+    <span class="n">lcls</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BCEcls</span><span class="p">(</span><span class="n">pcls</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>  <span class="c1"># BCE</span>
+
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Total Loss</p>
+<ul>
+<li>$Loss=\lambda_{box} L_{box} +  \lambda_{obj} L_{obj} + \lambda_{cls} L_{cls}$</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">lbox</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;box&#39;</span><span class="p">]</span>
+<span class="n">lobj</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;obj&#39;</span><span class="p">]</span>
+<span class="n">lcls</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;cls&#39;</span><span class="p">]</span>
+<span class="n">bs</span> <span class="o">=</span> <span class="n">tobj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># batch size</span>
+
+<span class="k">return</span> <span class="p">(</span><span class="n">lbox</span> <span class="o">+</span> <span class="n">lobj</span> <span class="o">+</span> <span class="n">lcls</span><span class="p">)</span> <span class="o">*</span> <span class="n">bs</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">lbox</span><span class="p">,</span> <span class="n">lobj</span><span class="p">,</span> <span class="n">lcls</span><span class="p">))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/ko/tags/yolov5/">YOLOv5</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">관련 글</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_val/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 Validation</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_augmentation/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 Augmentation</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_evolve/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 Evolve</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_anchor/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 anchor</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov5_train/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv5 학습</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2025 Kimberly&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>로 만듦 <br />
+        <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>의 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> 테마 사용 중
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
