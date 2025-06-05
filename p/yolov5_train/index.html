@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents  Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader  Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code.">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code. data parallel: This is one way of training models.">
 <title>YOLOv5 Training</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov5_train/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 Training">
-<meta property='og:description' content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents  Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader  Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code.">
+<meta property='og:description' content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code. data parallel: This is one way of training models.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov5_train/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-02-06T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-02-06T00:20:00&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv5 Training">
-<meta name="twitter:description" content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents  Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader  Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code.">
+<meta name="twitter:description" content="In this post, I will take an overall look at the train.py code from the YOLOv5 repository. Table of Contents Data parallel Printing and Saving Training Configurations Logger torch_distributed_zero_first Dataloader Data parallel Throughout the training code, you will come across a variable called RANK. To understand this, you need to learn about some terms related to data parallel. Let’s briefly go over these terms before examining the code. data parallel: This is one way of training models."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
     </head>
     <body class="
     article-page
@@ -56,13 +73,11 @@
                     
                     
                         
-                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
                 </a>
-                
-                    <span class="emoji">🍥</span>
                 
             </figure>
             
@@ -251,7 +266,7 @@
     
     <header class="article-category">
         
-            <a href="/categories/yolov5/" >
+            <a href="/categories/yolov5/" style="background-color: #2a9d8f; color: #fff;">
                 YOLOv5
             </a>
         
@@ -377,12 +392,12 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># main function</span>
-<span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
-    <span class="n">print_args</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
-    <span class="c1"># check_git_status()</span>
-    <span class="n">check_requirements</span><span class="p">()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># main function</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">print_args</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># check_git_status()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">check_requirements</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>When training starts, the hyperparameters and training-related settings being used are saved as shown below. Each file is saved in the <code>runs/train/exp</code> folder, so you can check the settings used after training finishes. The <code>exp</code> folder is automatically created with an incremented number (such as <code>exp1</code>, <code>exp2</code>, etc.) every time you start new training.</p>
 <div class="highlight"><div class="chroma">
@@ -393,11 +408,11 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># train function</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">evolve</span><span class="p">:</span>
-    <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;hyp.yaml&#39;</span><span class="p">,</span> <span class="n">hyp</span><span class="p">)</span>
-    <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;opt.yaml&#39;</span><span class="p">,</span> <span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># train function</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="ow">not</span> <span class="n">evolve</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;hyp.yaml&#39;</span><span class="p">,</span> <span class="n">hyp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">yaml_save</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">/</span> <span class="s1">&#39;opt.yaml&#39;</span><span class="p">,</span> <span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="logger">Logger
 </h2><div class="highlight"><div class="chroma">
@@ -410,13 +425,13 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
-    <span class="n">loggers</span> <span class="o">=</span> <span class="n">Loggers</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">hyp</span><span class="p">,</span> <span class="n">LOGGER</span><span class="p">)</span>  <span class="c1"># loggers instance</span>
-
-    <span class="c1"># Register actions</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">(</span><span class="n">loggers</span><span class="p">):</span>
-        <span class="n">callbacks</span><span class="o">.</span><span class="n">register_action</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">loggers</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loggers</span> <span class="o">=</span> <span class="n">Loggers</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">hyp</span><span class="p">,</span> <span class="n">LOGGER</span><span class="p">)</span>  <span class="c1"># loggers instance</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Register actions</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">(</span><span class="n">loggers</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">callbacks</span><span class="o">.</span><span class="n">register_action</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">loggers</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>To ensure logging happens only once, the Logger object is created only when the rank is 0. Then, the methods of the loggers object are registered as callbacks with their respective function names. When calling a function, you use its name as shown below.</p>
 <div class="highlight"><div class="chroma">
@@ -424,8 +439,8 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">callbacks</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;on_pretrain_routine_end&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">callbacks</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;on_pretrain_routine_end&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>For example, the above code is executed after the training setup is complete. When this code runs, the <em><strong>on_pretrain_routine_end</strong></em> method of the <code>Loggers</code> class is called, and it saves label information as an image.</p>
 <h2 id="torch_distributed_zero_first">torch_distributed_zero_first
@@ -442,15 +457,15 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="nd">@contextmanager</span>
-<span class="k">def</span> <span class="nf">torch_distributed_zero_first</span><span class="p">(</span><span class="n">local_rank</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="c1"># Decorator to make all processes in distributed training wait for each local_master to do something</span>
-    <span class="k">if</span> <span class="n">local_rank</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
-        <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="n">local_rank</span><span class="p">])</span>
-    <span class="k">yield</span>
-    <span class="k">if</span> <span class="n">local_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@contextmanager</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">torch_distributed_zero_first</span><span class="p">(</span><span class="n">local_rank</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Decorator to make all processes in distributed training wait for each local_master to do something</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">local_rank</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="n">local_rank</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">yield</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">local_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>The <em><strong>torch_distributed_zero_first</strong></em> function is implemented using torch&rsquo;s contextmanager decorator and the <em><strong>barrier</strong></em> function.</p>
 <ul>
@@ -464,9 +479,9 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">with</span> <span class="n">torch_distributed_zero_first</span><span class="p">(</span><span class="n">LOCAL_RANK</span><span class="p">):</span>
-    <span class="n">data_dict</span> <span class="o">=</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="n">check_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">with</span> <span class="n">torch_distributed_zero_first</span><span class="p">(</span><span class="n">LOCAL_RANK</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data_dict</span> <span class="o">=</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="n">check_dataset</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>The above is an example of how <em><strong>torch_distributed_zero_first</strong></em> is used in the training code.</p>
 <ul>
@@ -482,8 +497,8 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">smart_optimizer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lr0&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;momentum&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;weight_decay&#39;</span><span class="p">])</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">smart_optimizer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lr0&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;momentum&#39;</span><span class="p">],</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;weight_decay&#39;</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>By default, a linear learning rate is used. This is implemented using <code>LambdaLR</code> as shown below.</p>
 <div class="highlight"><div class="chroma">
@@ -495,12 +510,12 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cos_lr</span><span class="p">:</span>
-    <span class="n">lf</span> <span class="o">=</span> <span class="n">one_cycle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">],</span> <span class="n">epochs</span><span class="p">)</span> <span class="c1"># cosine 1-&gt;hyp[&#39;lrf&#39;]</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">lf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span> <span class="o">/</span> <span class="n">epochs</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">]</span> <span class="c1"># linear</span>
-<span class="n">scheduler</span> <span class="o">=</span> <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">LambdaLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">lr_lambda</span><span class="o">=</span><span class="n">lf</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cos_lr</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lf</span> <span class="o">=</span> <span class="n">one_cycle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">],</span> <span class="n">epochs</span><span class="p">)</span> <span class="c1"># cosine 1-&gt;hyp[&#39;lrf&#39;]</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lf</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span> <span class="o">/</span> <span class="n">epochs</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;lrf&#39;</span><span class="p">]</span> <span class="c1"># linear</span>
+</span></span><span class="line"><span class="cl"><span class="n">scheduler</span> <span class="o">=</span> <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">LambdaLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">lr_lambda</span><span class="o">=</span><span class="n">lf</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="dataloader">Dataloader
 </h2><p>Since each rank has its own dataloader, the total batch size is divided by <code>WORLD_SIZE</code> to compute the new batch size for each dataloader.</p>
@@ -524,23 +539,23 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">train_loader</span><span class="p">,</span> <span class="n">dataset</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span>
-    <span class="n">imgsz</span><span class="p">,</span>
-    <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span><span class="p">,</span>
-    <span class="n">gs</span><span class="p">,</span>
-    <span class="n">single_cls</span><span class="p">,</span>
-    <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
-    <span class="n">augment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
-    <span class="n">rect</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">rect</span><span class="p">,</span>
-    <span class="n">rank</span><span class="o">=</span><span class="n">LOCAL_RANK</span><span class="p">,</span>
-    <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
-    <span class="n">image_weights</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">image_weights</span><span class="p">,</span>
-    <span class="n">quad</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">quad</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;train: &#39;</span><span class="p">),</span>
-    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">seed</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">train_loader</span><span class="p">,</span> <span class="n">dataset</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">imgsz</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">gs</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">single_cls</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">augment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">rect</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">rect</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">rank</span><span class="o">=</span><span class="n">LOCAL_RANK</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image_weights</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">image_weights</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">quad</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">quad</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;train: &#39;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">seed</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Currently, YOLOv5 supports validation on a single GPU only.</p>
 <div class="highlight"><div class="chroma">
@@ -560,20 +575,20 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
 </span><span class="lnt">13
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
-    <span class="n">val_loader</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">val_path</span><span class="p">,</span>
-        <span class="n">imgsz</span><span class="p">,</span>
-        <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="n">gs</span><span class="p">,</span>
-        <span class="n">single_cls</span><span class="p">,</span>
-        <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
-        <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">noval</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
-        <span class="n">rect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">workers</span><span class="o">=</span><span class="n">workers</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-        <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;val: &#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">val_loader</span> <span class="o">=</span> <span class="n">create_dataloader</span><span class="p">(</span><span class="n">val_path</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">imgsz</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gs</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">single_cls</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hyp</span><span class="o">=</span><span class="n">hyp</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cache</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">noval</span> <span class="k">else</span> <span class="n">opt</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">rect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">workers</span><span class="o">=</span><span class="n">workers</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prefix</span><span class="o">=</span><span class="n">colorstr</span><span class="p">(</span><span class="s1">&#39;val: &#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
 </section>
@@ -861,7 +876,7 @@ The function <em><strong>check_git_status</strong></em> checks your current bran
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

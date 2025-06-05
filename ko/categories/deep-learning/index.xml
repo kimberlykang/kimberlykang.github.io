@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Deep Learning on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/ko/categories/deep-learning/</link>
+        <description>Recent content in Deep Learning on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>ko</language>
+        <lastBuildDate>Thu, 28 Sep 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/categories/deep-learning/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Label Assignment</title>
+        <link>https://kimberlykang.github.io/ko/p/label_assignment/</link>
+        <pubDate>Thu, 28 Sep 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/ko/p/label_assignment/</guid>
+        <description>&lt;p&gt;Object Detection 모델을 학습할 때, 모델에서 예측한 후보 box와 GT box를 매칭한 뒤, 매칭된 box들 사이의 Loss를 구하게 됩니다. 이러한 매칭 과정을 Label Assignment라고 합니다. 적절한 매칭이 이루어지지 않으면 잘못된 정보를 학습할 수 있기 때문에, 학습 과정에서 굉장히 중요한 요소 중 하나입니다. 본 포스트에서는 다양한 Label Assignment 기법들에 대해 알아보겠습니다.&lt;/p&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#fixed-label-assignment&#34; &gt;Fixed Label Assignment&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#dynamic-label-assigment&#34; &gt;Dynamic Label Assigment&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;fixed-label-assignment&#34;&gt;Fixed Label Assignment
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Fixed Label Assignment는 threshold와 같은 사전에 정의된 고정된 값에 따라 Label을 할당합니다.&lt;/li&gt;
+&lt;li&gt;IoU 사용: 예측한 box와 GT 사이의 IoU를 구해, 일정 threshold를 넘으면 해당 prediction과 GT를 매칭합니다.&lt;/li&gt;
+&lt;li&gt;중심 좌표 사용: 예측한 box의 중심과 GT box의 중심 사이의 거리가 일정 threshold를 넘으면 해당 prediction과 GT를 매칭합니다.&lt;/li&gt;
+&lt;li&gt;Fixed Label Assignment는 고정된 threshold를 사용하기 때문에 아래와 같이 여러 개의 GT가 겹쳐 있는 경우 할당이 잘 못 되는 경우가 생길 수 있고, 이에 따라 학습에 혼동을 줄 수 있습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/label_assignment/fixed_label_assignment.png&#34;
+	width=&#34;1199&#34;
+	height=&#34;524&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/label_assignment/fixed_label_assignment_hu075b9451a26e8e3b4ed2c9a43feb224b_617365_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/label_assignment/fixed_label_assignment_hu075b9451a26e8e3b4ed2c9a43feb224b_617365_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Fixed Label Assignment&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;228&#34;
+		data-flex-basis=&#34;549px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content/CVPR2021/papers/Ge_OTA_Optimal_Transport_Assignment_for_Object_Detection_CVPR_2021_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Ge, Zheng, et al. &amp;ldquo;Ota: Optimal transport assignment for object detection.&amp;rdquo; Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2021, Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&#34;dynamic-label-assigment&#34;&gt;Dynamic Label Assigment
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Bipartite matching&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;예측한 box와 GT간의 Global한 optimal matching을 찾는 방법으로 하나의 예측 box에 하나의 GT만 matching하게 됩니다.&lt;/li&gt;
+&lt;li&gt;아래는 DETR에서 사용되는 Bipartite matching을 설명한 사진으로, 각 object query가 decoder를 거친 후, prediction heads에서 Hungarian 알고리즘을 통한 Bipartite matching을 거쳐 하나의 GT 혹은 no object를 할당받게 됩니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/label_assignment/bipartite_matching.png&#34;
+	width=&#34;1334&#34;
+	height=&#34;339&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/label_assignment/bipartite_matching_hu57a35c6b48c99a8492701a837d41d25a_302494_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/label_assignment/bipartite_matching_hu57a35c6b48c99a8492701a837d41d25a_302494_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;partite matching&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;393&#34;
+		data-flex-basis=&#34;944px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.12872&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Carion, Nicolas, et al. &amp;ldquo;End-to-end object detection with transformers.&amp;rdquo; European conference on computer vision. Cham: Springer International Publishing, 2020, Figure 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;각 예측값에 GT가 독립적으로 할당되기 때문에 애매한 케이스들 사이에 생겨나는 학습 간섭이 덜하고, 중복을 자동으로 제거해 주는 장점이 있습니다.&lt;/li&gt;
+&lt;li&gt;Bipartite matching에서 많이 사용되는 Hungarian 알고리즘의 경우 시간 복잡도가 O(n³)로 매우 높아, 예측값이나 GT가 많을 경우 시간이 오래걸리는 단점이 있습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;OTA(Optimal Transport Assignment)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;예측 box와 GT box의 매칭을 cost를 고려한 Optial Transport 문제로 정의합니다.&lt;/li&gt;
+&lt;li&gt;cost는 예측 box와 GT의 class를 고려한 cross entropy loss와 위치를 고려한 IoU loss 값으로 정의됩니다.&lt;/li&gt;
+&lt;li&gt;cost matrix가 정의되었을 때, OT 문제는 Sinkhorn-Knopp Iteration을 통해 풀 수 있습니다.&lt;/li&gt;
+&lt;li&gt;아래는 OTA 알고리즘입니다.&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/label_assignment/ota.png&#34;
+	width=&#34;475&#34;
+	height=&#34;681&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/label_assignment/ota_hub2bc6131bcb3d61b8dfbee1c4374d883_146249_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/label_assignment/ota_hub2bc6131bcb3d61b8dfbee1c4374d883_146249_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;OTA&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;69&#34;
+		data-flex-basis=&#34;167px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content/CVPR2021/papers/Ge_OTA_Optimal_Transport_Assignment_for_Object_Detection_CVPR_2021_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Ge, Zheng, et al. &amp;ldquo;Ota: Optimal transport assignment for object detection.&amp;rdquo; Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2021, Algorithm 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Bipartite matching과 달리 1대 다 매칭이 됩니다.&lt;/li&gt;
+&lt;li&gt;Sinkhorn Algorithm를 푸는 과정이 오래 걸린다는 단점이 있습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;simOTA&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;OT 문제를 Sinkhorn 알고리즘으로 푸는 것은 학습 시간이 추가적으로 25%가 증가합니다.&lt;/li&gt;
+&lt;li&gt;복잡하고 시간이 오래 걸리는 Sinkhorn 알고리즘을 top-K 선택으로 단순화 한 방법입니다.&lt;/li&gt;
+&lt;li&gt;YOLOX에서 처음 도입되었습니다.&lt;/li&gt;
+&lt;li&gt;GT $ g_i $ prediction $ p_i $ 사이의 cost는 아래와 같이 계산됩니다.
+&lt;ul&gt;
+&lt;li&gt;$ c_{ij} = L_{ij}^{cls} + \lambda L_{ij}^{reg} $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;$ g_i $ 에 대해 cost가 작은 top-k개 prediction을 찾아 positive로 할당합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

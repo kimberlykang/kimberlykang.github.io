@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Deep Learning on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/categories/deep-learning/</link>
+        <description>Recent content in Deep Learning on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <lastBuildDate>Thu, 28 Sep 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/categories/deep-learning/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Label Assignment</title>
+        <link>https://kimberlykang.github.io/p/label_assignment/</link>
+        <pubDate>Thu, 28 Sep 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/p/label_assignment/</guid>
+        <description>&lt;p&gt;When training an Object Detection model, you first match the predicted candidate boxes with the Ground Truth (GT) boxes, and then compute the loss between each matched pair. This matching process is known as &lt;strong&gt;Label Assignment&lt;/strong&gt;. Since improper matching can lead to incorrect learning, label assignment is a crucial step in the training pipeline. In this post, we will explore different label assignment techniques.&lt;/p&gt;
+&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#fixed-label-assignment&#34; &gt;Fixed Label Assignment&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#dynamic-label-assignment&#34; &gt;Dynamic Label Assignment&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;fixed-label-assignment&#34;&gt;Fixed Label Assignment
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Fixed Label Assignment&lt;/strong&gt; allocates labels based on predefined thresholds.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;IoU-based matching&lt;/strong&gt;: If the Intersection over Union (IoU) between a predicted box and a GT box exceeds a certain threshold, the prediction is assigned to the GT.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Center-based matching&lt;/strong&gt;: If the distance between the centers of the predicted box and GT box is within a threshold, the prediction is assigned to the GT.&lt;/li&gt;
+&lt;li&gt;Because fixed thresholds are used, there can be incorrect assignments in cases with overlapping GTs, potentially introducing confusion during training.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/label_assignment/fixed_label_assignment.png&#34;
+	width=&#34;1199&#34;
+	height=&#34;524&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/label_assignment/fixed_label_assignment_hu075b9451a26e8e3b4ed2c9a43feb224b_617365_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/label_assignment/fixed_label_assignment_hu075b9451a26e8e3b4ed2c9a43feb224b_617365_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Fixed Label Assignment&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;228&#34;
+		data-flex-basis=&#34;549px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content/CVPR2021/papers/Ge_OTA_Optimal_Transport_Assignment_for_Object_Detection_CVPR_2021_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Ge, Zheng, et al. &amp;ldquo;Ota: Optimal transport assignment for object detection.&amp;rdquo; Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2021, Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&#34;dynamic-label-assignment&#34;&gt;Dynamic Label Assignment
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Bipartite Matching&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Finds a globally optimal matching between predicted boxes and GTs so that each predicted box is assigned to at most one GT.&lt;/li&gt;
+&lt;li&gt;The image below illustrates bipartite matching in DETR, where each object query passes through the decoder and prediction heads. The Hungarian algorithm is then used to match queries to GTs or the &amp;ldquo;no object&amp;rdquo; class.
+&lt;img src=&#34;https://kimberlykang.github.io/p/label_assignment/bipartite_matching.png&#34;
+	width=&#34;1334&#34;
+	height=&#34;339&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/label_assignment/bipartite_matching_hu57a35c6b48c99a8492701a837d41d25a_302494_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/label_assignment/bipartite_matching_hu57a35c6b48c99a8492701a837d41d25a_302494_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;partite matching&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;393&#34;
+		data-flex-basis=&#34;944px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.12872&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Carion, Nicolas, et al. &amp;ldquo;End-to-end object detection with transformers.&amp;rdquo; European conference on computer vision. Cham: Springer International Publishing, 2020, Figure 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Since each prediction is independently assigned to a GT, ambiguous cases are reduced and duplicate assignments are avoided.&lt;/li&gt;
+&lt;li&gt;However, the commonly used Hungarian algorithm has a high time complexity of O(n³), making it slow when there are many predictions or GTs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;OTA (Optimal Transport Assignment)&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Defines the matching as an Optimal Transport (OT) problem, considering the matching cost between predicted boxes and GT boxes.&lt;/li&gt;
+&lt;li&gt;The cost is defined using cross-entropy loss for class prediction and IoU loss for location.&lt;/li&gt;
+&lt;li&gt;Once the cost matrix is constructed, the OT problem can be solved using the Sinkhorn-Knopp Iteration.&lt;/li&gt;
+&lt;li&gt;OTA algorithm illustration:&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/label_assignment/ota.png&#34;
+	width=&#34;475&#34;
+	height=&#34;681&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/label_assignment/ota_hub2bc6131bcb3d61b8dfbee1c4374d883_146249_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/label_assignment/ota_hub2bc6131bcb3d61b8dfbee1c4374d883_146249_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;OTA&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;69&#34;
+		data-flex-basis=&#34;167px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content/CVPR2021/papers/Ge_OTA_Optimal_Transport_Assignment_for_Object_Detection_CVPR_2021_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Ge, Zheng, et al. &amp;ldquo;Ota: Optimal transport assignment for object detection.&amp;rdquo; Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2021, Algorithm 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Unlike bipartite matching, OTA allows one-to-many assignments.&lt;/li&gt;
+&lt;li&gt;One drawback is that solving the Sinkhorn algorithm can be time-consuming.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;simOTA&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Solving the OT problem with the Sinkhorn algorithm increases training time by approximately 25%.&lt;/li&gt;
+&lt;li&gt;simOTA simplifies the process by replacing the Sinkhorn algorithm with a top-K selection method.&lt;/li&gt;
+&lt;li&gt;First introduced in YOLOX.&lt;/li&gt;
+&lt;li&gt;The cost between GT $ g_i $ and prediction $ p_j $ is calculated as follows:
+&lt;ul&gt;
+&lt;li&gt;$ c_{ij} = L_{ij}^{cls} + \lambda L_{ij}^{reg} $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;For each GT $ g_i $, predictions with the lowest top-K costs are assigned as positives.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

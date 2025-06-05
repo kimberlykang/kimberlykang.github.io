@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="ko" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 YOLOv5에서 anchor를 선정하는 방법에 대해서 알아보겠습니다. 목차  동기 Genetic Algorithm YOLOv5에서 사용된 GA Autoanchor  동기 YOLOv5는 Glenn Jocher가 Github을 통해 발표한 모델입니다. 그는 Yolov5 이전에 Pytorch 버전의 YOLOv3 코드를 작성해서 Github에 공개 한 적이 있습니다. 이 때, 많은 사람들이 custom data set을 학습하며 올린 이슈를 보고 그는 사람들이 학습하고자 하는 dataset의 bounding box 가로 세로 비율이 COCO dataset bounding box의 가로 세로 비율과 많이 다르다는 사실을 발견하게 됩니다.">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 YOLOv5에서 anchor를 선정하는 방법에 대해서 알아보겠습니다. 목차 동기 Genetic Algorithm YOLOv5에서 사용된 GA Autoanchor 동기 YOLOv5는 Glenn Jocher가 Github을 통해 발표한 모델입니다. 그는 Yolov5 이전에 Pytorch 버전의 YOLOv3 코드를 작성해서 Github에 공개 한 적이 있습니다. 이 때, 많은 사람들이 custom data set을 학습하며 올린 이슈를 보고 그는 사람들이 학습하고자 하는 dataset의 bounding box 가로 세로 비율이 COCO dataset bounding box의 가로 세로 비율과 많이 다르다는 사실을 발견하게 됩니다. 이 문제를 해결하기 위해, 그는 그 당시에 anchor box를 선정할 때 많이 쓰이던 k-means에 genetic algorithm을 추가적으로 접목시키고, 이 모든 과정을 자동으로 수행해주는 autoanchor를 YOLOv5에 소개합니다.">
 <title>YOLOv5 anchor</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/ko/p/yolov5_anchor/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 anchor">
-<meta property='og:description' content="본 포스트에서는 YOLOv5에서 anchor를 선정하는 방법에 대해서 알아보겠습니다. 목차  동기 Genetic Algorithm YOLOv5에서 사용된 GA Autoanchor  동기 YOLOv5는 Glenn Jocher가 Github을 통해 발표한 모델입니다. 그는 Yolov5 이전에 Pytorch 버전의 YOLOv3 코드를 작성해서 Github에 공개 한 적이 있습니다. 이 때, 많은 사람들이 custom data set을 학습하며 올린 이슈를 보고 그는 사람들이 학습하고자 하는 dataset의 bounding box 가로 세로 비율이 COCO dataset bounding box의 가로 세로 비율과 많이 다르다는 사실을 발견하게 됩니다.">
+<meta property='og:description' content="본 포스트에서는 YOLOv5에서 anchor를 선정하는 방법에 대해서 알아보겠습니다. 목차 동기 Genetic Algorithm YOLOv5에서 사용된 GA Autoanchor 동기 YOLOv5는 Glenn Jocher가 Github을 통해 발표한 모델입니다. 그는 Yolov5 이전에 Pytorch 버전의 YOLOv3 코드를 작성해서 Github에 공개 한 적이 있습니다. 이 때, 많은 사람들이 custom data set을 학습하며 올린 이슈를 보고 그는 사람들이 학습하고자 하는 dataset의 bounding box 가로 세로 비율이 COCO dataset bounding box의 가로 세로 비율과 많이 다르다는 사실을 발견하게 됩니다. 이 문제를 해결하기 위해, 그는 그 당시에 anchor box를 선정할 때 많이 쓰이던 k-means에 genetic algorithm을 추가적으로 접목시키고, 이 모든 과정을 자동으로 수행해주는 autoanchor를 YOLOv5에 소개합니다.">
 <meta property='og:url' content='https://kimberlykang.github.io/ko/p/yolov5_anchor/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-02-16T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-02-16T00:20:00&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv5 anchor">
-<meta name="twitter:description" content="본 포스트에서는 YOLOv5에서 anchor를 선정하는 방법에 대해서 알아보겠습니다. 목차  동기 Genetic Algorithm YOLOv5에서 사용된 GA Autoanchor  동기 YOLOv5는 Glenn Jocher가 Github을 통해 발표한 모델입니다. 그는 Yolov5 이전에 Pytorch 버전의 YOLOv3 코드를 작성해서 Github에 공개 한 적이 있습니다. 이 때, 많은 사람들이 custom data set을 학습하며 올린 이슈를 보고 그는 사람들이 학습하고자 하는 dataset의 bounding box 가로 세로 비율이 COCO dataset bounding box의 가로 세로 비율과 많이 다르다는 사실을 발견하게 됩니다.">
+<meta name="twitter:description" content="본 포스트에서는 YOLOv5에서 anchor를 선정하는 방법에 대해서 알아보겠습니다. 목차 동기 Genetic Algorithm YOLOv5에서 사용된 GA Autoanchor 동기 YOLOv5는 Glenn Jocher가 Github을 통해 발표한 모델입니다. 그는 Yolov5 이전에 Pytorch 버전의 YOLOv3 코드를 작성해서 Github에 공개 한 적이 있습니다. 이 때, 많은 사람들이 custom data set을 학습하며 올린 이슈를 보고 그는 사람들이 학습하고자 하는 dataset의 bounding box 가로 세로 비율이 COCO dataset bounding box의 가로 세로 비율과 많이 다르다는 사실을 발견하게 됩니다. 이 문제를 해결하기 위해, 그는 그 당시에 anchor box를 선정할 때 많이 쓰이던 k-means에 genetic algorithm을 추가적으로 접목시키고, 이 모든 과정을 자동으로 수행해주는 autoanchor를 YOLOv5에 소개합니다."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
     </head>
     <body class="
     article-page
@@ -56,13 +73,11 @@
                     
                     
                         
-                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
                 </a>
-                
-                    <span class="emoji">🍥</span>
                 
             </figure>
             
@@ -210,7 +225,7 @@
     
     <header class="article-category">
         
-            <a href="/ko/categories/yolov5/" >
+            <a href="/ko/categories/yolov5/" style="background-color: #2a9d8f; color: #fff;">
                 YOLOv5
             </a>
         
@@ -331,10 +346,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="ow">not</span> <span class="n">resume</span><span class="p">:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="o">.</span><span class="n">noautoanchor</span><span class="p">:</span>
-        <span class="n">check_anchors</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">thr</span><span class="o">=</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;anchor_t&#39;</span><span class="p">],</span> <span class="n">imgsz</span><span class="o">=</span><span class="n">imgsz</span><span class="p">)</span>  <span class="c1"># run AutoAnchor</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="ow">not</span> <span class="n">resume</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="o">.</span><span class="n">noautoanchor</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">check_anchors</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">thr</span><span class="o">=</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;anchor_t&#39;</span><span class="p">],</span> <span class="n">imgsz</span><span class="o">=</span><span class="n">imgsz</span><span class="p">)</span>  <span class="c1"># run AutoAnchor</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>현재 anchor가 적합한 anchor인지 판별한는 데에는 아래의 metric이 사용됩니다. 여기서 wh는 전체 bounding box의 [가로, 세로] array이고, k는 현재 anchor의 [가로, 세로] array입니다.</p>
 <div class="highlight"><div class="chroma">
@@ -348,14 +363,14 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">metric</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>  <span class="c1"># compute metric</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">wh</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">/</span> <span class="n">k</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ratio metric</span>
-    <span class="n">best</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># best_x</span>
-    <span class="n">aat</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">thr</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># anchors above threshold</span>
-    <span class="n">bpr</span> <span class="o">=</span> <span class="p">(</span><span class="n">best</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">thr</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># best possible recall</span>
-    <span class="k">return</span> <span class="n">bpr</span><span class="p">,</span> <span class="n">aat</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">metric</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>  <span class="c1"># compute metric</span>
+</span></span><span class="line"><span class="cl">    <span class="n">r</span> <span class="o">=</span> <span class="n">wh</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">/</span> <span class="n">k</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ratio metric</span>
+</span></span><span class="line"><span class="cl">    <span class="n">best</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># best_x</span>
+</span></span><span class="line"><span class="cl">    <span class="n">aat</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">thr</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># anchors above threshold</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bpr</span> <span class="o">=</span> <span class="p">(</span><span class="n">best</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">thr</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># best possible recall</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">bpr</span><span class="p">,</span> <span class="n">aat</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>
@@ -385,13 +400,13 @@
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">bpr</span> <span class="o">&gt;</span> <span class="mf">0.98</span><span class="p">:</span>  <span class="c1"># threshold to recompute</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1">Current anchors are a good fit to dataset ✅&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1">Anchors are a poor fit to dataset ⚠️, attempting to improve...&#39;</span><span class="p">)</span>
-        <span class="n">na</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">anchors</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">//</span> <span class="mi">2</span>  <span class="c1"># number of anchors</span>
-        <span class="n">anchors</span> <span class="o">=</span> <span class="n">kmean_anchors</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">na</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="n">imgsz</span><span class="p">,</span> <span class="n">thr</span><span class="o">=</span><span class="n">thr</span><span class="p">,</span> <span class="n">gen</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">bpr</span> <span class="o">&gt;</span> <span class="mf">0.98</span><span class="p">:</span>  <span class="c1"># threshold to recompute</span>
+</span></span><span class="line"><span class="cl">        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1">Current anchors are a good fit to dataset ✅&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1">Anchors are a poor fit to dataset ⚠️, attempting to improve...&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">na</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">anchors</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">//</span> <span class="mi">2</span>  <span class="c1"># number of anchors</span>
+</span></span><span class="line"><span class="cl">        <span class="n">anchors</span> <span class="o">=</span> <span class="n">kmean_anchors</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">na</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="n">imgsz</span><span class="p">,</span> <span class="n">thr</span><span class="o">=</span><span class="n">thr</span><span class="p">,</span> <span class="n">gen</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>kmean_anchors에서는 먼저 k-means로 bounding box에서 k개의 centroid를 구해줍니다.</p>
 <div class="highlight"><div class="chroma">
@@ -401,10 +416,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">scipy.cluster.vq</span> <span class="kn">import</span> <span class="n">kmeans</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">wh</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sigmas for whitening</span>
-<span class="n">k</span> <span class="o">=</span> <span class="n">kmeans</span><span class="p">(</span><span class="n">wh</span> <span class="o">/</span> <span class="n">s</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">30</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">s</span>  <span class="c1"># points</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">scipy.cluster.vq</span> <span class="kn">import</span> <span class="n">kmeans</span>
+</span></span><span class="line"><span class="cl"><span class="n">s</span> <span class="o">=</span> <span class="n">wh</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sigmas for whitening</span>
+</span></span><span class="line"><span class="cl"><span class="n">k</span> <span class="o">=</span> <span class="n">kmeans</span><span class="p">(</span><span class="n">wh</span> <span class="o">/</span> <span class="n">s</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">30</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">s</span>  <span class="c1"># points</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>centroid를 구했으면 그 centroid를 사용해서 mutatation을 한 다음 <em><strong>anchor_fitness</strong></em>를 통해 적합도를 계산해 줍니다. 위에서 사용된 것과 동일하게 가로, 세로 비율을 고려한 동일한 metric이 사용됩니다.</p>
 <div class="highlight"><div class="chroma">
@@ -416,12 +431,12 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">metric</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">wh</span><span class="p">):</span>  <span class="c1"># compute metrics</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">wh</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">/</span> <span class="n">k</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ratio metric</span>
-    <span class="c1"># x = wh_iou(wh, torch.tensor(k))  # iou metric</span>
-    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># x, best_x</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">metric</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">wh</span><span class="p">):</span>  <span class="c1"># compute metrics</span>
+</span></span><span class="line"><span class="cl">    <span class="n">r</span> <span class="o">=</span> <span class="n">wh</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">/</span> <span class="n">k</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ratio metric</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># x = wh_iou(wh, torch.tensor(k))  # iou metric</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># x, best_x</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>mutation은 <code>gen</code>갯수만큼 mutation을 해 주는데 default는 1000개입니다. 1000개의 mutation을 하고 그 중 가장 적합도가 높은 것을 anchor로 반환합니다.</p>
 <div class="highlight"><div class="chroma">
@@ -443,22 +458,22 @@
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Evolve</span>
-<span class="n">f</span><span class="p">,</span> <span class="n">sh</span><span class="p">,</span> <span class="n">mp</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">anchor_fitness</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">k</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span>  <span class="c1"># fitness, generations, mutation prob, sigma</span>
-<span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">gen</span><span class="p">),</span> <span class="n">bar_format</span><span class="o">=</span><span class="n">TQDM_BAR_FORMAT</span><span class="p">)</span>  <span class="c1"># progress bar</span>
-<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pbar</span><span class="p">:</span>
-    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
-    <span class="k">while</span> <span class="p">(</span><span class="n">v</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>  <span class="c1"># mutate until a change occurs (prevent duplicates)</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="p">((</span><span class="n">npr</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">mp</span><span class="p">)</span> <span class="o">*</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="n">npr</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">sh</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
-    <span class="n">kg</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-    <span class="n">fg</span> <span class="o">=</span> <span class="n">anchor_fitness</span><span class="p">(</span><span class="n">kg</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">fg</span> <span class="o">&gt;</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">f</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">fg</span><span class="p">,</span> <span class="n">kg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">pbar</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s1">Evolving anchors with Genetic Algorithm: fitness = </span><span class="si">{</span><span class="n">f</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="n">print_results</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
-<span class="k">return</span> <span class="n">print_results</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Evolve</span>
+</span></span><span class="line"><span class="cl"><span class="n">f</span><span class="p">,</span> <span class="n">sh</span><span class="p">,</span> <span class="n">mp</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">anchor_fitness</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">k</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span>  <span class="c1"># fitness, generations, mutation prob, sigma</span>
+</span></span><span class="line"><span class="cl"><span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">gen</span><span class="p">),</span> <span class="n">bar_format</span><span class="o">=</span><span class="n">TQDM_BAR_FORMAT</span><span class="p">)</span>  <span class="c1"># progress bar</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pbar</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="n">v</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>  <span class="c1"># mutate until a change occurs (prevent duplicates)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">v</span> <span class="o">=</span> <span class="p">((</span><span class="n">npr</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">mp</span><span class="p">)</span> <span class="o">*</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="n">npr</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">sh</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">kg</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">fg</span> <span class="o">=</span> <span class="n">anchor_fitness</span><span class="p">(</span><span class="n">kg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">fg</span> <span class="o">&gt;</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">f</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">fg</span><span class="p">,</span> <span class="n">kg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pbar</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s1">Evolving anchors with Genetic Algorithm: fitness = </span><span class="si">{</span><span class="n">f</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">print_results</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">return</span> <span class="n">print_results</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
 </section>
@@ -746,7 +761,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

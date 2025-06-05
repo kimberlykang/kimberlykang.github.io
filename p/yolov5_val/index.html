@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we will take a look at Validation in YOLOv5. Table of Contents  Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP Calculation  Validation During training, validation is performed at the end of each epoch to evaluate the training of that epoch. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17  if RANK in {-1, 0}: # mAP callbacks.">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we will take a look at Validation in YOLOv5. Table of Contents Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP Calculation Validation During training, validation is performed at the end of each epoch to evaluate the training of that epoch. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 if RANK in {-1, 0}: # mAP callbacks.run(&#39;on_train_epoch_end&#39;, epoch=epoch) ema.update_attr(model, include=[&#39;yaml&#39;, &#39;nc&#39;, &#39;hyp&#39;, &#39;names&#39;, &#39;stride&#39;, &#39;class_weights&#39;]) final_epoch = (epoch + 1 == epochs) or stopper.">
 <title>YOLOv5 Validation</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov5_val/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 Validation">
-<meta property='og:description' content="In this post, we will take a look at Validation in YOLOv5. Table of Contents  Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP Calculation  Validation During training, validation is performed at the end of each epoch to evaluate the training of that epoch. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17  if RANK in {-1, 0}: # mAP callbacks.">
+<meta property='og:description' content="In this post, we will take a look at Validation in YOLOv5. Table of Contents Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP Calculation Validation During training, validation is performed at the end of each epoch to evaluate the training of that epoch. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 if RANK in {-1, 0}: # mAP callbacks.run(&#39;on_train_epoch_end&#39;, epoch=epoch) ema.update_attr(model, include=[&#39;yaml&#39;, &#39;nc&#39;, &#39;hyp&#39;, &#39;names&#39;, &#39;stride&#39;, &#39;class_weights&#39;]) final_epoch = (epoch + 1 == epochs) or stopper.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov5_val/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-03-29T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-03-29T00:20:00&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv5 Validation">
-<meta name="twitter:description" content="In this post, we will take a look at Validation in YOLOv5. Table of Contents  Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP Calculation  Validation During training, validation is performed at the end of each epoch to evaluate the training of that epoch. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17  if RANK in {-1, 0}: # mAP callbacks.">
+<meta name="twitter:description" content="In this post, we will take a look at Validation in YOLOv5. Table of Contents Validation Non-Maximum Suppression Profile Prediction Matrix AP, mAP Calculation Validation During training, validation is performed at the end of each epoch to evaluate the training of that epoch. 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 if RANK in {-1, 0}: # mAP callbacks.run(&#39;on_train_epoch_end&#39;, epoch=epoch) ema.update_attr(model, include=[&#39;yaml&#39;, &#39;nc&#39;, &#39;hyp&#39;, &#39;names&#39;, &#39;stride&#39;, &#39;class_weights&#39;]) final_epoch = (epoch + 1 == epochs) or stopper."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
     </head>
     <body class="
     article-page
@@ -56,13 +73,11 @@
                     
                     
                         
-                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
                 </a>
-                
-                    <span class="emoji">🍥</span>
                 
             </figure>
             
@@ -250,7 +265,7 @@
     
     <header class="article-category">
         
-            <a href="/categories/yolov5/" >
+            <a href="/categories/yolov5/" style="background-color: #2a9d8f; color: #fff;">
                 YOLOv5
             </a>
         
@@ -362,24 +377,24 @@
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
-    <span class="c1"># mAP</span>
-    <span class="n">callbacks</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;on_train_epoch_end&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>
-    <span class="n">ema</span><span class="o">.</span><span class="n">update_attr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;nc&#39;</span><span class="p">,</span> <span class="s1">&#39;hyp&#39;</span><span class="p">,</span> <span class="s1">&#39;names&#39;</span><span class="p">,</span> <span class="s1">&#39;stride&#39;</span><span class="p">,</span> <span class="s1">&#39;class_weights&#39;</span><span class="p">])</span>
-    <span class="n">final_epoch</span> <span class="o">=</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">epochs</span><span class="p">)</span> <span class="ow">or</span> <span class="n">stopper</span><span class="o">.</span><span class="n">possible_stop</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">noval</span> <span class="ow">or</span> <span class="n">final_epoch</span><span class="p">:</span>  <span class="c1"># Calculate mAP</span>
-        <span class="n">results</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">validate</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span>
-                                        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-                                        <span class="n">imgsz</span><span class="o">=</span><span class="n">imgsz</span><span class="p">,</span>
-                                        <span class="n">half</span><span class="o">=</span><span class="n">amp</span><span class="p">,</span>
-                                        <span class="n">model</span><span class="o">=</span><span class="n">ema</span><span class="o">.</span><span class="n">ema</span><span class="p">,</span>
-                                        <span class="n">single_cls</span><span class="o">=</span><span class="n">single_cls</span><span class="p">,</span>
-                                        <span class="n">dataloader</span><span class="o">=</span><span class="n">val_loader</span><span class="p">,</span>
-                                        <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
-                                        <span class="n">plots</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                        <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
-                                        <span class="n">compute_loss</span><span class="o">=</span><span class="n">compute_loss</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">RANK</span> <span class="ow">in</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># mAP</span>
+</span></span><span class="line"><span class="cl">    <span class="n">callbacks</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;on_train_epoch_end&#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ema</span><span class="o">.</span><span class="n">update_attr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;nc&#39;</span><span class="p">,</span> <span class="s1">&#39;hyp&#39;</span><span class="p">,</span> <span class="s1">&#39;names&#39;</span><span class="p">,</span> <span class="s1">&#39;stride&#39;</span><span class="p">,</span> <span class="s1">&#39;class_weights&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">final_epoch</span> <span class="o">=</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">epochs</span><span class="p">)</span> <span class="ow">or</span> <span class="n">stopper</span><span class="o">.</span><span class="n">possible_stop</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">noval</span> <span class="ow">or</span> <span class="n">final_epoch</span><span class="p">:</span>  <span class="c1"># Calculate mAP</span>
+</span></span><span class="line"><span class="cl">        <span class="n">results</span><span class="p">,</span> <span class="n">maps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">validate</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span> <span class="o">//</span> <span class="n">WORLD_SIZE</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">imgsz</span><span class="o">=</span><span class="n">imgsz</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">half</span><span class="o">=</span><span class="n">amp</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">model</span><span class="o">=</span><span class="n">ema</span><span class="o">.</span><span class="n">ema</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">single_cls</span><span class="o">=</span><span class="n">single_cls</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">dataloader</span><span class="o">=</span><span class="n">val_loader</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">plots</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                        <span class="n">compute_loss</span><span class="o">=</span><span class="n">compute_loss</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>In multi-GPU training, validation is performed only on <code>gpu 0</code>.</li>
@@ -402,15 +417,15 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">with</span> <span class="n">dt</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
-    <span class="n">preds</span> <span class="o">=</span> <span class="n">non_max_suppression</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span>
-                                <span class="n">conf_thres</span><span class="p">,</span>
-                                <span class="n">iou_thres</span><span class="p">,</span>
-                                <span class="n">labels</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
-                                <span class="n">multi_label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                <span class="n">agnostic</span><span class="o">=</span><span class="n">single_cls</span><span class="p">,</span>
-                                <span class="n">max_det</span><span class="o">=</span><span class="n">max_det</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">with</span> <span class="n">dt</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">preds</span> <span class="o">=</span> <span class="n">non_max_suppression</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="n">conf_thres</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="n">iou_thres</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="n">labels</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="n">multi_label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="n">agnostic</span><span class="o">=</span><span class="n">single_cls</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                                <span class="n">max_det</span><span class="o">=</span><span class="n">max_det</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>The parameters <code>conf_thres</code>, <code>iou_thres</code>, and <code>max_det</code> used as arguments can have different values depending on where they are called.</li>
@@ -434,8 +449,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">dt</span> <span class="o">=</span> <span class="n">Profile</span><span class="p">(),</span> <span class="n">Profile</span><span class="p">(),</span> <span class="n">Profile</span><span class="p">()</span>  <span class="c1"># profiling times</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">dt</span> <span class="o">=</span> <span class="n">Profile</span><span class="p">(),</span> <span class="n">Profile</span><span class="p">(),</span> <span class="n">Profile</span><span class="p">()</span>  <span class="c1"># profiling times</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>The <code>Profile</code> class inherits from <code>contextlib.ContextDecorator</code>. A child class inheriting from <code>contextlib.ContextDecorator</code> can define actions to perform when entering a <code>with</code> block in the <em><strong>__enter__</strong></em> method, and actions to perform when exiting in the <em><strong>__exit__</strong></em> method. In <code>Profile</code>, the time is recorded upon entering and again upon exiting; the total time spent within the <code>with</code> block is saved in <code>self.t</code>.</p>
 <div class="highlight"><div class="chroma">
@@ -460,25 +475,25 @@
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Profile</span><span class="p">(</span><span class="n">contextlib</span><span class="o">.</span><span class="n">ContextDecorator</span><span class="p">):</span>
-    <span class="c1"># YOLOv5 Profile class. Usage: @Profile() decorator or &#39;with Profile():&#39; context manager</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>  <span class="c1"># delta-time</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>  <span class="c1"># accumulate dt</span>
-
-    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cuda</span><span class="p">:</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Profile</span><span class="p">(</span><span class="n">contextlib</span><span class="o">.</span><span class="n">ContextDecorator</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># YOLOv5 Profile class. Usage: @Profile() decorator or &#39;with Profile():&#39; context manager</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">cuda</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="bp">self</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>  <span class="c1"># delta-time</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>  <span class="c1"># accumulate dt</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cuda</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>If validation is not called during training, the average execution time is printed after validation as shown below.</p>
 <div class="highlight"><div class="chroma">
@@ -490,12 +505,12 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Print speeds</span>
-<span class="n">t</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">t</span> <span class="o">/</span> <span class="n">seen</span> <span class="o">*</span> <span class="mf">1E3</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dt</span><span class="p">)</span>  <span class="c1"># speeds per image</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">imgsz</span><span class="p">,</span> <span class="n">imgsz</span><span class="p">)</span>
-    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape </span><span class="si">{</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Print speeds</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">t</span> <span class="o">/</span> <span class="n">seen</span> <span class="o">*</span> <span class="mf">1E3</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dt</span><span class="p">)</span>  <span class="c1"># speeds per image</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">imgsz</span><span class="p">,</span> <span class="n">imgsz</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape </span><span class="si">{</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="prediction-matrix">Prediction Matrix
 </h2><ul>
@@ -506,8 +521,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">correct</span> <span class="o">=</span> <span class="n">process_batch</span><span class="p">(</span><span class="n">predn</span><span class="p">,</span> <span class="n">labelsn</span><span class="p">,</span> <span class="n">iouv</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">correct</span> <span class="o">=</span> <span class="n">process_batch</span><span class="p">(</span><span class="n">predn</span><span class="p">,</span> <span class="n">labelsn</span><span class="p">,</span> <span class="n">iouv</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -536,30 +551,30 @@
 </span><span class="lnt">23
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">process_batch</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">iouv</span><span class="p">):</span>
-    <span class="s2">&#34;&#34;&#34;
-</span><span class="s2">    Return correct prediction matrix
-</span><span class="s2">    Arguments:
-</span><span class="s2">        detections (array[N, 6]), x1, y1, x2, y2, conf, class
-</span><span class="s2">        labels (array[M, 5]), class, x1, y1, x2, y2
-</span><span class="s2">    Returns:
-</span><span class="s2">        correct (array[N, 10]), for 10 IoU levels
-</span><span class="s2">    &#34;&#34;&#34;</span>
-    <span class="n">correct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">detections</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">iouv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
-    <span class="n">iou</span> <span class="o">=</span> <span class="n">box_iou</span><span class="p">(</span><span class="n">labels</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">detections</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">4</span><span class="p">])</span>
-    <span class="n">correct_class</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">detections</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iouv</span><span class="p">)):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">iou</span> <span class="o">&gt;=</span> <span class="n">iouv</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">correct_class</span><span class="p">)</span>  <span class="c1"># IoU &gt; threshold and classes match</span>
-        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-            <span class="n">matches</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">iou</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]][:,</span> <span class="kc">None</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># [label, detect, iou]</span>
-            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span>
-                <span class="c1"># matches = matches[matches[:, 2].argsort()[::-1]]</span>
-                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span>
-            <span class="n">correct</span><span class="p">[</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">iouv</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">process_batch</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">iouv</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Return correct prediction matrix
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Arguments:
+</span></span></span><span class="line"><span class="cl"><span class="s2">        detections (array[N, 6]), x1, y1, x2, y2, conf, class
+</span></span></span><span class="line"><span class="cl"><span class="s2">        labels (array[M, 5]), class, x1, y1, x2, y2
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Returns:
+</span></span></span><span class="line"><span class="cl"><span class="s2">        correct (array[N, 10]), for 10 IoU levels
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">correct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">detections</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">iouv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">iou</span> <span class="o">=</span> <span class="n">box_iou</span><span class="p">(</span><span class="n">labels</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">detections</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">correct_class</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">detections</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iouv</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">iou</span> <span class="o">&gt;=</span> <span class="n">iouv</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">correct_class</span><span class="p">)</span>  <span class="c1"># IoU &gt; threshold and classes match</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">matches</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">iou</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]][:,</span> <span class="kc">None</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># [label, detect, iou]</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+</span></span><span class="line"><span class="cl">                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># matches = matches[matches[:, 2].argsort()[::-1]]</span>
+</span></span><span class="line"><span class="cl">                <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">correct</span><span class="p">[</span><span class="n">matches</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">iouv</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>
@@ -592,11 +607,11 @@
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="p">[[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">0</span><span class="p">,</span>     <span class="mf">0.51507</span><span class="p">],</span>
-<span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">3</span><span class="p">,</span>     <span class="mf">0.78271</span><span class="p">],</span>
-<span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>          <span class="mi">11</span><span class="p">,</span>     <span class="mf">0.51642</span><span class="p">],</span>
-<span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>          <span class="mi">12</span><span class="p">,</span>     <span class="mf">0.54807</span><span class="p">]]</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="p">[[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">0</span><span class="p">,</span>     <span class="mf">0.51507</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">3</span><span class="p">,</span>     <span class="mf">0.78271</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>          <span class="mi">11</span><span class="p">,</span>     <span class="mf">0.51642</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span>          <span class="mi">1</span><span class="p">,</span>          <span class="mi">12</span><span class="p">,</span>     <span class="mf">0.54807</span><span class="p">]]</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>After removing duplicates, the result looks like:
@@ -605,8 +620,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="p">[[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">0</span><span class="p">,</span>     <span class="mf">0.51507</span><span class="p">]]</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="p">[[</span>          <span class="mi">1</span><span class="p">,</span>           <span class="mi">0</span><span class="p">,</span>     <span class="mf">0.51507</span><span class="p">]]</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 </ul>
@@ -632,8 +647,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">tp</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">ap</span><span class="p">,</span> <span class="n">ap_class</span> <span class="o">=</span> <span class="n">ap_per_class</span><span class="p">(</span><span class="o">*</span><span class="n">stats</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plots</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">tp</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">ap</span><span class="p">,</span> <span class="n">ap_class</span> <span class="o">=</span> <span class="n">ap_per_class</span><span class="p">(</span><span class="o">*</span><span class="n">stats</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plots</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>
@@ -1013,7 +1028,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

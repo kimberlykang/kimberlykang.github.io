@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we’ll look at &ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&rdquo;, published by Google in 2019. https://arxiv.org/pdf/1906.08237.pdf Table of Contents  AutoRegressive vs. AutoEncoding Permutation Language Modeling Two-Stream Self-Attention  AutoRegressive vs. AutoEncoding AutoRegressive (AR) Language Modeling  Given an input token sequence, predicts the next token. Pre-training maximizes the following likelihood:  $ \\underset{θ}{\\max} \\log p_θ ({\\bf x} ) = \\displaystyle{\\sum_{t=1}^{T}} \\log p_θ (x_t | {\\bf x_{\\rm &lt; t}}) = \\displaystyle{\\sum_{t=1}^{T}} \\log \\frac{exp(h_θ({\\bf x_{\\rm 1:t-1}})_t^{\\top} e(x_t))}{ \\sum _{x'} exp(h_θ({\\bf x _{\\rm 1:t-1}})^{\\top} e(x'))} $  $ {\\bf x} = [x_1, &hellip;, x_T]$: text sequence $ h_θ({\\bf x _{\\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers $ e(x) $: embedding of x exp is used for softmax Each word is predicted by referring only to the words that come before it.">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we’ll look at &ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&rdquo;, published by Google in 2019. https://arxiv.org/pdf/1906.08237.pdf Table of Contents AutoRegressive vs. AutoEncoding Permutation Language Modeling Two-Stream Self-Attention AutoRegressive vs. AutoEncoding AutoRegressive (AR) Language Modeling Given an input token sequence, predicts the next token. Pre-training maximizes the following likelihood: $ \\underset{θ}{\\max} \\log p_θ ({\\bf x} ) = \\displaystyle{\\sum_{t=1}^{T}} \\log p_θ (x_t | {\\bf x_{\\rm &lt; t}}) = \\displaystyle{\\sum_{t=1}^{T}} \\log \\frac{exp(h_θ({\\bf x_{\\rm 1:t-1}})_t^{\\top} e(x_t))}{ \\sum _{x&rsquo;} exp(h_θ({\\bf x _{\\rm 1:t-1}})^{\\top} e(x&rsquo;))} $ $ {\\bf x} = [x_1, &hellip;, x_T]$: text sequence $ h_θ({\\bf x _{\\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers $ e(x) $: embedding of x exp is used for softmax Each word is predicted by referring only to the words that come before it.">
 <title>XLNet Review</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/xlnet_review/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="XLNet Review">
-<meta property='og:description' content="In this post, we’ll look at &ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&rdquo;, published by Google in 2019. https://arxiv.org/pdf/1906.08237.pdf Table of Contents  AutoRegressive vs. AutoEncoding Permutation Language Modeling Two-Stream Self-Attention  AutoRegressive vs. AutoEncoding AutoRegressive (AR) Language Modeling  Given an input token sequence, predicts the next token. Pre-training maximizes the following likelihood:  $ \\underset{θ}{\\max} \\log p_θ ({\\bf x} ) = \\displaystyle{\\sum_{t=1}^{T}} \\log p_θ (x_t | {\\bf x_{\\rm &lt; t}}) = \\displaystyle{\\sum_{t=1}^{T}} \\log \\frac{exp(h_θ({\\bf x_{\\rm 1:t-1}})_t^{\\top} e(x_t))}{ \\sum _{x'} exp(h_θ({\\bf x _{\\rm 1:t-1}})^{\\top} e(x'))} $  $ {\\bf x} = [x_1, &hellip;, x_T]$: text sequence $ h_θ({\\bf x _{\\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers $ e(x) $: embedding of x exp is used for softmax Each word is predicted by referring only to the words that come before it.">
+<meta property='og:description' content="In this post, we’ll look at &ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&rdquo;, published by Google in 2019. https://arxiv.org/pdf/1906.08237.pdf Table of Contents AutoRegressive vs. AutoEncoding Permutation Language Modeling Two-Stream Self-Attention AutoRegressive vs. AutoEncoding AutoRegressive (AR) Language Modeling Given an input token sequence, predicts the next token. Pre-training maximizes the following likelihood: $ \\underset{θ}{\\max} \\log p_θ ({\\bf x} ) = \\displaystyle{\\sum_{t=1}^{T}} \\log p_θ (x_t | {\\bf x_{\\rm &lt; t}}) = \\displaystyle{\\sum_{t=1}^{T}} \\log \\frac{exp(h_θ({\\bf x_{\\rm 1:t-1}})_t^{\\top} e(x_t))}{ \\sum _{x&rsquo;} exp(h_θ({\\bf x _{\\rm 1:t-1}})^{\\top} e(x&rsquo;))} $ $ {\\bf x} = [x_1, &hellip;, x_T]$: text sequence $ h_θ({\\bf x _{\\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers $ e(x) $: embedding of x exp is used for softmax Each word is predicted by referring only to the words that come before it.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/xlnet_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='XLNet' /><meta property='article:published_time' content='2023-08-31T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-08-31T00:17:41&#43;09:00'/>
 <meta name="twitter:title" content="XLNet Review">
-<meta name="twitter:description" content="In this post, we’ll look at &ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&rdquo;, published by Google in 2019. https://arxiv.org/pdf/1906.08237.pdf Table of Contents  AutoRegressive vs. AutoEncoding Permutation Language Modeling Two-Stream Self-Attention  AutoRegressive vs. AutoEncoding AutoRegressive (AR) Language Modeling  Given an input token sequence, predicts the next token. Pre-training maximizes the following likelihood:  $ \\underset{θ}{\\max} \\log p_θ ({\\bf x} ) = \\displaystyle{\\sum_{t=1}^{T}} \\log p_θ (x_t | {\\bf x_{\\rm &lt; t}}) = \\displaystyle{\\sum_{t=1}^{T}} \\log \\frac{exp(h_θ({\\bf x_{\\rm 1:t-1}})_t^{\\top} e(x_t))}{ \\sum _{x'} exp(h_θ({\\bf x _{\\rm 1:t-1}})^{\\top} e(x'))} $  $ {\\bf x} = [x_1, &hellip;, x_T]$: text sequence $ h_θ({\\bf x _{\\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers $ e(x) $: embedding of x exp is used for softmax Each word is predicted by referring only to the words that come before it.">
+<meta name="twitter:description" content="In this post, we’ll look at &ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&rdquo;, published by Google in 2019. https://arxiv.org/pdf/1906.08237.pdf Table of Contents AutoRegressive vs. AutoEncoding Permutation Language Modeling Two-Stream Self-Attention AutoRegressive vs. AutoEncoding AutoRegressive (AR) Language Modeling Given an input token sequence, predicts the next token. Pre-training maximizes the following likelihood: $ \\underset{θ}{\\max} \\log p_θ ({\\bf x} ) = \\displaystyle{\\sum_{t=1}^{T}} \\log p_θ (x_t | {\\bf x_{\\rm &lt; t}}) = \\displaystyle{\\sum_{t=1}^{T}} \\log \\frac{exp(h_θ({\\bf x_{\\rm 1:t-1}})_t^{\\top} e(x_t))}{ \\sum _{x&rsquo;} exp(h_θ({\\bf x _{\\rm 1:t-1}})^{\\top} e(x&rsquo;))} $ $ {\\bf x} = [x_1, &hellip;, x_T]$: text sequence $ h_θ({\\bf x _{\\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers $ e(x) $: embedding of x exp is used for softmax Each word is predicted by referring only to the words that come before it."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
     </head>
     <body class="
     article-page
@@ -56,13 +73,11 @@
                     
                     
                         
-                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
                 </a>
-                
-                    <span class="emoji">🍥</span>
                 
             </figure>
             
@@ -263,7 +278,7 @@
     
     <header class="article-category">
         
-            <a href="/categories/paper-review/" >
+            <a href="/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
                 Paper review
             </a>
         
@@ -360,7 +375,7 @@
 <ul>
 <li>$ \underset{θ}{\max} \log p_θ ({\bf x} )
 = \displaystyle{\sum_{t=1}^{T}} \log p_θ (x_t | {\bf x_{\rm &lt; t}})
-= \displaystyle{\sum_{t=1}^{T}} \log \frac{exp(h_θ({\bf x_{\rm 1:t-1}})_t^{\top} e(x_t))}{ \sum _{x'} exp(h_θ({\bf x _{\rm 1:t-1}})^{\top} e(x'))}
+= \displaystyle{\sum_{t=1}^{T}} \log \frac{exp(h_θ({\bf x_{\rm 1:t-1}})_t^{\top} e(x_t))}{ \sum _{x&rsquo;} exp(h_θ({\bf x _{\rm 1:t-1}})^{\top} e(x&rsquo;))}
 $
 <ul>
 <li>$ {\bf x} = [x_1, &hellip;, x_T]$: text sequence</li>
@@ -381,7 +396,7 @@ $
 <ul>
 <li>$ \underset{θ}{\max} \log p_θ ({\bf \bar x} | {\bf \hat x})
 ≈ \displaystyle{\sum_{t=1}^{T}}m_t \log p_θ (x_t | {\bf \hat x})
-= \displaystyle{\sum_{t=1}^{T}}m_t \log \frac{exp(H_θ({\bf \hat x})_t^{\top} e(x_t))}{ \sum _{x'} exp(H_θ({\bf \hat x})_t^{\top} e(x'))}
+= \displaystyle{\sum_{t=1}^{T}}m_t \log \frac{exp(H_θ({\bf \hat x})_t^{\top} e(x_t))}{ \sum _{x&rsquo;} exp(H_θ({\bf \hat x})_t^{\top} e(x&rsquo;))}
 $
 <ul>
 <li>$ {\bf x} = [x_1, &hellip;, x_T]$: text sequence</li>
@@ -479,7 +494,7 @@ $
 </li>
 <li>To address this, instead of only using $ {\bf x_{z \rm &lt; t}} $, XLNet introduces a new representation $ g_θ({\bf x_{z \rm &lt; t}}, z_t) $ that also receives the target position $ z_t $ as input:
 <ul>
-<li>$ p_θ (X_{x_{z_t}}=x | x_{z &lt; t}) = \frac{exp(e(x)^{\top} g_θ({\bf x_{z \rm &lt; t}}, z_t))}{ \sum _{x'} exp(e(x')^{\top} g_θ({\bf x _{z \rm &lt; t}}, z_t) )}$</li>
+<li>$ p_θ (X_{x_{z_t}}=x | x_{z &lt; t}) = \frac{exp(e(x)^{\top} g_θ({\bf x_{z \rm &lt; t}}, z_t))}{ \sum _{x&rsquo;} exp(e(x&rsquo;)^{\top} g_θ({\bf x _{z \rm &lt; t}}, z_t) )}$</li>
 </ul>
 </li>
 </ul>
@@ -835,7 +850,7 @@ $
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

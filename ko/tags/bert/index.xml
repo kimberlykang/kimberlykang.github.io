@@ -5,7 +5,7 @@
         <link>https://kimberlykang.github.io/ko/tags/bert/</link>
         <description>Recent content in BERT on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
-        <language>en-us</language>
+        <language>ko</language>
         <lastBuildDate>Wed, 02 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/tags/bert/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>BERT 리뷰</title>
         <link>https://kimberlykang.github.io/ko/p/bert_review/</link>
@@ -26,10 +26,10 @@
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ed%85%8c%ec%8a%a4%ed%8a%b8&#34; &gt;테스트&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h2 id=&#34;모델-구조&#34;&gt;모델 구조
-&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/bert_gpt_elmo.png&#34;
+&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo.png&#34;
 	width=&#34;1495&#34;
 	height=&#34;346&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;BERT, GPT, ELMO 비교&#34;
@@ -68,10 +68,10 @@
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;input&#34;&gt;Input
-&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/input.png&#34;
+&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/input.png&#34;
 	width=&#34;863&#34;
 	height=&#34;263&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Input 구성 요소&#34;
@@ -105,10 +105,10 @@
 &lt;li&gt;전체 input token의 15%를 random하게 mask한 뒤, 이에 해당하는 마지막 hidden vector가 전체 vocabulary에 대한 softmax를 수행합니다.&lt;/li&gt;
 &lt;li&gt;fine-tuning에서는 &lt;code&gt;[MASK]&lt;/code&gt; token이 없기 때문에, mask하도록 선택된 15% 중, 80%는 &lt;code&gt;[MASK]&lt;/code&gt; token으로 바꾸고, 10%는 random한 다른 token으로 바꾸며 나머지 10%는 바꾸지 않은 채 예측을 합니다.&lt;/li&gt;
 &lt;li&gt;아래 그림은 sequence &amp;quot;my dog is cutep [SEP] he likes play ###ing[SEP]&amp;quot;에 mask 적용 후 예측을 하는 그림입니다.&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/mlm.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/mlm.png&#34;
 	width=&#34;457&#34;
 	height=&#34;230&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Masked LM 예시&#34;
@@ -147,10 +147,10 @@ Label = NotNext&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;code&gt;[CLS]&lt;/code&gt; toekn의 마지막 hidden vector가 &lt;code&gt;IsNext&lt;/code&gt;/&lt;code&gt;NotNext&lt;/code&gt; classification을 하는 데 사용됩니다.
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/nsp.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/nsp.png&#34;
 	width=&#34;486&#34;
 	height=&#34;237&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Next Sentence Prediction 예시&#34;
@@ -189,10 +189,10 @@ Label = NotNext&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;C는 &lt;code&gt;[CLS]&lt;/code&gt; token의 마지막 hidden vector로 $C∈R^H$입니다. H는 hidden size로 $BERT_{BASE}$는 768, $BERT_{LARGE}$는 1024입니다.&lt;/li&gt;
 &lt;li&gt;새로 학습해야 하는 parameter는 classification layer의 weight $W∈\mathbb R^{K \times H}$입니다. K는 클래스 갯수입니다.
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/sentence_pair_classification.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/sentence_pair_classification.png&#34;
 	width=&#34;564&#34;
 	height=&#34;503&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/sentence_pair_classification_huc922a87801af2b03b3e761b918c5893f_59915_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/sentence_pair_classification_huc922a87801af2b03b3e761b918c5893f_59915_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/sentence_pair_classification_huc922a87801af2b03b3e761b918c5893f_59915_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/sentence_pair_classification_huc922a87801af2b03b3e761b918c5893f_59915_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Sentence Pair Classification Tasks&#34;
@@ -206,10 +206,10 @@ Label = NotNext&lt;/p&gt;
 &lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (a).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;li&gt;결과
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/result_glue.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/result_glue.png&#34;
 	width=&#34;766&#34;
 	height=&#34;162&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/result_glue_hudb56a7fdb2eb4cad4ac7338936233677_38509_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/result_glue_hudb56a7fdb2eb4cad4ac7338936233677_38509_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/result_glue_hudb56a7fdb2eb4cad4ac7338936233677_38509_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/result_glue_hudb56a7fdb2eb4cad4ac7338936233677_38509_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;GLUE result&#34;
@@ -222,10 +222,10 @@ Label = NotNext&lt;/p&gt;
 &gt;&lt;br&gt;
 &lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/result_swag.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/result_swag.png&#34;
 	width=&#34;248&#34;
 	height=&#34;184&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/result_swag_hu741fe5f854be73947a1e26ebf777395c_13805_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/result_swag_hu741fe5f854be73947a1e26ebf777395c_13805_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/result_swag_hu741fe5f854be73947a1e26ebf777395c_13805_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/result_swag_hu741fe5f854be73947a1e26ebf777395c_13805_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;SWAG result&#34;
@@ -248,10 +248,10 @@ Label = NotNext&lt;/p&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;Sentence Pair Classification Tasks에서와 같이 fine-tuning과 더불어 classification layer의 weight $W∈\mathbb R^{K \times H}$를 학습합니다.&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/single_sentence_classification.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/single_sentence_classification.png&#34;
 	width=&#34;564&#34;
 	height=&#34;503&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/single_sentence_classification_huc27f4a6a57c6ad8034f0e0ab6460b268_58378_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/single_sentence_classification_huc27f4a6a57c6ad8034f0e0ab6460b268_58378_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/single_sentence_classification_huc27f4a6a57c6ad8034f0e0ab6460b268_58378_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/single_sentence_classification_huc27f4a6a57c6ad8034f0e0ab6460b268_58378_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Single Sentence Classification Tasks&#34;
@@ -276,10 +276,10 @@ Label = NotNext&lt;/p&gt;
 &lt;li&gt;Question을 &lt;code&gt;A embedding&lt;/code&gt;으로, passage를 &lt;code&gt;B embedding&lt;/code&gt;으로 나타냅니다.&lt;/li&gt;
 &lt;li&gt;fine-tuning에서 start vector $S∈R^H$와 end vector $E∈R^H$를 학습합니다.&lt;/li&gt;
 &lt;li&gt;각 token의 마지막 hidden vector T와 S와 E와 사이의 dot product와 softmax를 구해 start와 end 를 결정합니다.&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/qa.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/qa.png&#34;
 	width=&#34;565&#34;
 	height=&#34;487&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Single Sentence Classification Tasks&#34;
@@ -298,10 +298,10 @@ Label = NotNext&lt;/p&gt;
 &lt;li&gt;Dataset
 &lt;ul&gt;
 &lt;li&gt;CoNLL-2003 NER&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/bert_review/single_sentence_tagging.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/single_sentence_tagging.png&#34;
 	width=&#34;565&#34;
 	height=&#34;487&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/bert_review/single_sentence_tagging_hued301fd6ac715def572f51aeadf0bbe5_59367_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/bert_review/single_sentence_tagging_hued301fd6ac715def572f51aeadf0bbe5_59367_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/bert_review/single_sentence_tagging_hued301fd6ac715def572f51aeadf0bbe5_59367_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/single_sentence_tagging_hued301fd6ac715def572f51aeadf0bbe5_59367_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Single Sentence Tagging Tasks&#34;

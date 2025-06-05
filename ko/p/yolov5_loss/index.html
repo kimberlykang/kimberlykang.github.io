@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="ko" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차  정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss  정보 이론   Information  사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information  확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy  Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy  $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$      Kullback–Leibler divergence(KL Divergence)">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차 정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss 정보 이론 Information 사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information 확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$ Entropy Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$ Kullback–Leibler divergence(KL Divergence)">
 <title>YOLOv5 Loss</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/ko/p/yolov5_loss/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv5 Loss">
-<meta property='og:description' content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차  정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss  정보 이론   Information  사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information  확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy  Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy  $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$      Kullback–Leibler divergence(KL Divergence)">
+<meta property='og:description' content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차 정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss 정보 이론 Information 사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information 확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$ Entropy Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$ Kullback–Leibler divergence(KL Divergence)">
 <meta property='og:url' content='https://kimberlykang.github.io/ko/p/yolov5_loss/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv5' /><meta property='article:published_time' content='2023-04-11T00:20:00&#43;09:00'/><meta property='article:modified_time' content='2023-04-11T00:20:00&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv5 Loss">
-<meta name="twitter:description" content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차  정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss  정보 이론   Information  사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information  확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$      Entropy  Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy  $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$      Kullback–Leibler divergence(KL Divergence)">
+<meta name="twitter:description" content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차 정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss 정보 이론 Information 사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information 확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$ Entropy Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$ Kullback–Leibler divergence(KL Divergence)"><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
     </head>
     <body class="
     article-page
@@ -56,13 +73,11 @@
                     
                     
                         
-                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
                 </a>
-                
-                    <span class="emoji">🍥</span>
                 
             </figure>
             
@@ -212,7 +227,7 @@
     
     <header class="article-category">
         
-            <a href="/ko/categories/yolov5/" >
+            <a href="/ko/categories/yolov5/" style="background-color: #2a9d8f; color: #fff;">
                 YOLOv5
             </a>
         
@@ -423,13 +438,13 @@ $=\log 0.7$</li>
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>  <span class="c1"># 64 classes, batch size = 10</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)</span>  <span class="c1"># A prediction (logit)</span>
-<span class="n">pos_weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">64</span><span class="p">])</span>  <span class="c1"># All weights are equal to 1</span>
-<span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">pos_weight</span><span class="o">=</span><span class="n">pos_weight</span><span class="p">)</span>
-<span class="n">criterion</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>  <span class="c1"># -log(sigmoid(1.5))</span>
-<span class="c1"># tensor(0.20...)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>  <span class="c1"># 64 classes, batch size = 10</span>
+</span></span><span class="line"><span class="cl"><span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)</span>  <span class="c1"># A prediction (logit)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pos_weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">64</span><span class="p">])</span>  <span class="c1"># All weights are equal to 1</span>
+</span></span><span class="line"><span class="cl"><span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">pos_weight</span><span class="o">=</span><span class="n">pos_weight</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">criterion</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>  <span class="c1"># -log(sigmoid(1.5))</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tensor(0.20...)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 </ul>
@@ -515,7 +530,7 @@ $=\log 0.7$</li>
 <li>$ s_i= \begin{cases} \displaystyle s_i, &amp; IoU -\mathcal{R}(\mathcal{M}, B_i) &lt; \epsilon \\ \displaystyle 0, &amp; IoU -\mathcal{R}(\mathcal{M}, B_i) ≥ \epsilon  \end{cases} $</li>
 </ul>
 </li>
-<li>PASCAL VOC07+12로 학습한 YOLOv3 모델로 MS COCO 2017 데이터 중 하나를 detect한 예시입니다. 
+<li>PASCAL VOC07+12로 학습한 YOLOv3 모델로 MS COCO 2017 데이터 중 하나를 detect한 예시입니다.
 <img style="max-width:80%; height:auto;" src="viz_result_diou_nms.png" alt="Visualization of Result with DIoU-NMS" /><br>
 <span style="font-size:70%"> 출처: <a class="link" href="https://ojs.aaai.org/index.php/AAAI/article/view/6999/6853"  target="_blank" rel="noopener"
     ><em>Zheng, Zhaohui, et al. &ldquo;Distance-IoU loss: Faster and better learning for bounding box regression.&rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 34. No. 07. 2020, Figure 8</em></a></span></li>
@@ -556,17 +571,15 @@ $=\log 0.7$</li>
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
-</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Regression</span>
-<span class="n">pxy</span> <span class="o">=</span> <span class="n">pxy</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.5</span>
-<span class="n">pwh</span> <span class="o">=</span> <span class="p">(</span><span class="n">pwh</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">anchors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-<span class="n">pbox</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">pxy</span><span class="p">,</span> <span class="n">pwh</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># predicted box </span>
-<span class="n">iou</span> <span class="o">=</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="n">pbox</span><span class="p">,</span> <span class="n">tbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">CIoU</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># iou</span>
-<span class="n">lbox</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">iou</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># iou loss</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Regression</span>
+</span></span><span class="line"><span class="cl"><span class="n">pxy</span> <span class="o">=</span> <span class="n">pxy</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl"><span class="n">pwh</span> <span class="o">=</span> <span class="p">(</span><span class="n">pwh</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">anchors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">pbox</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">pxy</span><span class="p">,</span> <span class="n">pwh</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># predicted box </span>
+</span></span><span class="line"><span class="cl"><span class="n">iou</span> <span class="o">=</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="n">pbox</span><span class="p">,</span> <span class="n">tbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">CIoU</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># iou</span>
+</span></span><span class="line"><span class="cl"><span class="n">lbox</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">iou</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># iou loss</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>
@@ -597,19 +610,19 @@ $=\log 0.7$</li>
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Objectness</span>
-<span class="c1"># BCEobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h[&#39;obj_pw&#39;]], device=device))</span>
-<span class="n">iou</span> <span class="o">=</span> <span class="n">iou</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">tobj</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_obj_iou</span><span class="p">:</span>
-    <span class="n">j</span> <span class="o">=</span> <span class="n">iou</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
-    <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">gj</span><span class="p">,</span> <span class="n">gi</span><span class="p">,</span> <span class="n">iou</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">gj</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">gi</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">iou</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># default 1.0</span>
-    <span class="n">iou</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span> <span class="o">*</span> <span class="n">iou</span>
-<span class="n">tobj</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">gj</span><span class="p">,</span> <span class="n">gi</span><span class="p">]</span> <span class="o">=</span> <span class="n">iou</span>  <span class="c1"># iou ratio</span>
-
-<span class="n">obji</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BCEobj</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">tobj</span><span class="p">)</span>
-<span class="n">lobj</span> <span class="o">+=</span> <span class="n">obji</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># obj loss</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Objectness</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># BCEobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h[&#39;obj_pw&#39;]], device=device))</span>
+</span></span><span class="line"><span class="cl"><span class="n">iou</span> <span class="o">=</span> <span class="n">iou</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">tobj</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_obj_iou</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">j</span> <span class="o">=</span> <span class="n">iou</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">gj</span><span class="p">,</span> <span class="n">gi</span><span class="p">,</span> <span class="n">iou</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">gj</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">gi</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">iou</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># default 1.0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">iou</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gr</span> <span class="o">*</span> <span class="n">iou</span>
+</span></span><span class="line"><span class="cl"><span class="n">tobj</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">gj</span><span class="p">,</span> <span class="n">gi</span><span class="p">]</span> <span class="o">=</span> <span class="n">iou</span>  <span class="c1"># iou ratio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">obji</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BCEobj</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">tobj</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">lobj</span> <span class="o">+=</span> <span class="n">obji</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># obj loss</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>
@@ -625,17 +638,15 @@ $=\log 0.7$</li>
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
-</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Classification</span>
-<span class="c1"># BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h[&#39;cls_pw&#39;]], device=device))</span>
-<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># cls loss (only if multiple classes)</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">pcls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># targets</span>
-    <span class="n">t</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">tcls</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span>
-    <span class="n">lcls</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BCEcls</span><span class="p">(</span><span class="n">pcls</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>  <span class="c1"># BCE</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Classification</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h[&#39;cls_pw&#39;]], device=device))</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># cls loss (only if multiple classes)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">pcls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># targets</span>
+</span></span><span class="line"><span class="cl">    <span class="n">t</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">tcls</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lcls</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BCEcls</span><span class="p">(</span><span class="n">pcls</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>  <span class="c1"># BCE</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>
@@ -653,13 +664,13 @@ $=\log 0.7$</li>
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">lbox</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;box&#39;</span><span class="p">]</span>
-<span class="n">lobj</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;obj&#39;</span><span class="p">]</span>
-<span class="n">lcls</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;cls&#39;</span><span class="p">]</span>
-<span class="n">bs</span> <span class="o">=</span> <span class="n">tobj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># batch size</span>
-
-<span class="k">return</span> <span class="p">(</span><span class="n">lbox</span> <span class="o">+</span> <span class="n">lobj</span> <span class="o">+</span> <span class="n">lcls</span><span class="p">)</span> <span class="o">*</span> <span class="n">bs</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">lbox</span><span class="p">,</span> <span class="n">lobj</span><span class="p">,</span> <span class="n">lcls</span><span class="p">))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">lbox</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;box&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">lobj</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;obj&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">lcls</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyp</span><span class="p">[</span><span class="s1">&#39;cls&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">bs</span> <span class="o">=</span> <span class="n">tobj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># batch size</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">return</span> <span class="p">(</span><span class="n">lbox</span> <span class="o">+</span> <span class="n">lobj</span> <span class="o">+</span> <span class="n">lcls</span><span class="p">)</span> <span class="o">*</span> <span class="n">bs</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">lbox</span><span class="p">,</span> <span class="n">lobj</span><span class="p">,</span> <span class="n">lcls</span><span class="p">))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 </ul>
@@ -949,7 +960,7 @@ $=\log 0.7$</li>
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

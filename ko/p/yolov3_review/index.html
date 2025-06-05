@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="ko" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 2018년 발표된 &ldquo;YOLOv3: An Incremental Improvement&quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차  여러 Scale로 예측 결과  여러 Scale로 예측 출처: https://wikidocs.net/174008  Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다. base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다. 논문에서는 grid cell마다 3개의 ahchor box를 사용했습니다. 따라서 N이 feature map의 grid 갯수일 때, 각 feature map의 예측값은 N×N×[3*(4+1+80)]이 됩니다.">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 2018년 발표된 &ldquo;YOLOv3: An Incremental Improvement&quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차 여러 Scale로 예측 결과 여러 Scale로 예측 출처: https://wikidocs.net/174008 Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다. base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다. 논문에서는 grid cell마다 3개의 ahchor box를 사용했습니다. 따라서 N이 feature map의 grid 갯수일 때, 각 feature map의 예측값은 N×N×[3*(4+1+80)]이 됩니다. 3가지 scale에서 3종류의 achor를 사용하므로, anchor 갯수는 총 9개가 됩니다.">
 <title>YOLOv3 리뷰</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/ko/p/yolov3_review/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv3 리뷰">
-<meta property='og:description' content="본 포스트에서는 2018년 발표된 &ldquo;YOLOv3: An Incremental Improvement&quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차  여러 Scale로 예측 결과  여러 Scale로 예측 출처: https://wikidocs.net/174008  Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다. base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다. 논문에서는 grid cell마다 3개의 ahchor box를 사용했습니다. 따라서 N이 feature map의 grid 갯수일 때, 각 feature map의 예측값은 N×N×[3*(4+1+80)]이 됩니다.">
+<meta property='og:description' content="본 포스트에서는 2018년 발표된 &ldquo;YOLOv3: An Incremental Improvement&quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차 여러 Scale로 예측 결과 여러 Scale로 예측 출처: https://wikidocs.net/174008 Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다. base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다. 논문에서는 grid cell마다 3개의 ahchor box를 사용했습니다. 따라서 N이 feature map의 grid 갯수일 때, 각 feature map의 예측값은 N×N×[3*(4+1+80)]이 됩니다. 3가지 scale에서 3종류의 achor를 사용하므로, anchor 갯수는 총 9개가 됩니다.">
 <meta property='og:url' content='https://kimberlykang.github.io/ko/p/yolov3_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv3' /><meta property='article:published_time' content='2023-07-04T00:09:40&#43;09:00'/><meta property='article:modified_time' content='2023-07-04T00:09:40&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv3 리뷰">
-<meta name="twitter:description" content="본 포스트에서는 2018년 발표된 &ldquo;YOLOv3: An Incremental Improvement&quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차  여러 Scale로 예측 결과  여러 Scale로 예측 출처: https://wikidocs.net/174008  Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다. base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다. 논문에서는 grid cell마다 3개의 ahchor box를 사용했습니다. 따라서 N이 feature map의 grid 갯수일 때, 각 feature map의 예측값은 N×N×[3*(4+1+80)]이 됩니다.">
+<meta name="twitter:description" content="본 포스트에서는 2018년 발표된 &ldquo;YOLOv3: An Incremental Improvement&quot;를 살펴보겠습니다. YOLOv3: An Incremental Improvement 목차 여러 Scale로 예측 결과 여러 Scale로 예측 출처: https://wikidocs.net/174008 Feature pyramid network와 유사한 방식으로 3가지 scale에서 bounding box를 예측합니다. base feature extractor에 convolutional layer 몇 개를 붙인 뒤, 마지막 layer가 bounding box, objectness, class prediction을 예측합니다. 논문에서는 grid cell마다 3개의 ahchor box를 사용했습니다. 따라서 N이 feature map의 grid 갯수일 때, 각 feature map의 예측값은 N×N×[3*(4+1+80)]이 됩니다. 3가지 scale에서 3종류의 achor를 사용하므로, anchor 갯수는 총 9개가 됩니다."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
     </head>
     <body class="
     article-page
@@ -56,13 +73,11 @@
                     
                     
                         
-                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
                 </a>
-                
-                    <span class="emoji">🍥</span>
                 
             </figure>
             
@@ -208,7 +223,7 @@
     
     <header class="article-category">
         
-            <a href="/ko/categories/paper-review/" >
+            <a href="/ko/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
                 Paper review
             </a>
         
@@ -297,10 +312,10 @@
 <li><a class="link" href="#%ea%b2%b0%ea%b3%bc" >결과</a></li>
 </ol>
 <h2 id="여러-scale로-예측">여러 Scale로 예측
-</h2><p><img src="/ko/p/yolov3_review/architecture.png"
+</h2><p><img src="/p/yolov3_review/architecture.png"
 	width="1604"
 	height="1652"
-	srcset="/ko/p/yolov3_review/architecture_hu9c6a99adb0743d0e7bdbfc1484679b91_300157_480x0_resize_box_3.png 480w, /ko/p/yolov3_review/architecture_hu9c6a99adb0743d0e7bdbfc1484679b91_300157_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov3_review/architecture_hu9c6a99adb0743d0e7bdbfc1484679b91_300157_480x0_resize_box_3.png 480w, /p/yolov3_review/architecture_hu9c6a99adb0743d0e7bdbfc1484679b91_300157_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 1"
@@ -321,10 +336,10 @@
 <li>COCO dataset의 경우, (10×13), (16×30), (33×23), (30×61), (62×45), (59×119), (116×90), (159×198), (373×326)의 anchor box를 사용합니다.</li>
 </ul>
 <h2 id="결과">결과
-</h2><p><img src="/ko/p/yolov3_review/table3.png"
+</h2><p><img src="/p/yolov3_review/table3.png"
 	width="636"
 	height="221"
-	srcset="/ko/p/yolov3_review/table3_hubca3cfb4d7515664152572e9ddf4bed4_56185_480x0_resize_box_3.png 480w, /ko/p/yolov3_review/table3_hubca3cfb4d7515664152572e9ddf4bed4_56185_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov3_review/table3_hubca3cfb4d7515664152572e9ddf4bed4_56185_480x0_resize_box_3.png 480w, /p/yolov3_review/table3_hubca3cfb4d7515664152572e9ddf4bed4_56185_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 2"
@@ -610,7 +625,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

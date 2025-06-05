@@ -5,7 +5,7 @@
         <link>https://kimberlykang.github.io/ko/tags/yolov2/</link>
         <description>Recent content in YOLOv2 on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
-        <language>en-us</language>
+        <language>ko</language>
         <lastBuildDate>Sun, 18 Jun 2023 00:09:40 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/tags/yolov2/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>YOLOv2 리뷰</title>
         <link>https://kimberlykang.github.io/ko/p/yolov2_review/</link>
@@ -66,10 +66,10 @@
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;아래는 다양한 k값에 대하여 학습 데이터에 있는 bounding box와 가장 가까운 centroid와의 IOU 값의 평균을 그린 그래프와, k=5일 때의 anchor box입니다.&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/figure2.png&#34;
+&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/figure2.png&#34;
 	width=&#34;405&#34;
 	height=&#34;205&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Image 1&#34;
@@ -88,10 +88,10 @@
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;k=5일 때 k-means clustering이 찾은 VOC 2007 데이터의 anchor box가 위 그림의 흰 색 박스, COCO 데이터의 anchor box가 위 그림의 파란색 박스입니다. 데이터에 따라 다른 모양의 anchor box가 선택되는 걸 볼 수 있습니다.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table1.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/table1.png&#34;
 	width=&#34;272&#34;
 	height=&#34;102&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Image 2&#34;
@@ -133,10 +133,10 @@
 &lt;li&gt;$ b_h=p_h e^{t_h}$&lt;/li&gt;
 &lt;li&gt;$ Pr(object) * IOU(b, object)=\sigma(t_o)$&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/figure3.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/figure3.png&#34;
 	width=&#34;402&#34;
 	height=&#34;301&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Image 3&#34;
@@ -164,10 +164,10 @@
 &lt;li&gt;본 논문에서는 19개의 convolutional layer를 가진 Darknet 19를 사용했습니다. Darknet 19는 5.58 billion operation을 합니다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;결과&#34;&gt;결과
-&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table2.png&#34;
+&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/table2.png&#34;
 	width=&#34;592&#34;
 	height=&#34;236&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Image 4&#34;
@@ -184,10 +184,10 @@
 &lt;li&gt;위 표는 &lt;strong&gt;VOC 2007&lt;/strong&gt; 데이터에 대해 모델 종류별로 실험하여 얻은 mAP를 나타낸 표입니다.&lt;/li&gt;
 &lt;li&gt;YOLOv1보다 mAP가 상당히 향상된 것을 볼 수 있습니다.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table3.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/table3.png&#34;
 	width=&#34;410&#34;
 	height=&#34;240&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Image 5&#34;
@@ -200,10 +200,10 @@
 &gt;&lt;br&gt;
 &lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Table 3&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/figure4.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/figure4.png&#34;
 	width=&#34;389&#34;
 	height=&#34;271&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Image 6&#34;
@@ -221,10 +221,10 @@
 &lt;li&gt;각 YOLOv2 228×228, 352×352, 416×416, 480×480, 544×544는 동일한 weight를 가진 동일 모델을 이미지 사이즈만 다르게 해서 실험한 결과입니다.&lt;/li&gt;
 &lt;li&gt;YOLOv2가 다른 모델과 mAP는 비슷하지만, FPS는 훨씬 높은 것을 볼 수 있습니다.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table4.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/table4.png&#34;
 	width=&#34;722&#34;
 	height=&#34;106&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table4_hu7de32c94a58053b665da3ff9f3211014_41572_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov2_review/table4_hu7de32c94a58053b665da3ff9f3211014_41572_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/table4_hu7de32c94a58053b665da3ff9f3211014_41572_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table4_hu7de32c94a58053b665da3ff9f3211014_41572_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Image 7&#34;
@@ -240,10 +240,10 @@
 &lt;ul&gt;
 &lt;li&gt;위 표는 &lt;strong&gt;PASCAL VOC 2012&lt;/strong&gt; 데이터에 대한 각 모델의 테스트 결과입니다. YOLOv2는 mAP가 YOLO보다 훨씬 높고, Faster R-CNN(ResNet), SSD512 등과 비슷한 mAP를 가집니다.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table5.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/table5.png&#34;
 	width=&#34;628&#34;
 	height=&#34;176&#34;
-	srcset=&#34;https://kimberlykang.github.io/ko/p/yolov2_review/table5_hu3f402c3326b35ae85a6bf9621784c9c8_49763_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/ko/p/yolov2_review/table5_hu3f402c3326b35ae85a6bf9621784c9c8_49763_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/table5_hu3f402c3326b35ae85a6bf9621784c9c8_49763_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table5_hu3f402c3326b35ae85a6bf9621784c9c8_49763_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Image 8&#34;

@@ -5,7 +5,7 @@
         <link>https://kimberlykang.github.io/categories/paper-review/</link>
         <description>Recent content in Paper review on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
-        <language>en-us</language>
+        <language>en</language>
         <lastBuildDate>Thu, 31 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/categories/paper-review/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>XLNet Review</title>
         <link>https://kimberlykang.github.io/p/xlnet_review/</link>
@@ -29,7 +29,7 @@
 &lt;ul&gt;
 &lt;li&gt;$ \underset{θ}{\max} \log p_θ ({\bf x} )
 = \displaystyle{\sum_{t=1}^{T}} \log p_θ (x_t | {\bf x_{\rm &amp;lt; t}})
-= \displaystyle{\sum_{t=1}^{T}} \log \frac{exp(h_θ({\bf x_{\rm 1:t-1}})_t^{\top} e(x_t))}{ \sum _{x&#39;} exp(h_θ({\bf x _{\rm 1:t-1}})^{\top} e(x&#39;))}
+= \displaystyle{\sum_{t=1}^{T}} \log \frac{exp(h_θ({\bf x_{\rm 1:t-1}})_t^{\top} e(x_t))}{ \sum _{x&amp;rsquo;} exp(h_θ({\bf x _{\rm 1:t-1}})^{\top} e(x&amp;rsquo;))}
 $
 &lt;ul&gt;
 &lt;li&gt;$ {\bf x} = [x_1, &amp;hellip;, x_T]$: text sequence&lt;/li&gt;
@@ -50,7 +50,7 @@ $
 &lt;ul&gt;
 &lt;li&gt;$ \underset{θ}{\max} \log p_θ ({\bf \bar x} | {\bf \hat x})
 ≈ \displaystyle{\sum_{t=1}^{T}}m_t \log p_θ (x_t | {\bf \hat x})
-= \displaystyle{\sum_{t=1}^{T}}m_t \log \frac{exp(H_θ({\bf \hat x})_t^{\top} e(x_t))}{ \sum _{x&#39;} exp(H_θ({\bf \hat x})_t^{\top} e(x&#39;))}
+= \displaystyle{\sum_{t=1}^{T}}m_t \log \frac{exp(H_θ({\bf \hat x})_t^{\top} e(x_t))}{ \sum _{x&amp;rsquo;} exp(H_θ({\bf \hat x})_t^{\top} e(x&amp;rsquo;))}
 $
 &lt;ul&gt;
 &lt;li&gt;$ {\bf x} = [x_1, &amp;hellip;, x_T]$: text sequence&lt;/li&gt;
@@ -148,7 +148,7 @@ $
 &lt;/li&gt;
 &lt;li&gt;To address this, instead of only using $ {\bf x_{z \rm &amp;lt; t}} $, XLNet introduces a new representation $ g_θ({\bf x_{z \rm &amp;lt; t}}, z_t) $ that also receives the target position $ z_t $ as input:
 &lt;ul&gt;
-&lt;li&gt;$ p_θ (X_{x_{z_t}}=x | x_{z &amp;lt; t}) = \frac{exp(e(x)^{\top} g_θ({\bf x_{z \rm &amp;lt; t}}, z_t))}{ \sum _{x&#39;} exp(e(x&#39;)^{\top} g_θ({\bf x _{z \rm &amp;lt; t}}, z_t) )}$&lt;/li&gt;
+&lt;li&gt;$ p_θ (X_{x_{z_t}}=x | x_{z &amp;lt; t}) = \frac{exp(e(x)^{\top} g_θ({\bf x_{z \rm &amp;lt; t}}, z_t))}{ \sum _{x&amp;rsquo;} exp(e(x&amp;rsquo;)^{\top} g_θ({\bf x _{z \rm &amp;lt; t}}, z_t) )}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;

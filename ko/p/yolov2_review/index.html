@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="ko" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 2017년 CVPR에 발표된 논문 &ldquo;YOLO9000: Better, Faster, Stronger&quot;을 살펴보겠습니다. YOLO9000: Better, Faster, Stronger 목차  동기 Batch Normalization 높은 Resolution에서 classifier 학습 Anchor Box 사용 Dimension Clusters 예측값 Fine-Grained Features 네트워크 결과  동기 YOLOv1는 그 당시의 State-of-the-art(SOTA)였던 Fast-RCNN과 비교하여 localization error가 상당히 컸습니다. 또한, recall도 상대적으로 굉장히 낮았습니다. 즉, object를 빼먹고 찾은 경우가 많았습니다. YOLOv2에서는 네트워크 크기를 키우지 않고 빠른 속도를 유지하면서 localization error와 낮은 recall 문제를 해결한 방법들을 아래와 같이 고안하게 됩니다.">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 2017년 CVPR에 발표된 논문 &ldquo;YOLO9000: Better, Faster, Stronger&quot;을 살펴보겠습니다. YOLO9000: Better, Faster, Stronger 목차 동기 Batch Normalization 높은 Resolution에서 classifier 학습 Anchor Box 사용 Dimension Clusters 예측값 Fine-Grained Features 네트워크 결과 동기 YOLOv1는 그 당시의 State-of-the-art(SOTA)였던 Fast-RCNN과 비교하여 localization error가 상당히 컸습니다. 또한, recall도 상대적으로 굉장히 낮았습니다. 즉, object를 빼먹고 찾은 경우가 많았습니다. YOLOv2에서는 네트워크 크기를 키우지 않고 빠른 속도를 유지하면서 localization error와 낮은 recall 문제를 해결한 방법들을 아래와 같이 고안하게 됩니다.">
 <title>YOLOv2 리뷰</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/ko/p/yolov2_review/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv2 리뷰">
-<meta property='og:description' content="본 포스트에서는 2017년 CVPR에 발표된 논문 &ldquo;YOLO9000: Better, Faster, Stronger&quot;을 살펴보겠습니다. YOLO9000: Better, Faster, Stronger 목차  동기 Batch Normalization 높은 Resolution에서 classifier 학습 Anchor Box 사용 Dimension Clusters 예측값 Fine-Grained Features 네트워크 결과  동기 YOLOv1는 그 당시의 State-of-the-art(SOTA)였던 Fast-RCNN과 비교하여 localization error가 상당히 컸습니다. 또한, recall도 상대적으로 굉장히 낮았습니다. 즉, object를 빼먹고 찾은 경우가 많았습니다. YOLOv2에서는 네트워크 크기를 키우지 않고 빠른 속도를 유지하면서 localization error와 낮은 recall 문제를 해결한 방법들을 아래와 같이 고안하게 됩니다.">
+<meta property='og:description' content="본 포스트에서는 2017년 CVPR에 발표된 논문 &ldquo;YOLO9000: Better, Faster, Stronger&quot;을 살펴보겠습니다. YOLO9000: Better, Faster, Stronger 목차 동기 Batch Normalization 높은 Resolution에서 classifier 학습 Anchor Box 사용 Dimension Clusters 예측값 Fine-Grained Features 네트워크 결과 동기 YOLOv1는 그 당시의 State-of-the-art(SOTA)였던 Fast-RCNN과 비교하여 localization error가 상당히 컸습니다. 또한, recall도 상대적으로 굉장히 낮았습니다. 즉, object를 빼먹고 찾은 경우가 많았습니다. YOLOv2에서는 네트워크 크기를 키우지 않고 빠른 속도를 유지하면서 localization error와 낮은 recall 문제를 해결한 방법들을 아래와 같이 고안하게 됩니다.">
 <meta property='og:url' content='https://kimberlykang.github.io/ko/p/yolov2_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv2' /><meta property='article:published_time' content='2023-06-18T00:09:40&#43;09:00'/><meta property='article:modified_time' content='2023-06-18T00:09:40&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv2 리뷰">
-<meta name="twitter:description" content="본 포스트에서는 2017년 CVPR에 발표된 논문 &ldquo;YOLO9000: Better, Faster, Stronger&quot;을 살펴보겠습니다. YOLO9000: Better, Faster, Stronger 목차  동기 Batch Normalization 높은 Resolution에서 classifier 학습 Anchor Box 사용 Dimension Clusters 예측값 Fine-Grained Features 네트워크 결과  동기 YOLOv1는 그 당시의 State-of-the-art(SOTA)였던 Fast-RCNN과 비교하여 localization error가 상당히 컸습니다. 또한, recall도 상대적으로 굉장히 낮았습니다. 즉, object를 빼먹고 찾은 경우가 많았습니다. YOLOv2에서는 네트워크 크기를 키우지 않고 빠른 속도를 유지하면서 localization error와 낮은 recall 문제를 해결한 방법들을 아래와 같이 고안하게 됩니다.">
+<meta name="twitter:description" content="본 포스트에서는 2017년 CVPR에 발표된 논문 &ldquo;YOLO9000: Better, Faster, Stronger&quot;을 살펴보겠습니다. YOLO9000: Better, Faster, Stronger 목차 동기 Batch Normalization 높은 Resolution에서 classifier 학습 Anchor Box 사용 Dimension Clusters 예측값 Fine-Grained Features 네트워크 결과 동기 YOLOv1는 그 당시의 State-of-the-art(SOTA)였던 Fast-RCNN과 비교하여 localization error가 상당히 컸습니다. 또한, recall도 상대적으로 굉장히 낮았습니다. 즉, object를 빼먹고 찾은 경우가 많았습니다. YOLOv2에서는 네트워크 크기를 키우지 않고 빠른 속도를 유지하면서 localization error와 낮은 recall 문제를 해결한 방법들을 아래와 같이 고안하게 됩니다."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
     </head>
     <body class="
     article-page
@@ -56,13 +73,11 @@
                     
                     
                         
-                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
                 </a>
-                
-                    <span class="emoji">🍥</span>
                 
             </figure>
             
@@ -215,7 +230,7 @@
     
     <header class="article-category">
         
-            <a href="/ko/categories/paper-review/" >
+            <a href="/ko/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
                 Paper review
             </a>
         
@@ -349,10 +364,10 @@
 </li>
 <li>
 <p>아래는 다양한 k값에 대하여 학습 데이터에 있는 bounding box와 가장 가까운 centroid와의 IOU 값의 평균을 그린 그래프와, k=5일 때의 anchor box입니다.<br>
-<img src="/ko/p/yolov2_review/figure2.png"
+<img src="/p/yolov2_review/figure2.png"
 	width="405"
 	height="205"
-	srcset="/ko/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_480x0_resize_box_3.png 480w, /ko/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_480x0_resize_box_3.png 480w, /p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 1"
@@ -371,10 +386,10 @@
 </li>
 <li>
 <p>k=5일 때 k-means clustering이 찾은 VOC 2007 데이터의 anchor box가 위 그림의 흰 색 박스, COCO 데이터의 anchor box가 위 그림의 파란색 박스입니다. 데이터에 따라 다른 모양의 anchor box가 선택되는 걸 볼 수 있습니다.</p>
-<p><img src="/ko/p/yolov2_review/table1.png"
+<p><img src="/p/yolov2_review/table1.png"
 	width="272"
 	height="102"
-	srcset="/ko/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_480x0_resize_box_3.png 480w, /ko/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_480x0_resize_box_3.png 480w, /p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 2"
@@ -416,10 +431,10 @@
 <li>$ b_h=p_h e^{t_h}$</li>
 <li>$ Pr(object) * IOU(b, object)=\sigma(t_o)$</li>
 </ul>
-<p><img src="/ko/p/yolov2_review/figure3.png"
+<p><img src="/p/yolov2_review/figure3.png"
 	width="402"
 	height="301"
-	srcset="/ko/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_480x0_resize_box_3.png 480w, /ko/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_480x0_resize_box_3.png 480w, /p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 3"
@@ -447,10 +462,10 @@
 <li>본 논문에서는 19개의 convolutional layer를 가진 Darknet 19를 사용했습니다. Darknet 19는 5.58 billion operation을 합니다.</li>
 </ul>
 <h2 id="결과">결과
-</h2><p><img src="/ko/p/yolov2_review/table2.png"
+</h2><p><img src="/p/yolov2_review/table2.png"
 	width="592"
 	height="236"
-	srcset="/ko/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_480x0_resize_box_3.png 480w, /ko/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_480x0_resize_box_3.png 480w, /p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 4"
@@ -467,10 +482,10 @@
 <li>위 표는 <strong>VOC 2007</strong> 데이터에 대해 모델 종류별로 실험하여 얻은 mAP를 나타낸 표입니다.</li>
 <li>YOLOv1보다 mAP가 상당히 향상된 것을 볼 수 있습니다.</li>
 </ul>
-<p><img src="/ko/p/yolov2_review/table3.png"
+<p><img src="/p/yolov2_review/table3.png"
 	width="410"
 	height="240"
-	srcset="/ko/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_480x0_resize_box_3.png 480w, /ko/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_480x0_resize_box_3.png 480w, /p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 5"
@@ -483,10 +498,10 @@
 ><br>
 <span style="font-size:70%"> 출처: <a class="link" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf"  target="_blank" rel="noopener"
     ><em>Redmon, Joseph, and Ali Farhadi. &ldquo;YOLO9000: better, faster, stronger.&rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Table 3</em></a></span></p>
-<p><img src="/ko/p/yolov2_review/figure4.png"
+<p><img src="/p/yolov2_review/figure4.png"
 	width="389"
 	height="271"
-	srcset="/ko/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_480x0_resize_box_3.png 480w, /ko/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_480x0_resize_box_3.png 480w, /p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 6"
@@ -504,10 +519,10 @@
 <li>각 YOLOv2 228×228, 352×352, 416×416, 480×480, 544×544는 동일한 weight를 가진 동일 모델을 이미지 사이즈만 다르게 해서 실험한 결과입니다.</li>
 <li>YOLOv2가 다른 모델과 mAP는 비슷하지만, FPS는 훨씬 높은 것을 볼 수 있습니다.</li>
 </ul>
-<p><img src="/ko/p/yolov2_review/table4.png"
+<p><img src="/p/yolov2_review/table4.png"
 	width="722"
 	height="106"
-	srcset="/ko/p/yolov2_review/table4_hu7de32c94a58053b665da3ff9f3211014_41572_480x0_resize_box_3.png 480w, /ko/p/yolov2_review/table4_hu7de32c94a58053b665da3ff9f3211014_41572_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov2_review/table4_hu7de32c94a58053b665da3ff9f3211014_41572_480x0_resize_box_3.png 480w, /p/yolov2_review/table4_hu7de32c94a58053b665da3ff9f3211014_41572_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 7"
@@ -523,10 +538,10 @@
 <ul>
 <li>위 표는 <strong>PASCAL VOC 2012</strong> 데이터에 대한 각 모델의 테스트 결과입니다. YOLOv2는 mAP가 YOLO보다 훨씬 높고, Faster R-CNN(ResNet), SSD512 등과 비슷한 mAP를 가집니다.</li>
 </ul>
-<p><img src="/ko/p/yolov2_review/table5.png"
+<p><img src="/p/yolov2_review/table5.png"
 	width="628"
 	height="176"
-	srcset="/ko/p/yolov2_review/table5_hu3f402c3326b35ae85a6bf9621784c9c8_49763_480x0_resize_box_3.png 480w, /ko/p/yolov2_review/table5_hu3f402c3326b35ae85a6bf9621784c9c8_49763_1024x0_resize_box_3.png 1024w"
+	srcset="/p/yolov2_review/table5_hu3f402c3326b35ae85a6bf9621784c9c8_49763_480x0_resize_box_3.png 480w, /p/yolov2_review/table5_hu3f402c3326b35ae85a6bf9621784c9c8_49763_1024x0_resize_box_3.png 1024w"
 	loading="lazy"
 	
 		alt="Image 8"
@@ -815,7 +830,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

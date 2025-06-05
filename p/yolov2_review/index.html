@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we’ll take a look at the paper &ldquo;YOLO9000: Better, Faster, Stronger&rdquo; presented at CVPR 2017. YOLO9000: Better, Faster, Stronger Table of Contents  Motivation Batch Normalization Classifier Training on High Resolution Use of Anchor Boxes Dimension Clusters Predicted Values Fine-Grained Features Network Results  Motivation YOLOv1, compared to the then state-of-the-art Fast-RCNN, had considerable localization errors and relatively low recall, frequently missing objects. In YOLOv2, several methods were designed to solve these problems of localization error and low recall, while maintaining a fast inference speed and without increasing network size.">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we’ll take a look at the paper &ldquo;YOLO9000: Better, Faster, Stronger&rdquo; presented at CVPR 2017. YOLO9000: Better, Faster, Stronger Table of Contents Motivation Batch Normalization Classifier Training on High Resolution Use of Anchor Boxes Dimension Clusters Predicted Values Fine-Grained Features Network Results Motivation YOLOv1, compared to the then state-of-the-art Fast-RCNN, had considerable localization errors and relatively low recall, frequently missing objects. In YOLOv2, several methods were designed to solve these problems of localization error and low recall, while maintaining a fast inference speed and without increasing network size.">
 <title>YOLOv2 Review</title>
 
 <link rel='canonical' href='https://kimberlykang.github.io/p/yolov2_review/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="YOLOv2 Review">
-<meta property='og:description' content="In this post, we’ll take a look at the paper &ldquo;YOLO9000: Better, Faster, Stronger&rdquo; presented at CVPR 2017. YOLO9000: Better, Faster, Stronger Table of Contents  Motivation Batch Normalization Classifier Training on High Resolution Use of Anchor Boxes Dimension Clusters Predicted Values Fine-Grained Features Network Results  Motivation YOLOv1, compared to the then state-of-the-art Fast-RCNN, had considerable localization errors and relatively low recall, frequently missing objects. In YOLOv2, several methods were designed to solve these problems of localization error and low recall, while maintaining a fast inference speed and without increasing network size.">
+<meta property='og:description' content="In this post, we’ll take a look at the paper &ldquo;YOLO9000: Better, Faster, Stronger&rdquo; presented at CVPR 2017. YOLO9000: Better, Faster, Stronger Table of Contents Motivation Batch Normalization Classifier Training on High Resolution Use of Anchor Boxes Dimension Clusters Predicted Values Fine-Grained Features Network Results Motivation YOLOv1, compared to the then state-of-the-art Fast-RCNN, had considerable localization errors and relatively low recall, frequently missing objects. In YOLOv2, several methods were designed to solve these problems of localization error and low recall, while maintaining a fast inference speed and without increasing network size.">
 <meta property='og:url' content='https://kimberlykang.github.io/p/yolov2_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='YOLOv2' /><meta property='article:published_time' content='2023-06-18T00:09:40&#43;09:00'/><meta property='article:modified_time' content='2023-06-18T00:09:40&#43;09:00'/>
 <meta name="twitter:title" content="YOLOv2 Review">
-<meta name="twitter:description" content="In this post, we’ll take a look at the paper &ldquo;YOLO9000: Better, Faster, Stronger&rdquo; presented at CVPR 2017. YOLO9000: Better, Faster, Stronger Table of Contents  Motivation Batch Normalization Classifier Training on High Resolution Use of Anchor Boxes Dimension Clusters Predicted Values Fine-Grained Features Network Results  Motivation YOLOv1, compared to the then state-of-the-art Fast-RCNN, had considerable localization errors and relatively low recall, frequently missing objects. In YOLOv2, several methods were designed to solve these problems of localization error and low recall, while maintaining a fast inference speed and without increasing network size.">
+<meta name="twitter:description" content="In this post, we’ll take a look at the paper &ldquo;YOLO9000: Better, Faster, Stronger&rdquo; presented at CVPR 2017. YOLO9000: Better, Faster, Stronger Table of Contents Motivation Batch Normalization Classifier Training on High Resolution Use of Anchor Boxes Dimension Clusters Predicted Values Fine-Grained Features Network Results Motivation YOLOv1, compared to the then state-of-the-art Fast-RCNN, had considerable localization errors and relatively low recall, frequently missing objects. In YOLOv2, several methods were designed to solve these problems of localization error and low recall, while maintaining a fast inference speed and without increasing network size."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
     </head>
     <body class="
     article-page
@@ -56,13 +73,11 @@
                     
                     
                         
-                        <img src="/img/avatar_huda2458f72ce188392d75c5d51cd8e24e_373_300x0_resize_box_3.png" width="300"
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
                 </a>
-                
-                    <span class="emoji">🍥</span>
                 
             </figure>
             
@@ -254,7 +269,7 @@
     
     <header class="article-category">
         
-            <a href="/categories/paper-review/" >
+            <a href="/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
                 Paper review
             </a>
         
@@ -805,7 +820,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c381bef6f0166ac6b8597bd23f849414ce720419d782c3c198ef871f40ae0b33.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');
