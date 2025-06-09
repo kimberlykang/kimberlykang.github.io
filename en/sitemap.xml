@@ -3,7 +3,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://kimberlykang.github.io/</loc>
-    <lastmod>2023-09-28T00:17:41+09:00</lastmod>
+    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="ko"
@@ -16,7 +16,7 @@
                 />
   </url><url>
     <loc>https://kimberlykang.github.io/categories/</loc>
-    <lastmod>2023-09-28T00:17:41+09:00</lastmod>
+    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="ko"
@@ -26,6 +26,71 @@
                 rel="alternate"
                 hreflang="en"
                 href="https://kimberlykang.github.io/categories/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/categories/paper-review/</loc>
+    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/categories/paper-review/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/categories/paper-review/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/post/</loc>
+    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/post/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/post/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/tags/</loc>
+    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/tags/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/tags/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/tags/unilmv2/</loc>
+    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/tags/unilmv2/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/tags/unilmv2/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/p/unilmv2_review/</loc>
+    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/p/unilmv2_review/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/p/unilmv2_review/"
                 />
   </url><url>
     <loc>https://kimberlykang.github.io/categories/deep-learning/</loc>
@@ -65,45 +130,6 @@
                 rel="alternate"
                 hreflang="en"
                 href="https://kimberlykang.github.io/tags/object-detection/"
-                />
-  </url><url>
-    <loc>https://kimberlykang.github.io/post/</loc>
-    <lastmod>2023-09-28T00:17:41+09:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="ko"
-                href="https://kimberlykang.github.io/ko/post/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://kimberlykang.github.io/post/"
-                />
-  </url><url>
-    <loc>https://kimberlykang.github.io/tags/</loc>
-    <lastmod>2023-09-28T00:17:41+09:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="ko"
-                href="https://kimberlykang.github.io/ko/tags/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://kimberlykang.github.io/tags/"
-                />
-  </url><url>
-    <loc>https://kimberlykang.github.io/categories/paper-review/</loc>
-    <lastmod>2023-08-31T00:17:41+09:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="ko"
-                href="https://kimberlykang.github.io/ko/categories/paper-review/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://kimberlykang.github.io/categories/paper-review/"
                 />
   </url><url>
     <loc>https://kimberlykang.github.io/tags/xlnet/</loc>

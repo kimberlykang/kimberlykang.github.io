@@ -6,7 +6,270 @@
         <description>Recent content in Paper review on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <lastBuildDate>Thu, 31 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/categories/paper-review/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 16 Oct 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/categories/paper-review/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>UniLMv2 Review</title>
+        <link>https://kimberlykang.github.io/p/unilmv2_review/</link>
+        <pubDate>Mon, 16 Oct 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/p/unilmv2_review/</guid>
+        <description>&lt;p&gt;In this post, we review Microsoft&amp;rsquo;s 2020 paper &amp;ldquo;UniLMv2: Pseudo-Masked Language Models for Unified Language Model Pre-Training&amp;rdquo;.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#unified-language-model&#34; &gt;Unified Language Model&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-train&#34; &gt;Pre-Train&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#fine-tuning&#34; &gt;Fine-tuning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#result&#34; &gt;Result&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;unified-language-model&#34;&gt;Unified Language Model
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Before this work, language model studies were largely split between bidirectional models good at Natural Language Understanding (NLU), and autoregressive models good at Natural Language Generation (NLG).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;This paper proposes a Unified Language Model called Pseudo-Masked Language Models (PMLM), which can perform both AutoEncoding (AE) and Partially AutoRegressive (PAR) language modeling at the same time using pseudo-masks on masked tokens—enabling both strong understanding and generation.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;AE enables bi-directional LM training and learns the inter-relation between masked tokens and the context.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;PAR enables sequence-to-sequence LM training and learns the intra-relation within masked spans.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The unified model shares parameters for both bi-directional (AE) and sequence-to-sequence (PAR) pre-training.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Parameters are shared as shown in the figure below for the two language model tasks:
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/pseudo_masked_lm.png&#34;
+	width=&#34;684&#34;
+	height=&#34;814&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/pseudo_masked_lm_huda717bd749e912eedfbb4ab676601336_77841_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/pseudo_masked_lm_huda717bd749e912eedfbb4ab676601336_77841_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pseudo Masked  LM&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;84&#34;
+		data-flex-basis=&#34;201px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;AE uses masked tokens &lt;code&gt;[MASK]&lt;/code&gt; or &lt;code&gt;[M]&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;PAR uses additional masks &lt;code&gt;[Pseudo]&lt;/code&gt; or &lt;code&gt;[P]&lt;/code&gt; or sometimes the original token, depending on the factorization step.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The model can be trained with both modes in a single forward pass.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;pre-train&#34;&gt;Pre-Train
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Input Representation: &lt;code&gt;[SOS]&lt;/code&gt; &lt;code&gt;s1&lt;/code&gt; &lt;code&gt;[EOS]&lt;/code&gt; &lt;code&gt;s2&lt;/code&gt; &lt;code&gt;[EOS]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;The paper divides Masked Language Modeling (MLM) into AE, AutoRegressive (AR), and PAR models, which are differentiated by how the probabilities of masked tokens are factorized. PMLM uses both AE and PAR.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/masked_language_model_factorization.png&#34;
+	width=&#34;1549&#34;
+	height=&#34;314&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/masked_language_model_factorization_hudeb839cc78e377e439641c0d898b8cfa_114452_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/masked_language_model_factorization_hudeb839cc78e377e439641c0d898b8cfa_114452_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Masked Language Model Factorization&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;493&#34;
+		data-flex-basis=&#34;1183px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;ae-modeling&#34;&gt;AE Modeling
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Some tokens in the sentence are masked (&lt;code&gt;[MASK]&lt;/code&gt;), and the model tries to predict these.&lt;/li&gt;
+&lt;li&gt;For input $ x=x_1 &amp;hellip; x_{|x|} $, mask positions $ M={m_1, &amp;hellip;, m_{|M|}} $, the probability of the masked tokens is $ \prod\limits_{m∈M} p(x_m|x_{\backslash M})$.
+&lt;ul&gt;
+&lt;li&gt;$x_M={\lbrace x_m \rbrace}_{m∈M}$: all masked tokens.&lt;/li&gt;
+&lt;li&gt;$x_{\backslash M}$: all unmasked input tokens. $\backslash$ indicates set difference.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;AE pre-training loss:
+&lt;ul&gt;
+&lt;li&gt;$ {\cal L_{\rm AE}}= - \displaystyle\sum_{x∈{\cal D}} \log \prod\limits_{m∈M} p(x_m|x_{\backslash M}) $
+&lt;ul&gt;
+&lt;li&gt;$ {\cal D} $: training corpus.&lt;/li&gt;
+&lt;li&gt;Uses cross-entropy loss.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;par-modeling&#34;&gt;PAR Modeling
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Multiple tokens are masked and predicted sequentially.&lt;/li&gt;
+&lt;li&gt;$ p(x_M | x_{\backslash M}) = \displaystyle\prod\limits_{i=1}^{|M|} p(x_{M_i}|x_{\backslash M_{\ge i}}) \\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  = \displaystyle\prod\limits_{i=1}^{|M|} \displaystyle\prod\limits_{m∈M_i} p(x_m|x_{\backslash M_{\ge i}})$
+&lt;ul&gt;
+&lt;li&gt;At each factorization step, the model predicts one or more tokens.&lt;/li&gt;
+&lt;li&gt;$ M= \langle M_1, &amp;hellip;, M_{|M|} \rangle $: the sequence in which factors (sets of masks) are revealed.&lt;/li&gt;
+&lt;li&gt;$ M_i= \lbrace m_1^i, &amp;hellip;, m_{|M_i|}^i \rbrace $: set of positions masked at the $i$-th step.&lt;/li&gt;
+&lt;li&gt;$x_{M_i}={\lbrace x_m \rbrace}_{m∈M_i}$: masked tokens at the $i$-th step.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;PAR pre-training loss:
+&lt;ul&gt;
+&lt;li&gt;$ {\cal L_{\rm AE}}= - \displaystyle\sum_{x∈{\cal D}} \Bbb E_M \log p(x_M|x_{\backslash M}) $
+&lt;ul&gt;
+&lt;li&gt;$M$ is randomly chosen for each sequence.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Blockwise Masking and Factorization:
+&lt;ul&gt;
+&lt;li&gt;15% of tokens are selected. For 40% of these, an n-gram block is masked; for 60%, a single token is masked.&lt;/li&gt;
+&lt;li&gt;Factorization steps can be spans, making the approach partially autoregressive.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/algorithm1.png&#34;
+	width=&#34;644&#34;
+	height=&#34;340&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/algorithm1_hu84c523000ec854e4c0f493801b44bae1_59471_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/algorithm1_hu84c523000ec854e4c0f493801b44bae1_59471_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Blockwise Masking&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;189&#34;
+		data-flex-basis=&#34;454px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Algorithm 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/pre_training.png&#34;
+	width=&#34;1577&#34;
+	height=&#34;801&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/pre_training_hu4ce82dbf2f4858d51fb3ef4a55142683_261062_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/pre_training_hu4ce82dbf2f4858d51fb3ef4a55142683_261062_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pre-training&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;196&#34;
+		data-flex-basis=&#34;472px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pseudo-masked-lm&#34;&gt;Pseudo-Masked LM
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;The AE (AutoEncoding) method uses &lt;code&gt;[MASK]&lt;/code&gt; at prediction positions and treats all other tokens as context to predict all at once.&lt;/li&gt;
+&lt;li&gt;In AR and PAR, the model predicts tokens one (or several) at a time in sequence, and the mask positions change according to the factorization order each time.&lt;/li&gt;
+&lt;li&gt;As the image below shows, AE uses a single mask, but AR and PAR use different masks at each factorization step. To reflect these and facilitate learning, pseudo-masks are used.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/comparison_ae_ar_par.png&#34;
+	width=&#34;704&#34;
+	height=&#34;653&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/comparison_ae_ar_par_hucf9af87b7af5a70e9cea3dc68645f698_52849_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/comparison_ae_ar_par_hucf9af87b7af5a70e9cea3dc68645f698_52849_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;AE vs. AR vs. PAR&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;107&#34;
+		data-flex-basis=&#34;258px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;The following image illustrates the PAR prediction process with pseudo-masks.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/factorization_step_viz.png&#34;
+	width=&#34;497&#34;
+	height=&#34;465&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/factorization_step_viz_huc910acaf3ad2cb3e66aa8d9dd88ca1b0_63254_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/factorization_step_viz_huc910acaf3ad2cb3e66aa8d9dd88ca1b0_63254_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Factorization Steps&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;106&#34;
+		data-flex-basis=&#34;256px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;ul&gt;
+&lt;li&gt;A pseudo-mask &lt;code&gt;[P]&lt;/code&gt; is appended to the input sequence, while keeping the original tokens.&lt;/li&gt;
+&lt;li&gt;Position embeddings are the same as for the original tokens, so the location in the input sequence does not matter.&lt;/li&gt;
+&lt;li&gt;MLM prediction is performed by applying a softmax classifier to the final hidden state of &lt;code&gt;[P]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;The example factorization order is 4,5 → 2.&lt;/li&gt;
+&lt;li&gt;At t=1, the pseudo mask attends to $ x_1, x_3, x_6 $ and $ x_4, x_5 $.&lt;/li&gt;
+&lt;li&gt;At t=2, the pseudo mask attends to $ x_1, x_3, x_4, x_5, x_6 $ and $ x_2 $.&lt;/li&gt;
+&lt;li&gt;The self-attention mask for the above factorization is shown below.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/attention_mask.png&#34;
+	width=&#34;605&#34;
+	height=&#34;541&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/attention_mask_hu8d9895acad4c2d2ea48a55b2e0c531e3_44468_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/attention_mask_hu8d9895acad4c2d2ea48a55b2e0c531e3_44468_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Self-Attention mask&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;111&#34;
+		data-flex-basis=&#34;268px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 5.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;fine-tuning&#34;&gt;Fine-tuning
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Natural Language Understanding (NLU) - Classification&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;[SOS]&lt;/code&gt; TEXT &lt;code&gt;[EOS]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Apply a softmax classifier to &lt;code&gt;[SOS]&lt;/code&gt; to determine the class with the highest likelihood.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Natural Language Generation (NLG)&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;[SOS]&lt;/code&gt; SRC &lt;code&gt;[EOS]&lt;/code&gt; TGT &lt;code&gt;[EOS]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Source sequence: bidirectional (tokens can attend to each other).&lt;/li&gt;
+&lt;li&gt;Target sequence: autoregressive. Add &lt;code&gt;[P]&lt;/code&gt; to the target tokens.&lt;/li&gt;
+&lt;li&gt;Select the token that maximizes the likelihood in the target sequence.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;result&#34;&gt;Result
+&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/result.png&#34;
+	width=&#34;1600&#34;
+	height=&#34;320&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/result_huf82132bd036f38b8a7a3f867c4dc6e22_129150_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/result_huf82132bd036f38b8a7a3f867c4dc6e22_129150_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;500&#34;
+		data-flex-basis=&#34;1200px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Table 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>XLNet Review</title>
         <link>https://kimberlykang.github.io/p/xlnet_review/</link>
         <pubDate>Thu, 31 Aug 2023 00:17:41 +0900</pubDate>

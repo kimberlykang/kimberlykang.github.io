@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 Microsoft에서 2020년에 발표한 &ldquo;UniLMv2: Pseudo-Masked Language Models for Unified Language Model Pre-Training&quot;을 살펴보겠습니다. http://proceedings.mlr.press/v119/bao20a/bao20a.pdf 목차 Unified Language Model Pre-Train Fine-tuning Result Unified Language Model 본 논문 이전에 발표된 Language model 논문들은 Natural Language Understanding(NLU)을 잘 하는 bidirectional model과 Natural Language Generation(NLG)을 잘 하는 autoressive model로 나뉘었습니다. 본 논문에서는 mask된 token에 pseudo-mask를 붙여 AutoEncoding(AE)과 Partially AutoRegressive(PAR) language modeling을 동시에 수행하도록 하는 Unified Language Model인 Pseudo-Masked Language Models(PMLM)을 제안하여 이해와 생성을 모두 잘 하는 모델을 제안합니다.">
+<title>UniLMv2 리뷰</title>
+
+<link rel='canonical' href='https://kimberlykang.github.io/ko/p/unilmv2_review/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="UniLMv2 리뷰">
+<meta property='og:description' content="본 포스트에서는 Microsoft에서 2020년에 발표한 &ldquo;UniLMv2: Pseudo-Masked Language Models for Unified Language Model Pre-Training&quot;을 살펴보겠습니다. http://proceedings.mlr.press/v119/bao20a/bao20a.pdf 목차 Unified Language Model Pre-Train Fine-tuning Result Unified Language Model 본 논문 이전에 발표된 Language model 논문들은 Natural Language Understanding(NLU)을 잘 하는 bidirectional model과 Natural Language Generation(NLG)을 잘 하는 autoressive model로 나뉘었습니다. 본 논문에서는 mask된 token에 pseudo-mask를 붙여 AutoEncoding(AE)과 Partially AutoRegressive(PAR) language modeling을 동시에 수행하도록 하는 Unified Language Model인 Pseudo-Masked Language Models(PMLM)을 제안하여 이해와 생성을 모두 잘 하는 모델을 제안합니다.">
+<meta property='og:url' content='https://kimberlykang.github.io/ko/p/unilmv2_review/'>
+<meta property='og:site_name' content='Kimberly&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='UniLMv2' /><meta property='article:published_time' content='2023-10-16T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-10-16T00:17:41&#43;09:00'/>
+<meta name="twitter:title" content="UniLMv2 리뷰">
+<meta name="twitter:description" content="본 포스트에서는 Microsoft에서 2020년에 발표한 &ldquo;UniLMv2: Pseudo-Masked Language Models for Unified Language Model Pre-Training&quot;을 살펴보겠습니다. http://proceedings.mlr.press/v119/bao20a/bao20a.pdf 목차 Unified Language Model Pre-Train Fine-tuning Result Unified Language Model 본 논문 이전에 발표된 Language model 논문들은 Natural Language Understanding(NLU)을 잘 하는 bidirectional model과 Natural Language Generation(NLG)을 잘 하는 autoressive model로 나뉘었습니다. 본 논문에서는 mask된 token에 pseudo-mask를 붙여 AutoEncoding(AE)과 Partially AutoRegressive(PAR) language modeling을 동시에 수행하도록 하는 Unified Language Model인 Pseudo-Masked Language Models(PMLM)을 제안하여 이해와 생성을 모두 잘 하는 모델을 제안합니다."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="메뉴 여닫기">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/ko/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/ko">Kimberly&#39;s Blog</a></h1>
+            <h2 class="site-description">Vision Engineer</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/ko/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/ko/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" >English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" selected>Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>다크 모드</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">목차</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#unified-language-model">Unified Language Model</a></li>
+    <li><a href="#pre-train">Pre-Train</a>
+      <ol>
+        <li><a href="#ae-modeling">AE Modeling</a></li>
+        <li><a href="#par-modeling">PAR Modeling</a></li>
+        <li><a href="#pseudo-masked-lm">Pseudo-Masked LM</a></li>
+      </ol>
+    </li>
+    <li><a href="#fine-tuning">Fine-tuning</a></li>
+    <li><a href="#result">Result</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/ko/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
+                Paper review
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/ko/p/unilmv2_review/">UniLMv2 리뷰</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">10월 16, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 분 정도
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/p/unilmv2_review/" class="link">English</a>
+                
+            </div>
+        </footer>
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>본 포스트에서는 Microsoft에서 2020년에 발표한 &ldquo;UniLMv2: Pseudo-Masked Language Models for Unified Language Model Pre-Training&quot;을 살펴보겠습니다.<br>
+<a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    >http://proceedings.mlr.press/v119/bao20a/bao20a.pdf</a></p>
+<h1 id="목차">목차
+</h1><ol>
+<li><a class="link" href="#unified-language-model" >Unified Language Model</a></li>
+<li><a class="link" href="#pre-train" >Pre-Train</a></li>
+<li><a class="link" href="#fine-tuning" >Fine-tuning</a></li>
+<li><a class="link" href="#result" >Result</a></li>
+</ol>
+<h2 id="unified-language-model">Unified Language Model
+</h2><ul>
+<li>
+<p>본 논문 이전에 발표된 Language model 논문들은 Natural Language Understanding(NLU)을 잘 하는 bidirectional model과 Natural Language Generation(NLG)을 잘 하는 autoressive model로 나뉘었습니다.</p>
+</li>
+<li>
+<p>본 논문에서는 mask된 token에 pseudo-mask를 붙여 AutoEncoding(AE)과 Partially AutoRegressive(PAR) language modeling을 동시에 수행하도록 하는 Unified Language Model인 Pseudo-Masked Language Models(PMLM)을 제안하여 이해와 생성을 모두 잘 하는 모델을 제안합니다.</p>
+</li>
+<li>
+<p>AE를 사용하여 bi-directional LM을 학습하여, mask된 token과 context 사이의 inter-relation을 학습합니다.</p>
+</li>
+<li>
+<p>PAR를 사용하여 sequence-to-sequence LM을 학습하여, mask된 span의 intra-relation을 학습합니다.</p>
+</li>
+<li>
+<p>bidirectional model을 Auto Encoding(AE) LM으로 sequence-to-sequence model을 Partially AutoRegressive(PAR) LM으로 같이 pre-traing합니다.</p>
+</li>
+<li>
+<p>아래와 같이 두 개의 language model task에 대해 parameter가 공유됩니다.
+<img src="/p/unilmv2_review/pseudo_masked_lm.png"
+	width="684"
+	height="814"
+	srcset="/p/unilmv2_review/pseudo_masked_lm_huda717bd749e912eedfbb4ab676601336_77841_480x0_resize_box_3.png 480w, /p/unilmv2_review/pseudo_masked_lm_huda717bd749e912eedfbb4ab676601336_77841_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Pseudo Masked  LM"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="84"
+		data-flex-basis="201px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    ><em>Bao, Hangbo, et al. &ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&rdquo; International conference on machine learning. PMLR, 2020, Figure 1.</em></a></span></p>
+</li>
+<li>
+<p>AE에서는 가려진 token인 <code>[MASK]</code>, <code>[M]</code>가 사용됩니다.</p>
+</li>
+<li>
+<p>PAR에서는 factorization step에 따라 추가된 mask인 <code>[Pseudo]</code>, <code>[P]</code>나 혹은 원래의 token이 사용됩니다.</p>
+</li>
+<li>
+<p>한 번의 forward pass로 모델을 학습할 수 있습니다.</p>
+</li>
+</ul>
+<h2 id="pre-train">Pre-Train
+</h2><ul>
+<li>Input Representation: <code>[SOS]</code> <code>s1</code> <code>[EOS]</code> <code>s2</code> <code>[EOS]</code></li>
+<li>논문에서는 Masked Language Modeling(MLM)을 AE, AutoRegressive(AR), PAR 세 가지로 나누는데 그 차이는 mask된 token의 확률이 어떻게 factorize되는 가로 나뉘게 됩니다. 이 중 PMLM는 AE와 PAR를 사용합니다.
+<img src="/p/unilmv2_review/masked_language_model_factorization.png"
+	width="1549"
+	height="314"
+	srcset="/p/unilmv2_review/masked_language_model_factorization_hudeb839cc78e377e439641c0d898b8cfa_114452_480x0_resize_box_3.png 480w, /p/unilmv2_review/masked_language_model_factorization_hudeb839cc78e377e439641c0d898b8cfa_114452_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Masked Language Model Factorization"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="493"
+		data-flex-basis="1183px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    ><em>Bao, Hangbo, et al. &ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&rdquo; International conference on machine learning. PMLR, 2020, Table 1.</em></a></span></li>
+</ul>
+<h3 id="ae-modeling">AE Modeling
+</h3><ul>
+<li>일부 token을 <code>[MASK]</code>로 전체 문장을 예측합니다.</li>
+<li>input $ x=x_1 &hellip; x_{|x|} $, mask 위치 $ M={m_1, &hellip;, m_{|M|}} $일 때, masked token의 확률은 $ \prod\limits_{m∈M} p(x_m|x_{\backslash M})$입니다.
+<ul>
+<li>$x_M={\lbrace x_m \rbrace}_{m∈M}$: mask된 모든 token을 의미합니다.</li>
+<li>$x_{\backslash M}$: mask가 안 된 모든 input token을 의미합니다. $\backslash$는 차집합을 의미하므로,</li>
+</ul>
+</li>
+<li>AE pre-training loss는 아래와 같이 정의됩니다.
+<ul>
+<li>$ {\cal L_{\rm AE}}= - \displaystyle\sum_{x∈{\cal D}} \log \prod\limits_{m∈M} p(x_m|x_{\backslash M}) $
+<ul>
+<li>$ {\cal D} $는 training corpus입니다.</li>
+<li>cross entropy loss를 구해줍니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="par-modeling">PAR Modeling
+</h3><ul>
+<li>여러개의 token을 마스킹하고 순차적으로 예측합니다.</li>
+<li>$ p(x_M | x_{\backslash M}) = \displaystyle\prod\limits_{i=1}^{|M|} p(x_{M_i}|x_{\backslash M_{\ge i}}) \\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  = \displaystyle\prod\limits_{i=1}^{|M|} \displaystyle\prod\limits_{m∈M_i} p(x_m|x_{\backslash M_{\ge i}})$
+<ul>
+<li>각 factorization step에서 model은 하나 혹은 여러 개의 token을 예측합니다.</li>
+<li>$ M= \langle M_1, &hellip;, M_{|M|} \rangle $는 factorization 순서입니다.</li>
+<li>$ M_i= \lbrace m_1^i, &hellip;, m_{|M_i|}^i \rbrace $는 i번째 factorization 순서에서 mask position의 집합입니다.</li>
+<li>$x_{M_i}={\lbrace x_m \rbrace}_{m∈M_i}$: i번째 factorization 순서에 해당하는 mask된 모든 token을 의미합니다.</li>
+</ul>
+</li>
+<li>PAR pre-training loss는 아래와 같이 정의됩니다.
+<ul>
+<li>$ {\cal L_{\rm AE}}= - \displaystyle\sum_{x∈{\cal D}} \Bbb E_M \log p(x_M|x_{\backslash M}) $
+<ul>
+<li>하나의 M을 random하게 뽑아서 사용합니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Blockwise Masking and Factorization
+<ul>
+<li>전체 token의 15%를 뽑습니다. 이 중 40%의 경우 n-gram block을 mask하고, 60%의 경우 token 하나를 mask합니다.</li>
+<li>factorization step이 span이 될 수 있기 때문에 partially autoregressive하게 됩니다.
+<img src="/p/unilmv2_review/algorithm1.png"
+	width="644"
+	height="340"
+	srcset="/p/unilmv2_review/algorithm1_hu84c523000ec854e4c0f493801b44bae1_59471_480x0_resize_box_3.png 480w, /p/unilmv2_review/algorithm1_hu84c523000ec854e4c0f493801b44bae1_59471_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Blockwise Masking"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="189"
+		data-flex-basis="454px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    ><em>Bao, Hangbo, et al. &ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&rdquo; International conference on machine learning. PMLR, 2020, Algorithm 1.</em></a></span>
+<img src="/p/unilmv2_review/pre_training.png"
+	width="1577"
+	height="801"
+	srcset="/p/unilmv2_review/pre_training_hu4ce82dbf2f4858d51fb3ef4a55142683_261062_480x0_resize_box_3.png 480w, /p/unilmv2_review/pre_training_hu4ce82dbf2f4858d51fb3ef4a55142683_261062_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Pre-training"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="196"
+		data-flex-basis="472px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    ><em>Bao, Hangbo, et al. &ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&rdquo; International conference on machine learning. PMLR, 2020, Figure 2.</em></a></span></li>
+</ul>
+</li>
+</ul>
+<h3 id="pseudo-masked-lm">Pseudo-Masked LM
+</h3><ul>
+<li>AE(AutoEncoding) 방식은 예측하고 싶은 위치에 그냥 `[MASK]만 넣고 나머지 모든 토큰을 context로 삼아 &ldquo;한 번에&rdquo; 맞추는 구조입니다.</li>
+<li>하지만 AR, PAR 구조는 &ldquo;한 번에 하나(또는 여러 개)씩 순서대로 예측&quot;하고, 이러한 예측 순서인 factorization order에 따라 매번 마스킹 위치가 달라지게 됩니다.</li>
+<li>아래 이미지를 보면, AE와 달리 AR, PAR에서는 각 factorization step에 따라 다른 mask를 사용합니다. 이러한 특성을 반영하면서 학습을 용이하게 하기 위해, pseudo-mask가 사용됩니다.
+<img src="/p/unilmv2_review/comparison_ae_ar_par.png"
+	width="704"
+	height="653"
+	srcset="/p/unilmv2_review/comparison_ae_ar_par_hucf9af87b7af5a70e9cea3dc68645f698_52849_480x0_resize_box_3.png 480w, /p/unilmv2_review/comparison_ae_ar_par_hucf9af87b7af5a70e9cea3dc68645f698_52849_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="AE vs. AR vs. PAR"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="107"
+		data-flex-basis="258px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    ><em>Bao, Hangbo, et al. &ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&rdquo; International conference on machine learning. PMLR, 2020, Figure 3.</em></a></span></li>
+<li>아래는 pseudo-mask를 사용하여 PAR 예측이 이루어지는 과정에 대한 그림입니다.
+<img src="/p/unilmv2_review/factorization_step_viz.png"
+	width="497"
+	height="465"
+	srcset="/p/unilmv2_review/factorization_step_viz_huc910acaf3ad2cb3e66aa8d9dd88ca1b0_63254_480x0_resize_box_3.png 480w, /p/unilmv2_review/factorization_step_viz_huc910acaf3ad2cb3e66aa8d9dd88ca1b0_63254_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Factorization Steps"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="106"
+		data-flex-basis="256px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    ><em>Bao, Hangbo, et al. &ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&rdquo; International conference on machine learning. PMLR, 2020, Figure 4.</em></a></span>
+<ul>
+<li>원래 token을 그대로 갖고 있는 상태에서 input sequence에 pseudo mask <code>[P]</code>를 append합니다.</li>
+<li>position embedding은 원래 token과 동일하게 하기 때문에 input sequence에서 token의 위치는 상관이 없습니다..</li>
+<li><code>[P]</code>의 마지막 hidden state에 softmax classfier를 적용하여 MLM 예측을 합니다.</li>
+<li>위 예시의 factorization order는 4,5 → 2입니다.</li>
+<li>t=1에서 $ x_1, x_3, x_6 $과 $ x_4, x_5 $의 pseudo mask만 attend합니다.</li>
+<li>t=2에서 $ x_1, x_3, x_4, x_5, x_6 $과 $ x_2 $의 pseudo mask만 attend합니다.</li>
+</ul>
+</li>
+<li>위의 factorization을 self-attention mask로 나타내면 아래와 같습니다.
+<img src="/p/unilmv2_review/attention_mask.png"
+	width="605"
+	height="541"
+	srcset="/p/unilmv2_review/attention_mask_hu8d9895acad4c2d2ea48a55b2e0c531e3_44468_480x0_resize_box_3.png 480w, /p/unilmv2_review/attention_mask_hu8d9895acad4c2d2ea48a55b2e0c531e3_44468_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Self-Attention mask"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="111"
+		data-flex-basis="268px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    ><em>Bao, Hangbo, et al. &ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&rdquo; International conference on machine learning. PMLR, 2020, Figure 5.</em></a></span></li>
+</ul>
+<h2 id="fine-tuning">Fine-tuning
+</h2><ul>
+<li>Natural Language Understanding(NLU)-classification
+<ul>
+<li><code>[SOS]</code> TEXT <code>[EOS]</code></li>
+<li><code>[SOS]</code> 에 softmax classifier를 적용하여 likelihood를 최대화하는 class를 구합니다.</li>
+</ul>
+</li>
+<li>Natural Language Generation(NLG)
+<ul>
+<li><code>[SOS]</code> SRC <code>[EOS]</code> TGT <code>[EOS]</code></li>
+<li>source seqeunce: bidirectional. 서로 attend 할 수 있습니다.</li>
+<li>target sequence: autoregressive. target token에 <code>[P]</code>를 추가합니다.</li>
+<li>target sequence의 likelihood를 최대화하는 token을 구합니다.</li>
+</ul>
+</li>
+</ul>
+<h2 id="result">Result
+</h2><p><img src="/p/unilmv2_review/result.png"
+	width="1600"
+	height="320"
+	srcset="/p/unilmv2_review/result_huf82132bd036f38b8a7a3f867c4dc6e22_129150_480x0_resize_box_3.png 480w, /p/unilmv2_review/result_huf82132bd036f38b8a7a3f867c4dc6e22_129150_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="500"
+		data-flex-basis="1200px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="http://proceedings.mlr.press/v119/bao20a/bao20a.pdf"  target="_blank" rel="noopener"
+    ><em>Bao, Hangbo, et al. &ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&rdquo; International conference on machine learning. PMLR, 2020, Table 2.</em></a></span></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/ko/tags/unilmv2/">UniLMv2</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">관련 글</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/ko/p/xlnet_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">XLNet 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/bert_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">BERT 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov3_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv3 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv2 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/yolov1_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv1 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2025 Kimberly&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>로 만듦 <br />
+        <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>의 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> 테마 사용 중
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

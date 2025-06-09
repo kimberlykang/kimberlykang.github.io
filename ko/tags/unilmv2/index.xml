@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>UniLMv2 on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/ko/tags/unilmv2/</link>
+        <description>Recent content in UniLMv2 on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>ko</language>
+        <lastBuildDate>Mon, 16 Oct 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/tags/unilmv2/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>UniLMv2 리뷰</title>
+        <link>https://kimberlykang.github.io/ko/p/unilmv2_review/</link>
+        <pubDate>Mon, 16 Oct 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/ko/p/unilmv2_review/</guid>
+        <description>&lt;p&gt;본 포스트에서는 Microsoft에서 2020년에 발표한 &amp;ldquo;UniLMv2: Pseudo-Masked Language Models for Unified Language Model Pre-Training&amp;quot;을 살펴보겠습니다.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#unified-language-model&#34; &gt;Unified Language Model&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-train&#34; &gt;Pre-Train&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#fine-tuning&#34; &gt;Fine-tuning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#result&#34; &gt;Result&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;unified-language-model&#34;&gt;Unified Language Model
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;본 논문 이전에 발표된 Language model 논문들은 Natural Language Understanding(NLU)을 잘 하는 bidirectional model과 Natural Language Generation(NLG)을 잘 하는 autoressive model로 나뉘었습니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;본 논문에서는 mask된 token에 pseudo-mask를 붙여 AutoEncoding(AE)과 Partially AutoRegressive(PAR) language modeling을 동시에 수행하도록 하는 Unified Language Model인 Pseudo-Masked Language Models(PMLM)을 제안하여 이해와 생성을 모두 잘 하는 모델을 제안합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;AE를 사용하여 bi-directional LM을 학습하여, mask된 token과 context 사이의 inter-relation을 학습합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;PAR를 사용하여 sequence-to-sequence LM을 학습하여, mask된 span의 intra-relation을 학습합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;bidirectional model을 Auto Encoding(AE) LM으로 sequence-to-sequence model을 Partially AutoRegressive(PAR) LM으로 같이 pre-traing합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;아래와 같이 두 개의 language model task에 대해 parameter가 공유됩니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/pseudo_masked_lm.png&#34;
+	width=&#34;684&#34;
+	height=&#34;814&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/pseudo_masked_lm_huda717bd749e912eedfbb4ab676601336_77841_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/pseudo_masked_lm_huda717bd749e912eedfbb4ab676601336_77841_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pseudo Masked  LM&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;84&#34;
+		data-flex-basis=&#34;201px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;AE에서는 가려진 token인 &lt;code&gt;[MASK]&lt;/code&gt;, &lt;code&gt;[M]&lt;/code&gt;가 사용됩니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;PAR에서는 factorization step에 따라 추가된 mask인 &lt;code&gt;[Pseudo]&lt;/code&gt;, &lt;code&gt;[P]&lt;/code&gt;나 혹은 원래의 token이 사용됩니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;한 번의 forward pass로 모델을 학습할 수 있습니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;pre-train&#34;&gt;Pre-Train
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Input Representation: &lt;code&gt;[SOS]&lt;/code&gt; &lt;code&gt;s1&lt;/code&gt; &lt;code&gt;[EOS]&lt;/code&gt; &lt;code&gt;s2&lt;/code&gt; &lt;code&gt;[EOS]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;논문에서는 Masked Language Modeling(MLM)을 AE, AutoRegressive(AR), PAR 세 가지로 나누는데 그 차이는 mask된 token의 확률이 어떻게 factorize되는 가로 나뉘게 됩니다. 이 중 PMLM는 AE와 PAR를 사용합니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/masked_language_model_factorization.png&#34;
+	width=&#34;1549&#34;
+	height=&#34;314&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/masked_language_model_factorization_hudeb839cc78e377e439641c0d898b8cfa_114452_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/masked_language_model_factorization_hudeb839cc78e377e439641c0d898b8cfa_114452_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Masked Language Model Factorization&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;493&#34;
+		data-flex-basis=&#34;1183px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;ae-modeling&#34;&gt;AE Modeling
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;일부 token을 &lt;code&gt;[MASK]&lt;/code&gt;로 전체 문장을 예측합니다.&lt;/li&gt;
+&lt;li&gt;input $ x=x_1 &amp;hellip; x_{|x|} $, mask 위치 $ M={m_1, &amp;hellip;, m_{|M|}} $일 때, masked token의 확률은 $ \prod\limits_{m∈M} p(x_m|x_{\backslash M})$입니다.
+&lt;ul&gt;
+&lt;li&gt;$x_M={\lbrace x_m \rbrace}_{m∈M}$: mask된 모든 token을 의미합니다.&lt;/li&gt;
+&lt;li&gt;$x_{\backslash M}$: mask가 안 된 모든 input token을 의미합니다. $\backslash$는 차집합을 의미하므로,&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;AE pre-training loss는 아래와 같이 정의됩니다.
+&lt;ul&gt;
+&lt;li&gt;$ {\cal L_{\rm AE}}= - \displaystyle\sum_{x∈{\cal D}} \log \prod\limits_{m∈M} p(x_m|x_{\backslash M}) $
+&lt;ul&gt;
+&lt;li&gt;$ {\cal D} $는 training corpus입니다.&lt;/li&gt;
+&lt;li&gt;cross entropy loss를 구해줍니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;par-modeling&#34;&gt;PAR Modeling
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;여러개의 token을 마스킹하고 순차적으로 예측합니다.&lt;/li&gt;
+&lt;li&gt;$ p(x_M | x_{\backslash M}) = \displaystyle\prod\limits_{i=1}^{|M|} p(x_{M_i}|x_{\backslash M_{\ge i}}) \\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  = \displaystyle\prod\limits_{i=1}^{|M|} \displaystyle\prod\limits_{m∈M_i} p(x_m|x_{\backslash M_{\ge i}})$
+&lt;ul&gt;
+&lt;li&gt;각 factorization step에서 model은 하나 혹은 여러 개의 token을 예측합니다.&lt;/li&gt;
+&lt;li&gt;$ M= \langle M_1, &amp;hellip;, M_{|M|} \rangle $는 factorization 순서입니다.&lt;/li&gt;
+&lt;li&gt;$ M_i= \lbrace m_1^i, &amp;hellip;, m_{|M_i|}^i \rbrace $는 i번째 factorization 순서에서 mask position의 집합입니다.&lt;/li&gt;
+&lt;li&gt;$x_{M_i}={\lbrace x_m \rbrace}_{m∈M_i}$: i번째 factorization 순서에 해당하는 mask된 모든 token을 의미합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;PAR pre-training loss는 아래와 같이 정의됩니다.
+&lt;ul&gt;
+&lt;li&gt;$ {\cal L_{\rm AE}}= - \displaystyle\sum_{x∈{\cal D}} \Bbb E_M \log p(x_M|x_{\backslash M}) $
+&lt;ul&gt;
+&lt;li&gt;하나의 M을 random하게 뽑아서 사용합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Blockwise Masking and Factorization
+&lt;ul&gt;
+&lt;li&gt;전체 token의 15%를 뽑습니다. 이 중 40%의 경우 n-gram block을 mask하고, 60%의 경우 token 하나를 mask합니다.&lt;/li&gt;
+&lt;li&gt;factorization step이 span이 될 수 있기 때문에 partially autoregressive하게 됩니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/algorithm1.png&#34;
+	width=&#34;644&#34;
+	height=&#34;340&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/algorithm1_hu84c523000ec854e4c0f493801b44bae1_59471_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/algorithm1_hu84c523000ec854e4c0f493801b44bae1_59471_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Blockwise Masking&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;189&#34;
+		data-flex-basis=&#34;454px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Algorithm 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/pre_training.png&#34;
+	width=&#34;1577&#34;
+	height=&#34;801&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/pre_training_hu4ce82dbf2f4858d51fb3ef4a55142683_261062_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/pre_training_hu4ce82dbf2f4858d51fb3ef4a55142683_261062_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pre-training&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;196&#34;
+		data-flex-basis=&#34;472px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pseudo-masked-lm&#34;&gt;Pseudo-Masked LM
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;AE(AutoEncoding) 방식은 예측하고 싶은 위치에 그냥 `[MASK]만 넣고 나머지 모든 토큰을 context로 삼아 &amp;ldquo;한 번에&amp;rdquo; 맞추는 구조입니다.&lt;/li&gt;
+&lt;li&gt;하지만 AR, PAR 구조는 &amp;ldquo;한 번에 하나(또는 여러 개)씩 순서대로 예측&amp;quot;하고, 이러한 예측 순서인 factorization order에 따라 매번 마스킹 위치가 달라지게 됩니다.&lt;/li&gt;
+&lt;li&gt;아래 이미지를 보면, AE와 달리 AR, PAR에서는 각 factorization step에 따라 다른 mask를 사용합니다. 이러한 특성을 반영하면서 학습을 용이하게 하기 위해, pseudo-mask가 사용됩니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/comparison_ae_ar_par.png&#34;
+	width=&#34;704&#34;
+	height=&#34;653&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/comparison_ae_ar_par_hucf9af87b7af5a70e9cea3dc68645f698_52849_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/comparison_ae_ar_par_hucf9af87b7af5a70e9cea3dc68645f698_52849_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;AE vs. AR vs. PAR&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;107&#34;
+		data-flex-basis=&#34;258px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;아래는 pseudo-mask를 사용하여 PAR 예측이 이루어지는 과정에 대한 그림입니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/factorization_step_viz.png&#34;
+	width=&#34;497&#34;
+	height=&#34;465&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/factorization_step_viz_huc910acaf3ad2cb3e66aa8d9dd88ca1b0_63254_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/factorization_step_viz_huc910acaf3ad2cb3e66aa8d9dd88ca1b0_63254_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Factorization Steps&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;106&#34;
+		data-flex-basis=&#34;256px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;ul&gt;
+&lt;li&gt;원래 token을 그대로 갖고 있는 상태에서 input sequence에 pseudo mask &lt;code&gt;[P]&lt;/code&gt;를 append합니다.&lt;/li&gt;
+&lt;li&gt;position embedding은 원래 token과 동일하게 하기 때문에 input sequence에서 token의 위치는 상관이 없습니다..&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;[P]&lt;/code&gt;의 마지막 hidden state에 softmax classfier를 적용하여 MLM 예측을 합니다.&lt;/li&gt;
+&lt;li&gt;위 예시의 factorization order는 4,5 → 2입니다.&lt;/li&gt;
+&lt;li&gt;t=1에서 $ x_1, x_3, x_6 $과 $ x_4, x_5 $의 pseudo mask만 attend합니다.&lt;/li&gt;
+&lt;li&gt;t=2에서 $ x_1, x_3, x_4, x_5, x_6 $과 $ x_2 $의 pseudo mask만 attend합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;위의 factorization을 self-attention mask로 나타내면 아래와 같습니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/attention_mask.png&#34;
+	width=&#34;605&#34;
+	height=&#34;541&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/attention_mask_hu8d9895acad4c2d2ea48a55b2e0c531e3_44468_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/attention_mask_hu8d9895acad4c2d2ea48a55b2e0c531e3_44468_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Self-Attention mask&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;111&#34;
+		data-flex-basis=&#34;268px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Figure 5.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;fine-tuning&#34;&gt;Fine-tuning
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Natural Language Understanding(NLU)-classification
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;[SOS]&lt;/code&gt; TEXT &lt;code&gt;[EOS]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;[SOS]&lt;/code&gt; 에 softmax classifier를 적용하여 likelihood를 최대화하는 class를 구합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Natural Language Generation(NLG)
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;[SOS]&lt;/code&gt; SRC &lt;code&gt;[EOS]&lt;/code&gt; TGT &lt;code&gt;[EOS]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;source seqeunce: bidirectional. 서로 attend 할 수 있습니다.&lt;/li&gt;
+&lt;li&gt;target sequence: autoregressive. target token에 &lt;code&gt;[P]&lt;/code&gt;를 추가합니다.&lt;/li&gt;
+&lt;li&gt;target sequence의 likelihood를 최대화하는 token을 구합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;result&#34;&gt;Result
+&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/unilmv2_review/result.png&#34;
+	width=&#34;1600&#34;
+	height=&#34;320&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/unilmv2_review/result_huf82132bd036f38b8a7a3f867c4dc6e22_129150_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/unilmv2_review/result_huf82132bd036f38b8a7a3f867c4dc6e22_129150_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;500&#34;
+		data-flex-basis=&#34;1200px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v119/bao20a/bao20a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Bao, Hangbo, et al. &amp;ldquo;Unilmv2: Pseudo-masked language models for unified language model pre-training.&amp;rdquo; International conference on machine learning. PMLR, 2020, Table 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
