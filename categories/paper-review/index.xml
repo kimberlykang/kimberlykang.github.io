@@ -6,7 +6,182 @@
         <description>Recent content in Paper review on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <lastBuildDate>Mon, 16 Oct 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/categories/paper-review/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 03 Nov 2024 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/categories/paper-review/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>LayoutLMv2 Review</title>
+        <link>https://kimberlykang.github.io/p/layoutlmv2_review/</link>
+        <pubDate>Sun, 03 Nov 2024 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/p/layoutlmv2_review/</guid>
+        <description>&lt;p&gt;In this post, we will review Microsoft’s 2021 paper: &amp;ldquo;LayoutLMv2: Multi-modal Pre-training for Visually-rich Document Understanding.&amp;rdquo;&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2012.14740.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://arxiv.org/pdf/2012.14740.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#model-architecture&#34; &gt;Model Architecture&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-training-tasks&#34; &gt;Pre-training Tasks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#training&#34; &gt;Training&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;model-architecture&#34;&gt;Model Architecture
+&lt;/h2&gt;&lt;h3 id=&#34;text-embedding&#34;&gt;Text Embedding
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Uses text sequences extracted via OCR.&lt;/li&gt;
+&lt;li&gt;Utilizes the WordPiece tokenizer.&lt;/li&gt;
+&lt;li&gt;Prepends &lt;code&gt;[CLS]&lt;/code&gt; to the sequence and &lt;code&gt;[SEP]&lt;/code&gt; to the end of each text segment.&lt;/li&gt;
+&lt;li&gt;Pads with &lt;code&gt;[PAD]&lt;/code&gt; tokens until the maximum sequence length $L$ is reached.&lt;/li&gt;
+&lt;li&gt;Applies 1D positional embeddings.&lt;/li&gt;
+&lt;li&gt;Assigns each token a segment $ s_i \in {[A], [B]} $.&lt;/li&gt;
+&lt;li&gt;The final $i$-th $(0 \leq i &amp;lt; L)$ text embedding is:
+&lt;ul&gt;
+&lt;li&gt;$ t_i = TokEmb(w_i) + PosEmb1D(i) + SegEmb(s_i) $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;visual-embedding&#34;&gt;Visual Embedding
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Resizes the input image to 224×224 pixels.&lt;/li&gt;
+&lt;li&gt;Uses ResNeXt-FPN as the visual backbone to extract feature maps; its parameters are updated during backpropagation.&lt;/li&gt;
+&lt;li&gt;The feature map is average-pooled to width $W$ and height $H$ (paper uses $W = H = 7$).&lt;/li&gt;
+&lt;li&gt;Flattens this to a $W \times H$-length vector $ VisTokEmb(I) $.&lt;/li&gt;
+&lt;li&gt;Applies a linear projection layer to match the size of the text embeddings.&lt;/li&gt;
+&lt;li&gt;Since CNNs do not inherently encode position, the same 1D positional embeddings as text tokens are added.&lt;/li&gt;
+&lt;li&gt;The segment used for visual tokens is &lt;code&gt;[C]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;The $i$-th $(0 \leq i &amp;lt; WH)$ visual embedding is:
+&lt;ul&gt;
+&lt;li&gt;$ v_i = Proj(VisTokEmb(I)_i) + PosEmb1D(i) + SegEmb([C]) $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;layout-embedding&#34;&gt;Layout Embedding
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Embeds the bounding box information that comes from OCR results.&lt;/li&gt;
+&lt;li&gt;Normalizes the box coordinates to integers in [0, 1000].&lt;/li&gt;
+&lt;li&gt;For the $i$-th $(0 \leq i &amp;lt; WH + L)$ text/visual token with $box_i = (x_{min}, x_{max}, y_{min}, y_{max}, width, height)$, the layout embedding is:
+&lt;ul&gt;
+&lt;li&gt;$ l_i = Concat(PosEmb2D_x(x_{min}, x_{max}, width), PosEmb2D_y(y_{min}, y_{max}, height)) $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;For visual tokens, the bounding box corresponds to the position in the $W \times H$ grid. For $W = H = 7$, $box_0 = (0, 0, 142, 142, 142, 142)$ where $142 = int(1000/7)$.&lt;/li&gt;
+&lt;li&gt;Special tokens &lt;code&gt;[CLS]&lt;/code&gt;, &lt;code&gt;[SEP]&lt;/code&gt;, &lt;code&gt;[PAD]&lt;/code&gt; use $ box_{PAD} = (0, 0, 0, 0, 0, 0) $.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;multi-modal-encoder&#34;&gt;Multi-modal Encoder
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Input&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Concatenates the visual embeddings and text embeddings into a single sequence:
+&lt;ul&gt;
+&lt;li&gt;$ X = {\textbf{v}&lt;em&gt;0, &amp;hellip;, \textbf{v}&lt;/em&gt;{WH-1}, \textbf{t}&lt;em&gt;0, &amp;hellip;, \textbf{t}&lt;/em&gt;{L-1}} $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Adds the corresponding layout embedding to the above sequence for the final input:
+&lt;ul&gt;
+&lt;li&gt;For $0 \leq i &amp;lt; WH + L$, $ \textbf{x}_i^{(0)} = X_i + \textbf{l}_i $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Spatial-Aware Self-Attention&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Let hidden size be $d_{head}$ and projections $\textbf{W}^Q, \textbf{W}^K, \textbf{W}^V$. The self-attention score is:
+&lt;ul&gt;
+&lt;li&gt;$ \alpha_{ij} = \frac{1}{\sqrt{d_{head}}} (\textbf{x}_i \textbf{W}^Q) (\textbf{x}_j \textbf{W}^K)^\top $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;$ \textbf{b}^{(1D)} $ encodes relative distance in the token sequence.&lt;/li&gt;
+&lt;li&gt;$ \textbf{b}^{(2D_x)}, \textbf{b}^{(2D_y)} $ encode the spatial distance between token bounding boxes in x and y directions.&lt;/li&gt;
+&lt;li&gt;The spatial-aware attention score is:
+&lt;ul&gt;
+&lt;li&gt;$ \alpha_{ij}^{\prime} = \alpha_{ij} + \textbf{b}^{(1D)} + \textbf{b}^{(2D_x)} + \textbf{b}^{(2D_y)} $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;The output vector $h_i$ is:
+&lt;ul&gt;
+&lt;li&gt;$ \textbf{h}&lt;em&gt;i = \displaystyle{\sum&lt;/em&gt;{j}} \frac{\exp(\alpha_{ij}^{\prime})}{\sum_{k} \exp(\alpha_{ik}^{\prime})} \textbf{x}_j \textbf{W}^V $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/layoutlmv2_review/layoutlmv2_model.png&#34;
+	width=&#34;1151&#34;
+	height=&#34;1029&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/layoutlmv2_review/layoutlmv2_model_hufd21e1baf259cba288b920966b1552e7_248490_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/layoutlmv2_review/layoutlmv2_model_hufd21e1baf259cba288b920966b1552e7_248490_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;LayoutLMv2 Model&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;111&#34;
+		data-flex-basis=&#34;268px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2012.14740&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Xu, Yang, et al. &amp;ldquo;Layoutlmv2: Multi-modal pre-training for visually-rich document understanding.&amp;rdquo; arXiv preprint arXiv:2012.14740 (2020), Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&#34;pre-training-tasks&#34;&gt;Pre-training Tasks
+&lt;/h2&gt;&lt;h3 id=&#34;masked-visual-language-modeling-mvlm&#34;&gt;Masked Visual-Language Modeling (MVLM)
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Teaches the model to better understand language using cross-modality information.&lt;/li&gt;
+&lt;li&gt;Randomly masks text tokens and requires the model to predict them.&lt;/li&gt;
+&lt;li&gt;In this paper, 15% of text tokens are masked; 80% are replaced with &lt;code&gt;[MASK]&lt;/code&gt;, 10% with a random token from the vocabulary, and 10% remain unchanged.&lt;/li&gt;
+&lt;li&gt;The corresponding regions in the image are masked as well.&lt;/li&gt;
+&lt;li&gt;Layout information is left unmasked.&lt;/li&gt;
+&lt;li&gt;The final cross-entropy loss is computed by feeding the last output of the masked token to a classifier.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;text-image-alignment-tia&#34;&gt;Text-Image Alignment (TIA)
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Randomly selects a token line and covers its region in the image. Lines are covered at the line level rather than the word level.&lt;/li&gt;
+&lt;li&gt;15% of lines are covered in the paper.&lt;/li&gt;
+&lt;li&gt;The model predicts whether the output of a token corresponds to &lt;code&gt;[Covered]&lt;/code&gt; or &lt;code&gt;[Not Covered]&lt;/code&gt; using a classifier attached to the output of the covered tokens.&lt;/li&gt;
+&lt;li&gt;Tokens masked for MVLM are excluded from TIA loss calculation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;text-image-matching-tim&#34;&gt;Text-Image Matching (TIM)
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Classifier attached to the &lt;code&gt;[CLS]&lt;/code&gt; output to predict whether the image and text come from the same document.&lt;/li&gt;
+&lt;li&gt;The original image is used as a positive sample.&lt;/li&gt;
+&lt;li&gt;Negative samples are produced by swapping with images from other documents or omitting the image (missing image).&lt;/li&gt;
+&lt;li&gt;15% of images are swapped and 5% are omitted in experiments.&lt;/li&gt;
+&lt;li&gt;Negative samples are also masked and covered; in negative TIM, all TIA targets are &lt;code&gt;[Covered]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Binary cross-entropy loss is used.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;training&#34;&gt;Training
+&lt;/h2&gt;&lt;h3 id=&#34;data&#34;&gt;Data
+&lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/layoutlmv2_review/data.png&#34;
+	width=&#34;784&#34;
+	height=&#34;436&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/layoutlmv2_review/data_hu4af80ee154a5997537be1f35b8c9ce51_94651_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/layoutlmv2_review/data_hu4af80ee154a5997537be1f35b8c9ce51_94651_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Data&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;179&#34;
+		data-flex-basis=&#34;431px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2012.14740&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Xu, Yang, et al. &amp;ldquo;Layoutlmv2: Multi-modal pre-training for visually-rich document understanding.&amp;rdquo; arXiv preprint arXiv:2012.14740 (2020), Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h3 id=&#34;settings&#34;&gt;Settings
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;The text encoder uses UniLMv2.&lt;/li&gt;
+&lt;li&gt;The visual embedding uses ResNeXt-FPN, the backbone from Mask-RCNN.&lt;/li&gt;
+&lt;li&gt;Other parameters are initialized randomly.&lt;/li&gt;
+&lt;li&gt;All parameters are trained end-to-end.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pre-training&#34;&gt;Pre-training
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Utilizes samples from the IIT-CDIP dataset.&lt;/li&gt;
+&lt;li&gt;Sets maximum sequence length $L=512$, all text tokens are assigned segment &lt;code&gt;[A]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;The vision encoder’s output shape is set to $W=H=7$, producing a feature map of 49 tokens.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;fine-tuning&#34;&gt;Fine-tuning
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;For document-level classification, the &lt;code&gt;[CLS]&lt;/code&gt; token’s output is used.&lt;/li&gt;
+&lt;li&gt;Entity extraction and DocVQA tasks add a task-specific head to the model.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>UniLMv2 Review</title>
         <link>https://kimberlykang.github.io/p/unilmv2_review/</link>
         <pubDate>Mon, 16 Oct 2023 00:17:41 +0900</pubDate>

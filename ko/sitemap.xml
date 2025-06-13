@@ -3,7 +3,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://kimberlykang.github.io/ko/categories/</loc>
-    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <lastmod>2024-11-03T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -16,7 +16,7 @@
                 />
   </url><url>
     <loc>https://kimberlykang.github.io/ko/</loc>
-    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <lastmod>2024-11-03T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -28,8 +28,34 @@
                 href="https://kimberlykang.github.io/ko/"
                 />
   </url><url>
+    <loc>https://kimberlykang.github.io/ko/tags/layoutlmv2/</loc>
+    <lastmod>2024-11-03T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/tags/layoutlmv2/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/tags/layoutlmv2/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/ko/p/layoutlmv2_review/</loc>
+    <lastmod>2024-11-03T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/p/layoutlmv2_review/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/p/layoutlmv2_review/"
+                />
+  </url><url>
     <loc>https://kimberlykang.github.io/ko/categories/paper-review/</loc>
-    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <lastmod>2024-11-03T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -42,7 +68,7 @@
                 />
   </url><url>
     <loc>https://kimberlykang.github.io/ko/post/</loc>
-    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <lastmod>2024-11-03T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -55,7 +81,7 @@
                 />
   </url><url>
     <loc>https://kimberlykang.github.io/ko/tags/</loc>
-    <lastmod>2023-10-16T00:17:41+09:00</lastmod>
+    <lastmod>2024-11-03T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>LayoutLMv2 on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/ko/tags/layoutlmv2/</link>
+        <description>Recent content in LayoutLMv2 on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>ko</language>
+        <lastBuildDate>Sun, 03 Nov 2024 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/tags/layoutlmv2/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>LayoutLMv2 리뷰</title>
+        <link>https://kimberlykang.github.io/ko/p/layoutlmv2_review/</link>
+        <pubDate>Sun, 03 Nov 2024 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/ko/p/layoutlmv2_review/</guid>
+        <description>&lt;p&gt;본 포스트에서는 2021년 Microsoft에서 발표한 논문 &amp;ldquo;LayoutLMv2: Multi-modal Pre-training for Visually-rich Document Understanding&amp;quot;을 살펴보겠습니다.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2012.14740.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://arxiv.org/pdf/2012.14740.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%eb%aa%a8%eb%8d%b8-%ea%b5%ac%ec%a1%b0&#34; &gt;모델 구조&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-training-tasks&#34; &gt;Pre-training Tasks&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ed%95%99%ec%8a%b5&#34; &gt;학습&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;모델-구조&#34;&gt;모델 구조
+&lt;/h2&gt;&lt;h3 id=&#34;text-embedding&#34;&gt;Text Embedding
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;OCR로 얻은 text sequence를 사용합니다.&lt;/li&gt;
+&lt;li&gt;WordPiece를 사용합니다.&lt;/li&gt;
+&lt;li&gt;sequence 앞에 &lt;code&gt;[CLS]&lt;/code&gt;를, 각 text segment 끝에 &lt;code&gt;[SEP]&lt;/code&gt;를 넣어줍니다.&lt;/li&gt;
+&lt;li&gt;maximum sequence length L이 될 때까지 끝에 &lt;code&gt;[PAD]&lt;/code&gt;를 붙입니다.&lt;/li&gt;
+&lt;li&gt;1D positional embedding 을 적용해 줍니다.&lt;/li&gt;
+&lt;li&gt;각 token에 segment $ s_i \in {[A], [B]} $ 를 할당해 줍니다.&lt;/li&gt;
+&lt;li&gt;최종 i번째 $ (0 ≤ i &amp;lt; L) $ text embedding은 다음과 같습니다.
+&lt;ul&gt;
+&lt;li&gt;$t_i = TokEmb(w_i) + PosEmb1D(i) + SegEmb(s_i) $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;visual-embedding&#34;&gt;Visual Embedding
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;이미지를 224×224 크기로 resize합니다.&lt;/li&gt;
+&lt;li&gt;ResNeXt-FPN을 backbone으로 사용하여 feature map을 만듭니다. backbone의 parameter는 backpropagation을 할 때 업데이트 될 수 있습니다.&lt;/li&gt;
+&lt;li&gt;average-pool로 feature map을 가로 W, 세로 H로 만듭니다. 논문에서는 $ W = H = 7 $을 사용합니다.&lt;/li&gt;
+&lt;li&gt;flatten해서 W*H 길이의 벡터 $ VisTokEmb(I) $를 만듭니다.&lt;/li&gt;
+&lt;li&gt;text embedding과 크기가 같도록 linear projection layer를 적용합니다.&lt;/li&gt;
+&lt;li&gt;CNN은 위치 정보를 뽑진 않으므로 visual token embedding에 text embedding에 사용한 1D positional embedding을 더합니다.&lt;/li&gt;
+&lt;li&gt;segment는 &lt;code&gt;[C]&lt;/code&gt;를 사용합니다.&lt;/li&gt;
+&lt;li&gt;i번째 $ (0 ≤ i &amp;lt; WH) $ visual embedding은 다음과 같습니다.
+&lt;ul&gt;
+&lt;li&gt;$ v_i = Proj(VisTokEmbb(I)_i) + PosEmb1D(i) + SegEmb([C]) $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;layout-embedding&#34;&gt;Layout Embedding
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;OCR 결과로 얻는 bounding box 정보를 embedding 합니다.&lt;/li&gt;
+&lt;li&gt;좌표를 [0, 1000] 사이의 정수로 만듭니다.&lt;/li&gt;
+&lt;li&gt;i번째 $ (0 ≤ i &amp;lt; WH + L) $ text/visual token에 해당하는 $ box_i = (x_{min}, x_{max}, y_{min}, y_{max}, width, height) $ 가 있을 때,layout embedding은 아래와 같습니다.
+&lt;ul&gt;
+&lt;li&gt;$ l_i = Concat(PosEmb2D_x(x_{min}, x_{max}, width), PosEmb2D_y(y_{min}, y_{max}, height)) $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;visual token의 bounding box는 가로, 세로를 W, H로 나눈 grid의 위치를 사용합니다. 즉, $ W = H = 7 $의 경우, $ box_0 = (0, 0, 142, 142, 142, 142) $가 됩니다. $ 142=int(1000/7) $입니다.&lt;/li&gt;
+&lt;li&gt;special token &lt;code&gt;[CLS]&lt;/code&gt;, &lt;code&gt;[SEP]&lt;/code&gt;, &lt;code&gt;[PAD]&lt;/code&gt;는 $ box_PAD = (0, 0, 0, 0, 0, 0) $ 을 사용합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;multi-modal-encoder&#34;&gt;Multi-modal Encoder
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Input
+&lt;ul&gt;
+&lt;li&gt;visual embedding과 text embedding을 붙여 하나의 sequence를 만들어 줍니다.
+&lt;ul&gt;
+&lt;li&gt;$ X=\{ \textbf v_0,  &amp;hellip;, \textbf v_{WH-1}, \textbf t_0,  &amp;hellip;, \textbf t_{L-1} \} $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;위의 sequence에 layout embedding을 더해 준 것이 최종 input이 됩니다.
+&lt;ul&gt;
+&lt;li&gt;$ (0 ≤ i &amp;lt; WH + L) $ 일 때, $ \textbf x_i^{(0)} = X_i + \textbf l_i $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Spatial-Aware Self-Attention
+&lt;ul&gt;
+&lt;li&gt;hidden size가 $ d_head $, projection matrics가 $ \textbf W^Q, \textbf W^K, \textbf W^V $ 라고 할 때, 기존의 self-attention에서의 attention score는 아래와 같이 구합니다.
+&lt;ul&gt;
+&lt;li&gt;$ \alpha_{ij} = \frac {1}{\sqrt{d_{head}}} (\textbf x_i \textbf W^Q) (\textbf x_j \textbf W^K)^\top $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;$ \textbf b^{(1D)} $ 는 token sequence에서 상대적인 거리를 의미합니다.&lt;/li&gt;
+&lt;li&gt;$ \textbf b^{(2D_x)}, \textbf b^{(2D_y)} $ 는 token의 bbox가 서로 얼마나 x방향, y방향으로 얼마나 떨어져 있는가를 의미합니다.&lt;/li&gt;
+&lt;li&gt;spatial-aware attention score는 아래와 같이 구합니다.
+&lt;ul&gt;
+&lt;li&gt;$ \alpha_{ij}^{\prime} = \alpha_{ij} + \textbf b^{(1D)} + \textbf b^{(2D_x)} + \textbf b^{(2D_y)}$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;output vector $ h_i $ 는 아래와 같이 구합니다.
+&lt;ul&gt;
+&lt;li&gt;$ \textbf h_i =  \displaystyle{\sum_{j}} \frac {exp(\alpha_{ij}^{\prime})}{{\sum_{k}} exp(\alpha_{ik}^{\prime})} \textbf x_j \textbf W^V $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/layoutlmv2_review/layoutlmv2_model.png&#34;
+	width=&#34;1151&#34;
+	height=&#34;1029&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/layoutlmv2_review/layoutlmv2_model_hufd21e1baf259cba288b920966b1552e7_248490_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/layoutlmv2_review/layoutlmv2_model_hufd21e1baf259cba288b920966b1552e7_248490_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;LayoutLMv2 Model&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;111&#34;
+		data-flex-basis=&#34;268px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2012.14740&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Xu, Yang, et al. &amp;ldquo;Layoutlmv2: Multi-modal pre-training for visually-rich document understanding.&amp;rdquo; arXiv preprint arXiv:2012.14740 (2020), Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&#34;pre-training-tasks&#34;&gt;Pre-training Tasks
+&lt;/h2&gt;&lt;h3 id=&#34;masked-visual-language-modeling&#34;&gt;Masked Visual-Language Modeling
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;cross-modality 정보로 언어를 더 잘 이해하도록 학습합니다.&lt;/li&gt;
+&lt;li&gt;text token을 무작위로 mask하고, 모델이 이를 복구하도록 합니다.&lt;/li&gt;
+&lt;li&gt;본 논문에서는 15%의 text token을 mask하고, 이 중 80%를 &lt;code&gt;[MASK]&lt;/code&gt;로, 10%를 전체 vocabulary에서 무작위로 고른 token으로 바꾸고, 나머지 10%는 바꾸지 않습니다.&lt;/li&gt;
+&lt;li&gt;이미지에서 mask된 token에 해당되는 부분도 mask합니다.&lt;/li&gt;
+&lt;li&gt;layout 정보는 mask하지 않고 그대로 사용합니다.&lt;/li&gt;
+&lt;li&gt;mask된 token의 마지막 output을 classifier에 넣고, 최종으로 cross-entropy loss를 구합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;text-image-alignment&#34;&gt;Text-Image Alignment
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;token line이 무작위로 선택되고, 이에 해당되는 이미지가 cover됩니다. 단어를 cover하면 기호로 보일 수도 있기 때문에, line-level로 cover합니다.&lt;/li&gt;
+&lt;li&gt;본 논문에서는 15%의 line을 cover합니다.&lt;/li&gt;
+&lt;li&gt;cover된 token의 output에 classifier를 붙여 &lt;code&gt;[Covered]&lt;/code&gt; 인지 &lt;code&gt;[Not Covered]&lt;/code&gt; 인지 예측합니다.&lt;/li&gt;
+&lt;li&gt;MVLM에서 mask된 token은 TIA loss에서 제외시킵니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;text-image-matching&#34;&gt;Text-Image Matching
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;[CLS]&lt;/code&gt; token의 output에 classifier를 붙여 이미지와 text가 같은 문서에서 나온 것인지 아닌지를 예측합니다.&lt;/li&gt;
+&lt;li&gt;원래 이미지는 positive sample이 됩니다.&lt;/li&gt;
+&lt;li&gt;다른 문서 이미지로 이미지를 바꾸거나, 혹은 이미지를 누락시켜서 negative sample을 만듭니다.&lt;/li&gt;
+&lt;li&gt;본 논문에서는 15%의 이미지를 바꾸고, 5%를 누락시킵니다.&lt;/li&gt;
+&lt;li&gt;negative sample에도 mask와 cover를 하고, negative sample에서의 TIA target은 모두 &lt;code&gt;[Covered]&lt;/code&gt;가 됩니다.&lt;/li&gt;
+&lt;li&gt;binary cross-entropy loss를 사용합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;학습&#34;&gt;학습
+&lt;/h2&gt;&lt;h3 id=&#34;데이터&#34;&gt;데이터
+&lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/layoutlmv2_review/data.png&#34;
+	width=&#34;784&#34;
+	height=&#34;436&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/layoutlmv2_review/data_hu4af80ee154a5997537be1f35b8c9ce51_94651_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/layoutlmv2_review/data_hu4af80ee154a5997537be1f35b8c9ce51_94651_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Data&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;179&#34;
+		data-flex-basis=&#34;431px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2012.14740&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Xu, Yang, et al. &amp;ldquo;Layoutlmv2: Multi-modal pre-training for visually-rich document understanding.&amp;rdquo; arXiv preprint arXiv:2012.14740 (2020), Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h3 id=&#34;setting&#34;&gt;setting
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;text ebmedding의 encoder는 UniLMv2를 사용합니다.&lt;/li&gt;
+&lt;li&gt;visual embedding은 Mask-RCNN의 backbone으로 사용된 ResNeXt-FPN을 사용합니다.&lt;/li&gt;
+&lt;li&gt;나머지 parameter는 무작위로 initialize합니다.&lt;/li&gt;
+&lt;li&gt;전체 모델의 모든 parameter를 end-to-end로 학습합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pre-training&#34;&gt;Pre-training
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;IIT-CDIP dataset을 샘플링해서 사용합니다.&lt;/li&gt;
+&lt;li&gt;maximum sequence length L=512를 사용하고, 모든 text token은 segment &lt;code&gt;[A]&lt;/code&gt;로 할당해 줍니다.&lt;/li&gt;
+&lt;li&gt;vision encoder의 output shape은 W=H=7로 설정해서, 전체 feature map은 49개 token이 됩니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;fine-tuning&#34;&gt;Fine-tuning
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;document-level classification task에서는 &lt;code&gt;[CLS]&lt;/code&gt; token의 output을 사용합니다.&lt;/li&gt;
+&lt;li&gt;Entity Extraction과 DocVQA에 대해서는 task specified head를 붙여서 수행합니다.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
