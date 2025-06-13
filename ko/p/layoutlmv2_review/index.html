@@ -10,7 +10,7 @@
 <meta property='og:description' content="본 포스트에서는 2021년 Microsoft에서 발표한 논문 &ldquo;LayoutLMv2: Multi-modal Pre-training for Visually-rich Document Understanding&quot;을 살펴보겠습니다. https://arxiv.org/pdf/2012.14740.pdf 목차 모델 구조 Pre-training Tasks 학습 모델 구조 Text Embedding OCR로 얻은 text sequence를 사용합니다. WordPiece를 사용합니다. sequence 앞에 [CLS]를, 각 text segment 끝에 [SEP]를 넣어줍니다. maximum sequence length L이 될 때까지 끝에 [PAD]를 붙입니다. 1D positional embedding 을 적용해 줍니다. 각 token에 segment $ s_i \\in {[A], [B]} $ 를 할당해 줍니다. 최종 i번째 $ (0 ≤ i &lt; L) $ text embedding은 다음과 같습니다.">
 <meta property='og:url' content='https://kimberlykang.github.io/ko/p/layoutlmv2_review/'>
 <meta property='og:site_name' content='Kimberly&#39;s Blog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='LayoutLMv2' /><meta property='article:published_time' content='2024-11-03T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2024-11-03T00:17:41&#43;09:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='LayoutLMv2' /><meta property='article:published_time' content='2023-11-03T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-11-03T00:17:41&#43;09:00'/>
 <meta name="twitter:title" content="LayoutLMv2 리뷰">
 <meta name="twitter:description" content="본 포스트에서는 2021년 Microsoft에서 발표한 논문 &ldquo;LayoutLMv2: Multi-modal Pre-training for Visually-rich Document Understanding&quot;을 살펴보겠습니다. https://arxiv.org/pdf/2012.14740.pdf 목차 모델 구조 Pre-training Tasks 학습 모델 구조 Text Embedding OCR로 얻은 text sequence를 사용합니다. WordPiece를 사용합니다. sequence 앞에 [CLS]를, 각 text segment 끝에 [SEP]를 넣어줍니다. maximum sequence length L이 될 때까지 끝에 [PAD]를 붙입니다. 1D positional embedding 을 적용해 줍니다. 각 token에 segment $ s_i \\in {[A], [B]} $ 를 할당해 줍니다. 최종 i번째 $ (0 ≤ i &lt; L) $ text embedding은 다음과 같습니다."><style>
      
@@ -275,7 +275,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">11월 03, 2024</time>
+                <time class="article-time--published">11월 03, 2023</time>
             </div>
         
 
