@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Pix2struct on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/tags/pix2struct/</link>
+        <description>Recent content in Pix2struct on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <lastBuildDate>Fri, 24 Nov 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/pix2struct/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Donut vs. Pix2Struct Comparison</title>
+        <link>https://kimberlykang.github.io/p/compare_donut_pix2struct/</link>
+        <pubDate>Fri, 24 Nov 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/p/compare_donut_pix2struct/</guid>
+        <description>&lt;p&gt;In this post, we&amp;rsquo;ll review and compare two end-to-end deep learning models capable of document understanding from images, without relying on OCR:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Donut: OCR-free Document Understanding Transformer (&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://arxiv.org/pdf/2111.15664&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Pix2Struct: Screenshot Parsing as Pretraining for Visual Language Understanding (&lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#model-architecture&#34; &gt;Model Architecture&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-training&#34; &gt;Pre-training&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#fine-tuning&#34; &gt;Fine-tuning&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;model-architecture&#34;&gt;Model Architecture
+&lt;/h2&gt;&lt;p&gt;Both models use an image encoder and a text decoder.&lt;/p&gt;
+&lt;h3 id=&#34;encoder&#34;&gt;Encoder
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Donut&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Utilizes the Swin Transformer.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/swin_transformer.png&#34;
+	width=&#34;632&#34;
+	height=&#34;347&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/swin_transformer_hufbe5f08a8a785e46c2871926e9190c59_193360_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/swin_transformer_hufbe5f08a8a785e46c2871926e9190c59_193360_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Swin Transformer&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;182&#34;
+		data-flex-basis=&#34;437px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content/ICCV2021/papers/Liu_Swin_Transformer_Hierarchical_Vision_Transformer_Using_Shifted_Windows_ICCV_2021_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Liu, Ze, et al. &amp;ldquo;Swin transformer: Hierarchical vision transformer using shifted windows.&amp;rdquo; Proceedings of the IEEE/CVF international conference on computer vision. 2021, Figure 1&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Each layer uses patches of various sizes (Hierarchical Feature Map).&lt;/li&gt;
+&lt;li&gt;Applies Shifted Window Multi Self-Attention for local window operations within image regions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Experiments with various backbones show Swin Transformer backbone yields the best performance for Donut.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_performances.png&#34;
+	width=&#34;1442&#34;
+	height=&#34;266&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_performances_hu98b8d09280242c6057728301012f6ba7_64698_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_performances_hu98b8d09280242c6057728301012f6ba7_64698_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Performances&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;542&#34;
+		data-flex-basis=&#34;1301px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 7&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Pix2Struct&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Uses a ViT (Vision Transformer) capable of handling variable-resolution inputs.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/variable_resolution_inputs.png&#34;
+	width=&#34;1310&#34;
+	height=&#34;287&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/variable_resolution_inputs_hub135fd4d8893a53f178b41a0f340c60d_149771_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/variable_resolution_inputs_hub135fd4d8893a53f178b41a0f340c60d_149771_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Variable resolution inputs&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;456&#34;
+		data-flex-basis=&#34;1095px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Lee, Kenton, et al. &amp;ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&amp;rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Images are resized (keeping aspect ratio) to maximize the number of extracted patches.&lt;/li&gt;
+&lt;li&gt;Utilizes 2D absolute positional embeddings.&lt;/li&gt;
+&lt;li&gt;Performs well even with extreme aspect ratios.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;decoder&#34;&gt;Decoder
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Donut&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Uses the first four layers of BART as the decoder.&lt;/li&gt;
+&lt;li&gt;Weights are initialized from a pre-trained multi-lingual BART.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Pix2Struct&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Utilizes a ViT-based decoder.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;pre-training&#34;&gt;Pre-training
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Donut&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Tested four pre-training strategies: No pre-training, Classification, Captioning, and Reading. The &amp;ldquo;reading&amp;rdquo; approach, aimed at language understanding, was chosen.&lt;/li&gt;
+&lt;li&gt;Performs a pseudo-OCR task: predicting the next token given the image and previous context.&lt;/li&gt;
+&lt;li&gt;Public data: Used IIT-CDIP (11M scanned document images) with pseudo-text labels generated by CLOVA OCR API.&lt;/li&gt;
+&lt;li&gt;Synthetic data: Used the Synthetic Document Generator (SynthDoG) and Wikipedia to create 0.5M samples each in Chinese, Japanese, Korean, and English.
+&lt;ul&gt;
+&lt;li&gt;Backgrounds are sampled from ImageNet&lt;/li&gt;
+&lt;li&gt;Words/expressions are sampled from Wikipedia.&lt;/li&gt;
+&lt;li&gt;Example synthetic data below:
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_generated_image.png&#34;
+	width=&#34;1554&#34;
+	height=&#34;383&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_generated_image_huf132964d10c6eb1c623ffc57c52a1be1_656459_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_generated_image_huf132964d10c6eb1c623ffc57c52a1be1_656459_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Generated Image&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;405&#34;
+		data-flex-basis=&#34;973px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 4&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Pix2Struct&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Aims to understand image structure through reading, mask restoration, and alt-text generation.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Data:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Uses webpage screenshots and associated HTML.&lt;/li&gt;
+&lt;li&gt;Only uses nodes with visible elements.&lt;/li&gt;
+&lt;li&gt;Uses only text, filename, and alt-text (ignores tag, style, title, URL).&lt;/li&gt;
+&lt;li&gt;Viewport size: (1024, 1024).&lt;/li&gt;
+&lt;li&gt;Masks 50% of the text.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Pre-training tasks example:
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_pre_training.png&#34;
+	width=&#34;1731&#34;
+	height=&#34;326&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_pre_training_hu77c2d232605de1355fa9cc3e62640406_128636_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_pre_training_hu77c2d232605de1355fa9cc3e62640406_128636_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pix2struct Pre-training&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;530&#34;
+		data-flex-basis=&#34;1274px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Lee, Kenton, et al. &amp;ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&amp;rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 3&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&amp;lt;C++&amp;gt;&lt;/strong&gt;: Generates the unmasked portion of HTML. Similar to OCR.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&amp;lt;Python&amp;gt;&lt;/strong&gt;: Generates the masked portion of HTML. Similar to masked language modeling.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;img_alt=C++&lt;/strong&gt;: Generates alt-text from the image. Similar to image captioning.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Curriculum Learning:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Adds a warmup stage with a focus on reading tasks.&lt;/li&gt;
+&lt;li&gt;Uses BooksCorpus data.&lt;/li&gt;
+&lt;li&gt;Leads to more stable and faster convergence.&lt;/li&gt;
+&lt;li&gt;Improves fine-tuning performance.&lt;/li&gt;
+&lt;li&gt;Example data for the reading task:
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_warmup.png&#34;
+	width=&#34;2026&#34;
+	height=&#34;231&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_warmup_hufc03325d532eac34379dd92ac832701f_120806_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_warmup_hufc03325d532eac34379dd92ac832701f_120806_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pix2struct Warmup&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;877&#34;
+		data-flex-basis=&#34;2104px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Lee, Kenton, et al. &amp;ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&amp;rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 6&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;training--fine-tuning&#34;&gt;Training / Fine-tuning
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Donut&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Defines all downstream tasks as JSON prediction problems.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_pipeline.png&#34;
+	width=&#34;1781&#34;
+	height=&#34;402&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_pipeline_hu910ecf3b2ac89692cbaa5a2d9d105f42_220490_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_pipeline_hu910ecf3b2ac89692cbaa5a2d9d105f42_220490_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Pipeline&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;443&#34;
+		data-flex-basis=&#34;1063px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 3&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;For example, a document classification task predicts the sequence &lt;code&gt;[START_class]&lt;/code&gt; &lt;code&gt;[memo]&lt;/code&gt; &lt;code&gt;[END_class]&lt;/code&gt;, which is then parsed into &lt;strong&gt;{&amp;quot;class&amp;quot;:&amp;quot;memo&amp;quot;}&lt;/strong&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Document Classification&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;RVL-CDIP: Dataset with 16 classes such as letter, memo, email, etc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Document Information Extraction&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CORD: English receipt dataset with 30 fields (menu name, quantity, total amount, etc.).&lt;/li&gt;
+&lt;li&gt;Ticket: Chinese train ticket dataset with 8 fields (ticket number, departure station, etc.).&lt;/li&gt;
+&lt;li&gt;Business Card: Japanese business card dataset with 11 fields (name, company, etc.).&lt;/li&gt;
+&lt;li&gt;Receipt: Korean receipt dataset with 81 fields (store info, payment info, etc.).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Document Visual Question Answering&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;DocVQA: Document image QA dataset with questions and answers paired to document images.&lt;/li&gt;
+&lt;li&gt;Questions are used as prompts, e.g., &lt;code&gt;&amp;lt;vqa&amp;gt;&amp;lt;question&amp;gt;what is the price of choco mochi?&amp;lt;/question&amp;gt;&amp;lt;/vqa&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Results&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;RVL-CDIP:
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result1.png&#34;
+	width=&#34;1387&#34;
+	height=&#34;496&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result1_hu8bbb0f6d78b605eb6d093cb778d65ddf_148881_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result1_hu8bbb0f6d78b605eb6d093cb778d65ddf_148881_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Result1&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;279&#34;
+		data-flex-basis=&#34;671px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Table 1&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Information Extraction:
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result2.png&#34;
+	width=&#34;1778&#34;
+	height=&#34;526&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result2_hu7b7e62707bc72d3256a931e3bbbb91e7_184342_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result2_hu7b7e62707bc72d3256a931e3bbbb91e7_184342_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Result2&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;338&#34;
+		data-flex-basis=&#34;811px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Table 2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Pix2Struct&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;For VQA tasks, the question is attached at the top of the input image.&lt;/li&gt;
+&lt;li&gt;The Donut model is finetuned and used as the backbone.&lt;/li&gt;
+&lt;li&gt;VQA Tasks
+&lt;ul&gt;
+&lt;li&gt;ChartQA: Dataset consisting of questions and answers about charts.&lt;/li&gt;
+&lt;li&gt;AI2D: Multiple-choice QA dataset for scientific images.&lt;/li&gt;
+&lt;li&gt;OCR-VQA: Questions about the title, author, genre, etc., for book cover images.&lt;/li&gt;
+&lt;li&gt;RefExp: App screenshots with widget bounding boxes and descriptive sentences; the label is &amp;ldquo;true&amp;rdquo; if the box matches the description, and &amp;ldquo;false&amp;rdquo; otherwise.&lt;/li&gt;
+&lt;li&gt;DocVQA: Dataset with document images and corresponding QA pairs. Pix2Struct outperforms the previous SOTA Donut. However, it underperforms compared to UDOP, which relies on OCR, pre-trained text/image encoders, and IIT-CDIP in-domain pretraining. Still, Pix2Struct achieves solid performance without any in-domain pretraining.&lt;/li&gt;
+&lt;li&gt;InfographicVQA: Dataset with questions and answers about infographics.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Captioning Tasks
+&lt;ul&gt;
+&lt;li&gt;Widget Captioning: App screenshots with widget bounding boxes; each caption describes the widget&amp;rsquo;s function.&lt;/li&gt;
+&lt;li&gt;Screen2Words: Captions describing the main functionality of a given screenshot page.&lt;/li&gt;
+&lt;li&gt;TextCaps: Dataset of images paired with captions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Results
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_result.png&#34;
+	width=&#34;1638&#34;
+	height=&#34;415&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_result_hu5a0351cd0f302834e4e62cfef3fbd18b_146789_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_result_hu5a0351cd0f302834e4e62cfef3fbd18b_146789_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pix2struct Result&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;394&#34;
+		data-flex-basis=&#34;947px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Lee, Kenton, et al. &amp;ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&amp;rdquo; International Conference on Machine Learning. PMLR, 2023, Table 1&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

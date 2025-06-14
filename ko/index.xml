@@ -6,7 +6,361 @@
         <description>Recent content on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>ko</language>
-        <lastBuildDate>Fri, 03 Nov 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 24 Nov 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Donut, Pix2struct 비교</title>
+        <link>https://kimberlykang.github.io/ko/p/compare_donut_pix2struct/</link>
+        <pubDate>Fri, 24 Nov 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/ko/p/compare_donut_pix2struct/</guid>
+        <description>&lt;p&gt;본 포스트에서는 OCR 없이 이미지만으로 문서를 이해하는 두 가지 end-to-end 딥러닝 모델을 살펴보겠습니다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Donut: OCR-free Document Understanding Transformer(&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://arxiv.org/pdf/2111.15664&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Pix2Struct: Screenshot Parsing as Pretraining for Visual Language Understanding(&lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%eb%aa%a8%eb%8d%b8-%ea%b5%ac%ec%a1%b0&#34; &gt;모델 구조&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-training&#34; &gt;Pre-training&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#fine-tuning&#34; &gt;Fine tuning&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;모델-구조&#34;&gt;모델 구조
+&lt;/h2&gt;&lt;p&gt;image encoder과 text decoder를 사용합니다.&lt;/p&gt;
+&lt;h3 id=&#34;encoder&#34;&gt;Encoder
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Donut&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Swin Transformer를 사용했습니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/swin_transformer.png&#34;
+	width=&#34;632&#34;
+	height=&#34;347&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/swin_transformer_hufbe5f08a8a785e46c2871926e9190c59_193360_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/swin_transformer_hufbe5f08a8a785e46c2871926e9190c59_193360_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Swin Transformer&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;182&#34;
+		data-flex-basis=&#34;437px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content/ICCV2021/papers/Liu_Swin_Transformer_Hierarchical_Vision_Transformer_Using_Shifted_Windows_ICCV_2021_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Liu, Ze, et al. &amp;ldquo;Swin transformer: Hierarchical vision transformer using shifted windows.&amp;rdquo; Proceedings of the IEEE/CVF international conference on computer vision. 2021, Figure 1&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;각 layer마다 다양한 크기의 patch가 사용됩니다.(Hierarchical Feature Map)&lt;/li&gt;
+&lt;li&gt;이미지의 특정 영역끼리마다 Shifted Window Multi Self Attention을 합니다.(Local Window)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;다양한 backbone으로 실험한 결과 Swin Transformer backbone이 Donut 성능이 가장 좋게 나왔습니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_performances.png&#34;
+	width=&#34;1442&#34;
+	height=&#34;266&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_performances_hu98b8d09280242c6057728301012f6ba7_64698_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_performances_hu98b8d09280242c6057728301012f6ba7_64698_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Performances&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;542&#34;
+		data-flex-basis=&#34;1301px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 7&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Pix2struct&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Variable resolution input을 사용한 ViT를 사용합니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/variable_resolution_inputs.png&#34;
+	width=&#34;1310&#34;
+	height=&#34;287&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/variable_resolution_inputs_hub135fd4d8893a53f178b41a0f340c60d_149771_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/variable_resolution_inputs_hub135fd4d8893a53f178b41a0f340c60d_149771_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Variable resolution inputs&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;456&#34;
+		data-flex-basis=&#34;1095px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Lee, Kenton, et al. &amp;ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&amp;rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;가장 많은 patch를 뽑을 수 있도록 원본 비율을 유지하며 이미지를 키우거나 축소합니다.&lt;/li&gt;
+&lt;li&gt;2차원 absolute positional embedding을 사용합니다.&lt;/li&gt;
+&lt;li&gt;extreme aspect ratio에도 잘 동작합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;decoder&#34;&gt;Decoder
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Donut&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;BART의 처음 네 개 layer 사용했습니다.&lt;/li&gt;
+&lt;li&gt;pre-train된 multi-lingual BART로 weight를 initialize했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Pix2struct&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;ViT의 decoder를 사용했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;pre-training&#34;&gt;Pre-training
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Donut&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;No pre-training, Classification, Captioning, reading 총 네 가지 Pre-training 방법을 테스트 한 뒤, 언어 이해를 목적으로 하는 reading을 pre-training 전략으로 선택했습니다.&lt;/li&gt;
+&lt;li&gt;이미지와 이전 context 보고 다음 token 예측하는 pseudo-OCR task를 수행했습니다.&lt;/li&gt;
+&lt;li&gt;공개 데이터: IIT-CDIP(11M 스캔된 문서 이미지)에 CLOVA OCR API를 사용하여 pseudo text label을 만들었습니다.&lt;/li&gt;
+&lt;li&gt;합성 데이터: Synthetic Document Generator(SynthDoG)와 위키피디아를 사용하여 중국어, 일본어, 한글, 영어마다 0.5M 샘플을 생성했습니다.
+&lt;ul&gt;
+&lt;li&gt;배경: ImageNet에서 샘플링&lt;/li&gt;
+&lt;li&gt;단어나 표현: 위키피디아에서 샘플링&lt;/li&gt;
+&lt;li&gt;아래는 합성 데이터 예시입니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_generated_image.png&#34;
+	width=&#34;1554&#34;
+	height=&#34;383&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_generated_image_huf132964d10c6eb1c623ffc57c52a1be1_656459_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_generated_image_huf132964d10c6eb1c623ffc57c52a1be1_656459_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Generated Image&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;405&#34;
+		data-flex-basis=&#34;973px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 4&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Pix2struct&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;이미지의 구조 이해를 목적으로 reading, mask 복원, alt-text 생성을 수행합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;데이터&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;웹 페이지 스크린샷과, HTML을 사용합니다.&lt;/li&gt;
+&lt;li&gt;눈에 보이는 element가 있는 node만 사용합니다.&lt;/li&gt;
+&lt;li&gt;text, filename, alt-text만 사용하고 tag, style, title, URL은 사용하지 않습니다.&lt;/li&gt;
+&lt;li&gt;(1024, 1024) viewport를 사용합니다.&lt;/li&gt;
+&lt;li&gt;text의 50%를 masking합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Pre-training 예시
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_pre_training.png&#34;
+	width=&#34;1731&#34;
+	height=&#34;326&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_pre_training_hu77c2d232605de1355fa9cc3e62640406_128636_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_pre_training_hu77c2d232605de1355fa9cc3e62640406_128636_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pix2struct Pre-training&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;530&#34;
+		data-flex-basis=&#34;1274px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Lee, Kenton, et al. &amp;ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&amp;rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 3&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&amp;lt;C++&amp;gt;&lt;/strong&gt;: mask 안 된 부분의 HTML을 생성합니다. OCR과 유사합니다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&amp;lt;Python&amp;gt;&lt;/strong&gt;: Mask된 부분의 HTML을 생성합니다. Masked Language modeling과 유사합니다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;img_alt=C++&lt;/strong&gt;: 이미지를 보고 alt-text 생성합니다. Image captioning과 유사합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Curriculum Learning&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;warmup stage를 주어 reading을 학습하게 합니다.&lt;/li&gt;
+&lt;li&gt;BooksCorpus 데이터를 사용합니다.&lt;/li&gt;
+&lt;li&gt;더 stable하고, 더 빠르게 converge합니다.&lt;/li&gt;
+&lt;li&gt;finetuning 성능이 향상됩니다.&lt;/li&gt;
+&lt;li&gt;아래는 reading 학습을 위한 데이터 예시입니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_warmup.png&#34;
+	width=&#34;2026&#34;
+	height=&#34;231&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_warmup_hufc03325d532eac34379dd92ac832701f_120806_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_warmup_hufc03325d532eac34379dd92ac832701f_120806_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pix2struct Warmup&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;877&#34;
+		data-flex-basis=&#34;2104px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Lee, Kenton, et al. &amp;ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&amp;rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 6&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;fine-tuning&#34;&gt;Fine-tuning
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Donut&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;모든 downstream task를 JSON 예측 문제로 정의했습니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_pipeline.png&#34;
+	width=&#34;1781&#34;
+	height=&#34;402&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_pipeline_hu910ecf3b2ac89692cbaa5a2d9d105f42_220490_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_pipeline_hu910ecf3b2ac89692cbaa5a2d9d105f42_220490_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Pipeline&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;443&#34;
+		data-flex-basis=&#34;1063px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 3&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;예를 들어 문서 classification task는 &lt;code&gt;[START_class]&lt;/code&gt; &lt;code&gt;[memo]&lt;/code&gt; &lt;code&gt;[END_class]&lt;/code&gt;의 sequence를 예측하고, 이는 &lt;strong&gt;{&amp;quot;class&amp;quot;:&amp;quot;memo&amp;quot;}&lt;/strong&gt; 로 parse됩니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Document Classification&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;RVL-CDIP: letter, memo, email 등의 16 classes로 이루어진 데이터입니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Document Information Extraction&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CORD: 메뉴 이름, 갯수, 전체 가격 등의 30개의 field가 있는 영어 영수증 데이터입니다.&lt;/li&gt;
+&lt;li&gt;Ticket: 티켓 숫자, 출발역 등의 8개의 field가 있는 중국어 기차 티켓 데이터입니다.&lt;/li&gt;
+&lt;li&gt;Business Card: 이름, 회사 등의 11개의 field가 있는 일본어 명함 데이터입니다.&lt;/li&gt;
+&lt;li&gt;Receipt: 가게 정보, 지불 정보 등 81개의 field가 있는 한국어 영수증 데이터입니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Document Visual Question Answering&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;DocVQA: 문서 이미지와 문서에 대한 질문, 답변이 있는 데이터입니다.&lt;/li&gt;
+&lt;li&gt;질문을 prompt로 사용합니다. &lt;code&gt;&amp;lt;vqa&amp;gt;&amp;lt;question&amp;gt;what is the price of choco mochi?&amp;lt;/question&amp;gt;&amp;lt;/vqa&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;결과&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;RVL-CDIP
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result1.png&#34;
+	width=&#34;1387&#34;
+	height=&#34;496&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result1_hu8bbb0f6d78b605eb6d093cb778d65ddf_148881_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result1_hu8bbb0f6d78b605eb6d093cb778d65ddf_148881_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Result1&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;279&#34;
+		data-flex-basis=&#34;671px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Table 1&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Information Extraction
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result2.png&#34;
+	width=&#34;1778&#34;
+	height=&#34;526&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result2_hu7b7e62707bc72d3256a931e3bbbb91e7_184342_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/donut_result2_hu7b7e62707bc72d3256a931e3bbbb91e7_184342_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Donut Result2&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;338&#34;
+		data-flex-basis=&#34;811px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2111.15664&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Kim, Geewook, et al. &amp;ldquo;Ocr-free document understanding transformer.&amp;rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Table 2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Pix2struct&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;VQA의 경우, 이미지 상단에 질문을 붙여 넣습니다.&lt;/li&gt;
+&lt;li&gt;Donut을 finetune해서 사용했습니다.&lt;/li&gt;
+&lt;li&gt;VQA
+&lt;ul&gt;
+&lt;li&gt;ChartQA: chart에 관한 질문과 답변 데이터입니다.&lt;/li&gt;
+&lt;li&gt;AI2D: 과학 관련 이미지에 대한 객관식 질문, 답변 데이터입니다.&lt;/li&gt;
+&lt;li&gt;OCR-VQA: 책 표지에 이미지에 대한 제목, 작가, 장르 등의 질문, 및 답변 데이터입니다.&lt;/li&gt;
+&lt;li&gt;RefExp: 앱 스크린샷에 위젯 bounding box가 그러져 있고, 이 위젯을 설명하는 문장이 주어집니다. Bounding box와 설명이 일치한다면 답이 &amp;ldquo;true&amp;rdquo;, 일치하지 않는다면 답이 &amp;ldquo;false&amp;quot;인 데이터입니다.&lt;/li&gt;
+&lt;li&gt;DocVQA: 문서 이미지와 문서에 대한 질문, 답변이 있는 데이터입니다. SotA였던 Donut 보다 성능이 좋습니다. OCR, 미리 학습된 text encoder, 미리 학습된 image encoder을 사용하고 IIT-CDIP 데이터로 pre-training한 UDOP보다는 성능이 떨어집니다. 하지만 in-domain pre-training없이 Pix2struct는 괜찮은 성능을 보이고 있습니다.&lt;/li&gt;
+&lt;li&gt;InfographicVQA: infographics에 대한 질문, 답변 데이터입니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Captioning
+&lt;ul&gt;
+&lt;li&gt;Widget Captioning: 앱 스크린샷에 위젯 bounding box가 그러져 있고, 이 위젯에 대한 기능 설명이 caption인 데이터입니다.&lt;/li&gt;
+&lt;li&gt;Screen2Words: 스크린샷을 보고 그 스크린샷 페이지의 기능 설명이 caption인 데이터입니다.&lt;/li&gt;
+&lt;li&gt;TextCaps: 이미지와 caption 데이터입니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;결과
+&lt;img src=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_result.png&#34;
+	width=&#34;1638&#34;
+	height=&#34;415&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_result_hu5a0351cd0f302834e4e62cfef3fbd18b_146789_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/compare_donut_pix2struct/pix2struct_result_hu5a0351cd0f302834e4e62cfef3fbd18b_146789_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pix2struct Result&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;394&#34;
+		data-flex-basis=&#34;947px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v202/lee23g/lee23g.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Lee, Kenton, et al. &amp;ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&amp;rdquo; International Conference on Machine Learning. PMLR, 2023, Table 1&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>LayoutLMv2 리뷰</title>
         <link>https://kimberlykang.github.io/ko/p/layoutlmv2_review/</link>
         <pubDate>Fri, 03 Nov 2023 00:17:41 +0900</pubDate>

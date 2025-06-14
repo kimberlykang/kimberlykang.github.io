@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we&rsquo;ll review and compare two end-to-end deep learning models capable of document understanding from images, without relying on OCR: Donut: OCR-free Document Understanding Transformer (https://arxiv.org/pdf/2111.15664) Pix2Struct: Screenshot Parsing as Pretraining for Visual Language Understanding (https://proceedings.mlr.press/v202/lee23g/lee23g.pdf) Table of Contents Model Architecture Pre-training Fine-tuning Model Architecture Both models use an image encoder and a text decoder. Encoder Donut Utilizes the Swin Transformer. Source: Liu, Ze, et al. &ldquo;Swin transformer: Hierarchical vision transformer using shifted windows.">
+<title>Donut vs. Pix2Struct Comparison</title>
+
+<link rel='canonical' href='https://kimberlykang.github.io/p/compare_donut_pix2struct/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Donut vs. Pix2Struct Comparison">
+<meta property='og:description' content="In this post, we&rsquo;ll review and compare two end-to-end deep learning models capable of document understanding from images, without relying on OCR: Donut: OCR-free Document Understanding Transformer (https://arxiv.org/pdf/2111.15664) Pix2Struct: Screenshot Parsing as Pretraining for Visual Language Understanding (https://proceedings.mlr.press/v202/lee23g/lee23g.pdf) Table of Contents Model Architecture Pre-training Fine-tuning Model Architecture Both models use an image encoder and a text decoder. Encoder Donut Utilizes the Swin Transformer. Source: Liu, Ze, et al. &ldquo;Swin transformer: Hierarchical vision transformer using shifted windows.">
+<meta property='og:url' content='https://kimberlykang.github.io/p/compare_donut_pix2struct/'>
+<meta property='og:site_name' content='Kimberly&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Donut' /><meta property='article:tag' content='Pix2struct' /><meta property='article:published_time' content='2023-11-24T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-11-24T00:17:41&#43;09:00'/>
+<meta name="twitter:title" content="Donut vs. Pix2Struct Comparison">
+<meta name="twitter:description" content="In this post, we&rsquo;ll review and compare two end-to-end deep learning models capable of document understanding from images, without relying on OCR: Donut: OCR-free Document Understanding Transformer (https://arxiv.org/pdf/2111.15664) Pix2Struct: Screenshot Parsing as Pretraining for Visual Language Understanding (https://proceedings.mlr.press/v202/lee23g/lee23g.pdf) Table of Contents Model Architecture Pre-training Fine-tuning Model Architecture Both models use an image encoder and a text decoder. Encoder Donut Utilizes the Swin Transformer. Source: Liu, Ze, et al. &ldquo;Swin transformer: Hierarchical vision transformer using shifted windows."><style>
+     
+    :root {
+        --article-font-family: "Nanum Gothic", var(--base-font-family);
+    }
+</style>
+
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+    
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+    
+        document.head.appendChild(customFont);
+    }());
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Kimberly&#39;s Blog</a></h1>
+            <h2 class="site-description">Vision Engineer</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#model-architecture">Model Architecture</a>
+      <ol>
+        <li><a href="#encoder">Encoder</a></li>
+        <li><a href="#decoder">Decoder</a></li>
+      </ol>
+    </li>
+    <li><a href="#pre-training">Pre-training</a></li>
+    <li><a href="#training--fine-tuning">Training / Fine-tuning</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
+                Paper review
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/compare_donut_pix2struct/">Donut vs. Pix2Struct Comparison</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 24, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/compare_donut_pix2struct/" class="link">Korean</a>
+                
+            </div>
+        </footer>
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>In this post, we&rsquo;ll review and compare two end-to-end deep learning models capable of document understanding from images, without relying on OCR:</p>
+<ul>
+<li>Donut: OCR-free Document Understanding Transformer (<a class="link" href="https://arxiv.org/pdf/2111.15664"  target="_blank" rel="noopener"
+    >https://arxiv.org/pdf/2111.15664</a>)</li>
+<li>Pix2Struct: Screenshot Parsing as Pretraining for Visual Language Understanding (<a class="link" href="https://proceedings.mlr.press/v202/lee23g/lee23g.pdf"  target="_blank" rel="noopener"
+    >https://proceedings.mlr.press/v202/lee23g/lee23g.pdf</a>)</li>
+</ul>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
+<li><a class="link" href="#model-architecture" >Model Architecture</a></li>
+<li><a class="link" href="#pre-training" >Pre-training</a></li>
+<li><a class="link" href="#fine-tuning" >Fine-tuning</a></li>
+</ol>
+<h2 id="model-architecture">Model Architecture
+</h2><p>Both models use an image encoder and a text decoder.</p>
+<h3 id="encoder">Encoder
+</h3><ul>
+<li>
+<p><strong>Donut</strong></p>
+<ul>
+<li>
+<p>Utilizes the Swin Transformer.
+<img src="/p/compare_donut_pix2struct/swin_transformer.png"
+	width="632"
+	height="347"
+	srcset="/p/compare_donut_pix2struct/swin_transformer_hufbe5f08a8a785e46c2871926e9190c59_193360_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/swin_transformer_hufbe5f08a8a785e46c2871926e9190c59_193360_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Swin Transformer"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="182"
+		data-flex-basis="437px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://openaccess.thecvf.com/content/ICCV2021/papers/Liu_Swin_Transformer_Hierarchical_Vision_Transformer_Using_Shifted_Windows_ICCV_2021_paper.pdf"  target="_blank" rel="noopener"
+    ><em>Liu, Ze, et al. &ldquo;Swin transformer: Hierarchical vision transformer using shifted windows.&rdquo; Proceedings of the IEEE/CVF international conference on computer vision. 2021, Figure 1</em></a></span></p>
+<ul>
+<li>Each layer uses patches of various sizes (Hierarchical Feature Map).</li>
+<li>Applies Shifted Window Multi Self-Attention for local window operations within image regions.</li>
+</ul>
+</li>
+<li>
+<p>Experiments with various backbones show Swin Transformer backbone yields the best performance for Donut.
+<img src="/p/compare_donut_pix2struct/donut_performances.png"
+	width="1442"
+	height="266"
+	srcset="/p/compare_donut_pix2struct/donut_performances_hu98b8d09280242c6057728301012f6ba7_64698_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/donut_performances_hu98b8d09280242c6057728301012f6ba7_64698_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Donut Performances"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="542"
+		data-flex-basis="1301px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2111.15664"  target="_blank" rel="noopener"
+    ><em>Kim, Geewook, et al. &ldquo;Ocr-free document understanding transformer.&rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 7</em></a></span></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Pix2Struct</strong></p>
+<ul>
+<li>
+<p>Uses a ViT (Vision Transformer) capable of handling variable-resolution inputs.
+<img src="/p/compare_donut_pix2struct/variable_resolution_inputs.png"
+	width="1310"
+	height="287"
+	srcset="/p/compare_donut_pix2struct/variable_resolution_inputs_hub135fd4d8893a53f178b41a0f340c60d_149771_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/variable_resolution_inputs_hub135fd4d8893a53f178b41a0f340c60d_149771_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Variable resolution inputs"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="456"
+		data-flex-basis="1095px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://proceedings.mlr.press/v202/lee23g/lee23g.pdf"  target="_blank" rel="noopener"
+    ><em>Lee, Kenton, et al. &ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 2</em></a></span></p>
+<ul>
+<li>Images are resized (keeping aspect ratio) to maximize the number of extracted patches.</li>
+<li>Utilizes 2D absolute positional embeddings.</li>
+<li>Performs well even with extreme aspect ratios.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="decoder">Decoder
+</h3><ul>
+<li><strong>Donut</strong>
+<ul>
+<li>Uses the first four layers of BART as the decoder.</li>
+<li>Weights are initialized from a pre-trained multi-lingual BART.</li>
+</ul>
+</li>
+<li><strong>Pix2Struct</strong>
+<ul>
+<li>Utilizes a ViT-based decoder.</li>
+</ul>
+</li>
+</ul>
+<h2 id="pre-training">Pre-training
+</h2><ul>
+<li>
+<p><strong>Donut</strong></p>
+<ul>
+<li>Tested four pre-training strategies: No pre-training, Classification, Captioning, and Reading. The &ldquo;reading&rdquo; approach, aimed at language understanding, was chosen.</li>
+<li>Performs a pseudo-OCR task: predicting the next token given the image and previous context.</li>
+<li>Public data: Used IIT-CDIP (11M scanned document images) with pseudo-text labels generated by CLOVA OCR API.</li>
+<li>Synthetic data: Used the Synthetic Document Generator (SynthDoG) and Wikipedia to create 0.5M samples each in Chinese, Japanese, Korean, and English.
+<ul>
+<li>Backgrounds are sampled from ImageNet</li>
+<li>Words/expressions are sampled from Wikipedia.</li>
+<li>Example synthetic data below:
+<img src="/p/compare_donut_pix2struct/donut_generated_image.png"
+	width="1554"
+	height="383"
+	srcset="/p/compare_donut_pix2struct/donut_generated_image_huf132964d10c6eb1c623ffc57c52a1be1_656459_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/donut_generated_image_huf132964d10c6eb1c623ffc57c52a1be1_656459_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Donut Generated Image"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="405"
+		data-flex-basis="973px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2111.15664"  target="_blank" rel="noopener"
+    ><em>Kim, Geewook, et al. &ldquo;Ocr-free document understanding transformer.&rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 4</em></a></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Pix2Struct</strong></p>
+<ul>
+<li>
+<p>Aims to understand image structure through reading, mask restoration, and alt-text generation.</p>
+</li>
+<li>
+<p>Data:</p>
+<ul>
+<li>Uses webpage screenshots and associated HTML.</li>
+<li>Only uses nodes with visible elements.</li>
+<li>Uses only text, filename, and alt-text (ignores tag, style, title, URL).</li>
+<li>Viewport size: (1024, 1024).</li>
+<li>Masks 50% of the text.</li>
+</ul>
+</li>
+<li>
+<p>Pre-training tasks example:
+<img src="/p/compare_donut_pix2struct/pix2struct_pre_training.png"
+	width="1731"
+	height="326"
+	srcset="/p/compare_donut_pix2struct/pix2struct_pre_training_hu77c2d232605de1355fa9cc3e62640406_128636_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/pix2struct_pre_training_hu77c2d232605de1355fa9cc3e62640406_128636_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Pix2struct Pre-training"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="530"
+		data-flex-basis="1274px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://proceedings.mlr.press/v202/lee23g/lee23g.pdf"  target="_blank" rel="noopener"
+    ><em>Lee, Kenton, et al. &ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 3</em></a></span></p>
+<ul>
+<li><strong>&lt;C++&gt;</strong>: Generates the unmasked portion of HTML. Similar to OCR.</li>
+<li><strong>&lt;Python&gt;</strong>: Generates the masked portion of HTML. Similar to masked language modeling.</li>
+<li><strong>img_alt=C++</strong>: Generates alt-text from the image. Similar to image captioning.</li>
+</ul>
+</li>
+<li>
+<p>Curriculum Learning:</p>
+<ul>
+<li>Adds a warmup stage with a focus on reading tasks.</li>
+<li>Uses BooksCorpus data.</li>
+<li>Leads to more stable and faster convergence.</li>
+<li>Improves fine-tuning performance.</li>
+<li>Example data for the reading task:
+<img src="/p/compare_donut_pix2struct/pix2struct_warmup.png"
+	width="2026"
+	height="231"
+	srcset="/p/compare_donut_pix2struct/pix2struct_warmup_hufc03325d532eac34379dd92ac832701f_120806_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/pix2struct_warmup_hufc03325d532eac34379dd92ac832701f_120806_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Pix2struct Warmup"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="877"
+		data-flex-basis="2104px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://proceedings.mlr.press/v202/lee23g/lee23g.pdf"  target="_blank" rel="noopener"
+    ><em>Lee, Kenton, et al. &ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&rdquo; International Conference on Machine Learning. PMLR, 2023, Figure 6</em></a></span></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="training--fine-tuning">Training / Fine-tuning
+</h2><ul>
+<li><strong>Donut</strong>
+<ul>
+<li>
+<p>Defines all downstream tasks as JSON prediction problems.
+<img src="/p/compare_donut_pix2struct/donut_pipeline.png"
+	width="1781"
+	height="402"
+	srcset="/p/compare_donut_pix2struct/donut_pipeline_hu910ecf3b2ac89692cbaa5a2d9d105f42_220490_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/donut_pipeline_hu910ecf3b2ac89692cbaa5a2d9d105f42_220490_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Donut Pipeline"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="443"
+		data-flex-basis="1063px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2111.15664"  target="_blank" rel="noopener"
+    ><em>Kim, Geewook, et al. &ldquo;Ocr-free document understanding transformer.&rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Figure 3</em></a></span></p>
+</li>
+<li>
+<p>For example, a document classification task predicts the sequence <code>[START_class]</code> <code>[memo]</code> <code>[END_class]</code>, which is then parsed into <strong>{&quot;class&quot;:&quot;memo&quot;}</strong>.</p>
+</li>
+<li>
+<p>Document Classification</p>
+<ul>
+<li>RVL-CDIP: Dataset with 16 classes such as letter, memo, email, etc.</li>
+</ul>
+</li>
+<li>
+<p>Document Information Extraction</p>
+<ul>
+<li>CORD: English receipt dataset with 30 fields (menu name, quantity, total amount, etc.).</li>
+<li>Ticket: Chinese train ticket dataset with 8 fields (ticket number, departure station, etc.).</li>
+<li>Business Card: Japanese business card dataset with 11 fields (name, company, etc.).</li>
+<li>Receipt: Korean receipt dataset with 81 fields (store info, payment info, etc.).</li>
+</ul>
+</li>
+<li>
+<p>Document Visual Question Answering</p>
+<ul>
+<li>DocVQA: Document image QA dataset with questions and answers paired to document images.</li>
+<li>Questions are used as prompts, e.g., <code>&lt;vqa&gt;&lt;question&gt;what is the price of choco mochi?&lt;/question&gt;&lt;/vqa&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>Results</p>
+<ul>
+<li>
+<p>RVL-CDIP:
+<img src="/p/compare_donut_pix2struct/donut_result1.png"
+	width="1387"
+	height="496"
+	srcset="/p/compare_donut_pix2struct/donut_result1_hu8bbb0f6d78b605eb6d093cb778d65ddf_148881_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/donut_result1_hu8bbb0f6d78b605eb6d093cb778d65ddf_148881_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Donut Result1"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="279"
+		data-flex-basis="671px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2111.15664"  target="_blank" rel="noopener"
+    ><em>Kim, Geewook, et al. &ldquo;Ocr-free document understanding transformer.&rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Table 1</em></a></span></p>
+</li>
+<li>
+<p>Information Extraction:
+<img src="/p/compare_donut_pix2struct/donut_result2.png"
+	width="1778"
+	height="526"
+	srcset="/p/compare_donut_pix2struct/donut_result2_hu7b7e62707bc72d3256a931e3bbbb91e7_184342_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/donut_result2_hu7b7e62707bc72d3256a931e3bbbb91e7_184342_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Donut Result2"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="338"
+		data-flex-basis="811px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2111.15664"  target="_blank" rel="noopener"
+    ><em>Kim, Geewook, et al. &ldquo;Ocr-free document understanding transformer.&rdquo; European Conference on Computer Vision. Cham: Springer Nature Switzerland, 2022, Table 2</em></a></span></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Pix2Struct</strong>
+<ul>
+<li>For VQA tasks, the question is attached at the top of the input image.</li>
+<li>The Donut model is finetuned and used as the backbone.</li>
+<li>VQA Tasks
+<ul>
+<li>ChartQA: Dataset consisting of questions and answers about charts.</li>
+<li>AI2D: Multiple-choice QA dataset for scientific images.</li>
+<li>OCR-VQA: Questions about the title, author, genre, etc., for book cover images.</li>
+<li>RefExp: App screenshots with widget bounding boxes and descriptive sentences; the label is &ldquo;true&rdquo; if the box matches the description, and &ldquo;false&rdquo; otherwise.</li>
+<li>DocVQA: Dataset with document images and corresponding QA pairs. Pix2Struct outperforms the previous SOTA Donut. However, it underperforms compared to UDOP, which relies on OCR, pre-trained text/image encoders, and IIT-CDIP in-domain pretraining. Still, Pix2Struct achieves solid performance without any in-domain pretraining.</li>
+<li>InfographicVQA: Dataset with questions and answers about infographics.</li>
+</ul>
+</li>
+<li>Captioning Tasks
+<ul>
+<li>Widget Captioning: App screenshots with widget bounding boxes; each caption describes the widget&rsquo;s function.</li>
+<li>Screen2Words: Captions describing the main functionality of a given screenshot page.</li>
+<li>TextCaps: Dataset of images paired with captions.</li>
+</ul>
+</li>
+<li>Results
+<img src="/p/compare_donut_pix2struct/pix2struct_result.png"
+	width="1638"
+	height="415"
+	srcset="/p/compare_donut_pix2struct/pix2struct_result_hu5a0351cd0f302834e4e62cfef3fbd18b_146789_480x0_resize_box_3.png 480w, /p/compare_donut_pix2struct/pix2struct_result_hu5a0351cd0f302834e4e62cfef3fbd18b_146789_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Pix2struct Result"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="394"
+		data-flex-basis="947px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://proceedings.mlr.press/v202/lee23g/lee23g.pdf"  target="_blank" rel="noopener"
+    ><em>Lee, Kenton, et al. &ldquo;Pix2struct: Screenshot parsing as pretraining for visual language understanding.&rdquo; International Conference on Machine Learning. PMLR, 2023, Table 1</em></a></span></li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/donut/">Donut</a>
+        
+            <a href="/tags/pix2struct/">Pix2struct</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/layoutlmv2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">LayoutLMv2 Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/unilmv2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">UniLMv2 Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/xlnet_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">XLNet Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/bert_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">BERT Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/yolov3_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">YOLOv3 Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2025 Kimberly&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
