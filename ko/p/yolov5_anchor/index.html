@@ -15,19 +15,46 @@
 <meta name="twitter:description" content="본 포스트에서는 YOLOv5에서 anchor를 선정하는 방법에 대해서 알아보겠습니다. 목차 동기 Genetic Algorithm YOLOv5에서 사용된 GA Autoanchor 동기 YOLOv5는 Glenn Jocher가 Github을 통해 발표한 모델입니다. 그는 Yolov5 이전에 Pytorch 버전의 YOLOv3 코드를 작성해서 Github에 공개 한 적이 있습니다. 이 때, 많은 사람들이 custom data set을 학습하며 올린 이슈를 보고 그는 사람들이 학습하고자 하는 dataset의 bounding box 가로 세로 비율이 COCO dataset bounding box의 가로 세로 비율과 많이 다르다는 사실을 발견하게 됩니다. 이 문제를 해결하기 위해, 그는 그 당시에 anchor box를 선정할 때 많이 쓰이던 k-means에 genetic algorithm을 추가적으로 접목시키고, 이 모든 과정을 자동으로 수행해주는 autoanchor를 YOLOv5에 소개합니다."><style>
      
     :root {
-        --article-font-family: "Nanum Gothic", var(--base-font-family);
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    *:lang(ko) *:not(:lang(ko)),
+    *[lang="ko"] *:not([lang="ko"]),
+    *[lang="ko-KR"] *:not([lang="ko-KR"]),
+    *[lang="ko-KP"] *:not([lang="ko-KP"]) {
+        font-family: "Open Sans", var(--base-font-family);
     }
 </style>
 
 <script>
     (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
-    
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-    
-        document.head.appendChild(customFont);
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
     }());
 </script>
     </head>

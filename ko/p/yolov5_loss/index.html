@@ -15,19 +15,46 @@
 <meta name="twitter:description" content="본 포스트에서는 YOLOv5의 Loss에 대해 살펴보겠습니다. 목차 정보 이론 Binary Cross Entropy IoU Loss YOLOv5 Loss 정보 이론 Information 사건 A가 일어날 확률이 P(A)라고 할 때, 이 사건의 정보량은 $I=-\\log P(A)$입니다. 예) 동전 던지기 앞면이 나오는 사건의 Information 확률: $ \\displaystyle \\frac{1}{2}$ $I=-\\log \\displaystyle \\frac{1}{2}$ Entropy Information의 기댓값입니다. $ H(X)=- \\displaystyle \\sum_{x}P(X) \\log P(X)$ 예) 동전 던지기의 Entropy $Entropy= \\displaystyle{ -(\\frac{1}{2} \\times \\log \\frac{1}{2} + \\frac{1}{2} \\times \\log \\frac{1}{2})=-\\log \\frac{1}{2}}$ Kullback–Leibler divergence(KL Divergence)"><style>
      
     :root {
-        --article-font-family: "Nanum Gothic", var(--base-font-family);
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    *:lang(ko) *:not(:lang(ko)),
+    *[lang="ko"] *:not([lang="ko"]),
+    *[lang="ko-KR"] *:not([lang="ko-KR"]),
+    *[lang="ko-KP"] *:not([lang="ko-KP"]) {
+        font-family: "Open Sans", var(--base-font-family);
     }
 </style>
 
 <script>
     (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
-    
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-    
-        document.head.appendChild(customFont);
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
     }());
 </script>
     </head>

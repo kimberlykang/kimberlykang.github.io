@@ -15,19 +15,46 @@
 <meta name="twitter:description" content="In this post, we will explore the types of augmentation used in YOLOv5. Table of Contents Mosaic Mixup Copy-Paste Random Perspective Albumentation, HSV, Horizontal and Vertical Flip Mosaic Whether to use mosaic is decided by sampling according to the mosaic usage probability in the hyperparameter file. If mosaic is not used, the image is placed in the center and the remaining area is padded, resulting in a 640×640 image. 1 2 3 4 5 6 7 8 9 10 11 12 mosaic = self."><style>
      
     :root {
-        --article-font-family: "Nanum Gothic", var(--base-font-family);
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    *:lang(ko) *:not(:lang(ko)),
+    *[lang="ko"] *:not([lang="ko"]),
+    *[lang="ko-KR"] *:not([lang="ko-KR"]),
+    *[lang="ko-KP"] *:not([lang="ko-KP"]) {
+        font-family: "Open Sans", var(--base-font-family);
     }
 </style>
 
 <script>
     (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
-    
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-    
-        document.head.appendChild(customFont);
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
     }());
 </script>
     </head>

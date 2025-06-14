@@ -15,19 +15,46 @@
 <meta name="twitter:description" content="본 포스트에서는 YOLOv5 리파지토리의 train.py 코드를 전체적으로 살펴보도록 하겠습니다. 목차 Data parellel 학습 조건 프린트 및 저장 Logger torch_distributed_zero_first Dataloader Data parellel 학습 코드 중간 중간 RANK라는 variable이 나오는데, 이를 이해하기 위해선 data parellel의 몇 가지 용어들을 이해해야 합니다. 코드를 보기 전에 먼저 용어를 간단히 살펴보겠습니다. data parellel: 모델 학습 방법 중 하나입니다. 모델 복사본 여러 개를 만들어, 각 복사된 모델에서 동시에 parellel하게 학습이 이루어집니다. 이 때 각 복사된 모델은 각기 다른 데이터를 학습하고, local gradients/sub-gradients를 계산한 뒤, synchronization 작업을 통해 복사본 전체의 gradients를 계산하게 됩니다."><style>
      
     :root {
-        --article-font-family: "Nanum Gothic", var(--base-font-family);
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    *:lang(ko) *:not(:lang(ko)),
+    *[lang="ko"] *:not([lang="ko"]),
+    *[lang="ko-KR"] *:not([lang="ko-KR"]),
+    *[lang="ko-KP"] *:not([lang="ko-KP"]) {
+        font-family: "Open Sans", var(--base-font-family);
     }
 </style>
 
 <script>
     (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
-    
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-    
-        document.head.appendChild(customFont);
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
     }());
 </script>
     </head>

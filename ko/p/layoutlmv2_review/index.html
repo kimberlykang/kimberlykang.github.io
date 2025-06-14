@@ -15,19 +15,46 @@
 <meta name="twitter:description" content="본 포스트에서는 2021년 Microsoft에서 발표한 논문 &ldquo;LayoutLMv2: Multi-modal Pre-training for Visually-rich Document Understanding&quot;을 살펴보겠습니다. https://arxiv.org/pdf/2012.14740.pdf 목차 모델 구조 Pre-training Tasks 학습 모델 구조 Text Embedding OCR로 얻은 text sequence를 사용합니다. WordPiece를 사용합니다. sequence 앞에 [CLS]를, 각 text segment 끝에 [SEP]를 넣어줍니다. maximum sequence length L이 될 때까지 끝에 [PAD]를 붙입니다. 1D positional embedding 을 적용해 줍니다. 각 token에 segment $ s_i \\in {[A], [B]} $ 를 할당해 줍니다. 최종 i번째 $ (0 ≤ i &lt; L) $ text embedding은 다음과 같습니다."><style>
      
     :root {
-        --article-font-family: "Nanum Gothic", var(--base-font-family);
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    *:lang(ko) *:not(:lang(ko)),
+    *[lang="ko"] *:not([lang="ko"]),
+    *[lang="ko-KR"] *:not([lang="ko-KR"]),
+    *[lang="ko-KP"] *:not([lang="ko-KP"]) {
+        font-family: "Open Sans", var(--base-font-family);
     }
 </style>
 
 <script>
     (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
-    
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-    
-        document.head.appendChild(customFont);
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
     }());
 </script>
     </head>

@@ -15,19 +15,46 @@
 <meta name="twitter:description" content="In this post, we review Microsoft&rsquo;s 2020 paper &ldquo;UniLMv2: Pseudo-Masked Language Models for Unified Language Model Pre-Training&rdquo;. http://proceedings.mlr.press/v119/bao20a/bao20a.pdf Table of Contents Unified Language Model Pre-Train Fine-tuning Result Unified Language Model Before this work, language model studies were largely split between bidirectional models good at Natural Language Understanding (NLU), and autoregressive models good at Natural Language Generation (NLG). This paper proposes a Unified Language Model called Pseudo-Masked Language Models (PMLM), which can perform both AutoEncoding (AE) and Partially AutoRegressive (PAR) language modeling at the same time using pseudo-masks on masked tokens—enabling both strong understanding and generation."><style>
      
     :root {
-        --article-font-family: "Nanum Gothic", var(--base-font-family);
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    *:lang(ko) *:not(:lang(ko)),
+    *[lang="ko"] *:not([lang="ko"]),
+    *[lang="ko-KR"] *:not([lang="ko-KR"]),
+    *[lang="ko-KP"] *:not([lang="ko-KP"]) {
+        font-family: "Open Sans", var(--base-font-family);
     }
 </style>
 
 <script>
     (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
-    
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-    
-        document.head.appendChild(customFont);
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
     }());
 </script>
     </head>

@@ -15,19 +15,46 @@
 <meta name="twitter:description" content="본 포스트에서는 2017년 CVPR에 발표된 논문 &ldquo;YOLO9000: Better, Faster, Stronger&quot;을 살펴보겠습니다. YOLO9000: Better, Faster, Stronger 목차 동기 Batch Normalization 높은 Resolution에서 classifier 학습 Anchor Box 사용 Dimension Clusters 예측값 Fine-Grained Features 네트워크 결과 동기 YOLOv1는 그 당시의 State-of-the-art(SOTA)였던 Fast-RCNN과 비교하여 localization error가 상당히 컸습니다. 또한, recall도 상대적으로 굉장히 낮았습니다. 즉, object를 빼먹고 찾은 경우가 많았습니다. YOLOv2에서는 네트워크 크기를 키우지 않고 빠른 속도를 유지하면서 localization error와 낮은 recall 문제를 해결한 방법들을 아래와 같이 고안하게 됩니다."><style>
      
     :root {
-        --article-font-family: "Nanum Gothic", var(--base-font-family);
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    *:lang(ko) *:not(:lang(ko)),
+    *[lang="ko"] *:not([lang="ko"]),
+    *[lang="ko-KR"] *:not([lang="ko-KR"]),
+    *[lang="ko-KP"] *:not([lang="ko-KP"]) {
+        font-family: "Open Sans", var(--base-font-family);
     }
 </style>
 
 <script>
     (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
-    
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-    
-        document.head.appendChild(customFont);
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
     }());
 </script>
     </head>
