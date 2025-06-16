@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we will review the model architecture, training methods, and major improvements of GPT1, GPT2, and GPT3 introduced by OpenAI. GPT1: Improving Language Understanding by Generative Pre-Training (https://www.mikecaptain.com/resources/pdf/GPT-1.pdf) GPT2: Language Models are Unsupervised Multitask Learners (https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf) GPT3: Language Models are Few-Shot Learners (https://arxiv.org/pdf/2005.14165) Table of Contents GPT1 GPT2 GPT3 GPT1 GPT1 is the first Generative Pre-trained Transformer model introduced by OpenAI. It is a language model that combines large-scale unsupervised pre-training and small-scale supervised fine-tuning.">
+<title>A Review of GPT1, GPT2, GPT3</title>
+
+<link rel='canonical' href='https://kimberlykang.github.io/p/gpt_review/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="A Review of GPT1, GPT2, GPT3">
+<meta property='og:description' content="In this post, we will review the model architecture, training methods, and major improvements of GPT1, GPT2, and GPT3 introduced by OpenAI. GPT1: Improving Language Understanding by Generative Pre-Training (https://www.mikecaptain.com/resources/pdf/GPT-1.pdf) GPT2: Language Models are Unsupervised Multitask Learners (https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf) GPT3: Language Models are Few-Shot Learners (https://arxiv.org/pdf/2005.14165) Table of Contents GPT1 GPT2 GPT3 GPT1 GPT1 is the first Generative Pre-trained Transformer model introduced by OpenAI. It is a language model that combines large-scale unsupervised pre-training and small-scale supervised fine-tuning.">
+<meta property='og:url' content='https://kimberlykang.github.io/p/gpt_review/'>
+<meta property='og:site_name' content='Kimberly&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='GPT1' /><meta property='article:tag' content='GPT2' /><meta property='article:tag' content='GPT3' /><meta property='article:published_time' content='2023-08-15T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-08-15T00:17:41&#43;09:00'/>
+<meta name="twitter:title" content="A Review of GPT1, GPT2, GPT3">
+<meta name="twitter:description" content="In this post, we will review the model architecture, training methods, and major improvements of GPT1, GPT2, and GPT3 introduced by OpenAI. GPT1: Improving Language Understanding by Generative Pre-Training (https://www.mikecaptain.com/resources/pdf/GPT-1.pdf) GPT2: Language Models are Unsupervised Multitask Learners (https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf) GPT3: Language Models are Few-Shot Learners (https://arxiv.org/pdf/2005.14165) Table of Contents GPT1 GPT2 GPT3 GPT1 GPT1 is the first Generative Pre-trained Transformer model introduced by OpenAI. It is a language model that combines large-scale unsupervised pre-training and small-scale supervised fine-tuning."><style>
+     
+    :root {
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    .sidebar * {
+        font-family: "Open Sans", var(--base-font-family) !important;
+    }
+</style>
+
+<script>
+    (function () {
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
+    }());
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Kimberly&#39;s Blog</a></h1>
+            <h2 class="site-description">Vision Engineer</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#gpt1">GPT1</a>
+      <ol>
+        <li><a href="#pre-training">Pre-Training</a></li>
+        <li><a href="#fine-tuning">Fine-Tuning</a></li>
+        <li><a href="#task-specific-input-transformations">Task-specific input transformations</a></li>
+        <li><a href="#model-architecture">Model Architecture</a></li>
+      </ol>
+    </li>
+    <li><a href="#gpt2">GPT2</a>
+      <ol>
+        <li><a href="#training">Training</a></li>
+        <li><a href="#results">Results</a></li>
+      </ol>
+    </li>
+    <li><a href="#gpt3">GPT3</a>
+      <ol>
+        <li><a href="#zero-shot-one-shot-few-shot">Zero-shot, One-shot, Few-shot</a></li>
+        <li><a href="#training-1">Training</a></li>
+        <li><a href="#evaluation">Evaluation</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
+                Paper review
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/gpt_review/">A Review of GPT1, GPT2, GPT3</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 15, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/gpt_review/" class="link">Korean</a>
+                
+            </div>
+        </footer>
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>In this post, we will review the model architecture, training methods, and major improvements of GPT1, GPT2, and GPT3 introduced by OpenAI.</p>
+<ul>
+<li>GPT1: Improving Language Understanding by Generative Pre-Training (<a class="link" href="https://www.mikecaptain.com/resources/pdf/GPT-1.pdf"  target="_blank" rel="noopener"
+    >https://www.mikecaptain.com/resources/pdf/GPT-1.pdf</a>)</li>
+<li>GPT2: Language Models are Unsupervised Multitask Learners (<a class="link" href="https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf"  target="_blank" rel="noopener"
+    >https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf</a>)</li>
+<li>GPT3: Language Models are Few-Shot Learners (<a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    >https://arxiv.org/pdf/2005.14165</a>)</li>
+</ul>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
+<li><a class="link" href="#gpt1" >GPT1</a></li>
+<li><a class="link" href="#gpt2" >GPT2</a></li>
+<li><a class="link" href="#gpt3" >GPT3</a></li>
+</ol>
+<h2 id="gpt1">GPT1
+</h2><p>GPT1 is the first Generative Pre-trained Transformer model introduced by OpenAI. It is a language model that combines large-scale unsupervised pre-training and small-scale supervised fine-tuning.</p>
+<h3 id="pre-training">Pre-Training
+</h3><ul>
+<li>Trained in an unsupervised manner.</li>
+<li>Acts as a good initialization point for subsequent supervised fine-tuning.</li>
+<li>Maximizes the following likelihood:
+<ul>
+<li>$ L_1(\mathcal{U}) = \displaystyle{\sum_{i}} \log P(u_i|u_{i-k}, &hellip;, u_{i-1} ; \Theta)$
+<ul>
+<li>$ \mathcal{U}= u_1, &hellip;, u_n $: tokens of the unsupervised corpus</li>
+<li>k: context window size (512)</li>
+<li>$\Theta$: neural network parameters</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Uses a multi-layer Transformer decoder as the language model:
+<ul>
+<li>$ h_0 = U W_e + W_p \\ h_l = \mathrm{transformer \_ block}(h_{l-1}) \forall i \in [1, n] \\ P(u) = \mathrm{softmax}(h_n W_e^T)$
+<ul>
+<li>$ U=(u_{-k}, &hellip;, u_{-1}) $</li>
+<li>$n$: number of layers</li>
+<li>$W_e$ : token embedding matrix</li>
+<li>$W_p$ : position embedding matrix</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Dataset: BooksCorpus
+<ul>
+<li>Used the ftfy library to fix corrupted unicode text and performed other cleaning steps.</li>
+<li>Standardized punctuation and whitespace.</li>
+</ul>
+</li>
+</ul>
+<h3 id="fine-tuning">Fine-Tuning
+</h3><ul>
+<li>The target model for downstream tasks is trained as follows:
+<ul>
+<li>$ P(y|x^1, &hellip;, x^m) = \mathrm{softmax}(h_l^m W_y) $
+<ul>
+<li>$y$ : label</li>
+<li>$ x^1, &hellip;, x^m $  : input tokens</li>
+<li>$ h^m_l $: last transformer block&rsquo;s activation</li>
+<li>$W_y$ : parameters of an additional linear layer</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Supervised objective: Model is trained to maximize the following objective.
+<ul>
+<li>$ L_2(\mathcal{C}) = \displaystyle{\sum_{(x, y)}} \log P(y|x^1, &hellip;, x^m) $
+<ul>
+<li>$ \mathcal{C} $: labeled dataset</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>The overall objective uses the following auxiliary objective:
+<ul>
+<li>$ L_3(\mathcal{C}) = L_2(\mathcal{C}) + \lambda * L_1(\mathcal{C})$</li>
+</ul>
+</li>
+</ul>
+<h3 id="task-specific-input-transformations">Task-specific input transformations
+</h3><p><img src="/p/gpt_review/gpt1_different_tasks.png"
+	width="1026"
+	height="421"
+	srcset="/p/gpt_review/gpt1_different_tasks_hu625cb35c2430c17a622fe69b8481cc62_119645_480x0_resize_box_3.png 480w, /p/gpt_review/gpt1_different_tasks_hu625cb35c2430c17a622fe69b8481cc62_119645_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt1_different_tasks"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="243"
+		data-flex-basis="584px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://www.mikecaptain.com/resources/pdf/GPT-1.pdf"  target="_blank" rel="noopener"
+    ><em>Radford, Alec, et al. &ldquo;Improving language understanding by generative pre-training.&rdquo; (2018), Figure 1.</em></a></span></p>
+<ul>
+<li>Traversal-style:
+<ul>
+<li>When inputs consist of multiple independent items, such as (premise, hypothesis) or (context, question, answer), using them as-is may not match the form used during pre-training, making them harder for the model to interpret.</li>
+<li>For each task, input items are concatenated into a single ordered sequence for training.</li>
+</ul>
+</li>
+<li>Most tasks were trained for 3 epochs.</li>
+</ul>
+<h3 id="model-architecture">Model Architecture
+</h3><ul>
+<li>Decoder-only transformer</li>
+<li>Masked self-attention: 768 dimension, 12 attention heads</li>
+<li>Position-wise feed-forward network: 3072 dimension</li>
+<li>Adam optimization</li>
+<li>Batch size: 64</li>
+<li>Trained on sequences of 512 continuous tokens</li>
+<li>Layer norm, simple weight initialization N(0, 0.02)</li>
+<li>Byte Pair Encoding (BPE)</li>
+<li>Dropout: 0.01</li>
+<li>Modified L2 regularization</li>
+<li>GELU activation</li>
+</ul>
+<h2 id="gpt2">GPT2
+</h2><p>GPT2 introduced a deeper and larger model, trained on a large-scale web dataset (WebText), and demonstrated high performance using only the pre-trained model without separate fine-tuning. It gained attention for its strong zero-shot performance.</p>
+<h3 id="training">Training
+</h3><ul>
+<li>
+<p>Dataset: WebText, a dataset collected from the web.</p>
+<ul>
+<li>Collected links from Reddit that received at least 3 karma.</li>
+<li>8 million documents, total of 40GB.</li>
+<li>Performed de-duplication.</li>
+<li>Wikipedia data was excluded because it is a frequent source in WebText.</li>
+<li>Used a modified Byte Pair Encoding (BPE).</li>
+</ul>
+</li>
+<li>
+<p>Model</p>
+<ul>
+<li>Layer normalization changed position to the input and an additional layer norm was applied after the last self-attention block.</li>
+<li>For a residual layer with N blocks, initialization was scaled by $ 1/\sqrt{N} $.</li>
+<li>Uses modified byte-level BPE.</li>
+<li>Vocabulary expanded to 50,257.</li>
+<li>Context window size increased from 512 to 1,024.</li>
+<li>Batch size increased to 512, compared to GPT1.</li>
+<li>Model parameter sizes are as follows:<br>
+<img src="/p/gpt_review/gpt2_model_size.png"
+	width="313"
+	height="156"
+	srcset="/p/gpt_review/gpt2_model_size_hue1f62bcf9fa5634ec4b507dc49f7b36e_12339_480x0_resize_box_3.png 480w, /p/gpt_review/gpt2_model_size_hue1f62bcf9fa5634ec4b507dc49f7b36e_12339_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt2_model_size"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="200"
+		data-flex-basis="481px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf"  target="_blank" rel="noopener"
+    ><em>Radford, Alec, et al. &ldquo;Language models are unsupervised multitask learners.&rdquo; OpenAI blog 1.8 (2019): 9, Table 2.</em></a></span></li>
+</ul>
+</li>
+</ul>
+<h3 id="results">Results
+</h3><ul>
+<li>Zero-shot performance achieved state-of-the-art on 7 out of 8 benchmarks.
+<img src="/p/gpt_review/gpt2_results.png"
+	width="1182"
+	height="236"
+	srcset="/p/gpt_review/gpt2_results_hue2fd8463b5018ae41dacdf91cd4091d3_56442_480x0_resize_box_3.png 480w, /p/gpt_review/gpt2_results_hue2fd8463b5018ae41dacdf91cd4091d3_56442_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt2_results"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="500"
+		data-flex-basis="1202px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf"  target="_blank" rel="noopener"
+    ><em>Radford, Alec, et al. &ldquo;Language models are unsupervised multitask learners.&rdquo; OpenAI blog 1.8 (2019): 9, Table 3.</em></a></span></li>
+</ul>
+<h2 id="gpt3">GPT3
+</h2><p>GPT3 massively scaled the size of the transformer model to hundreds of billions of parameters. Leveraging a huge amount of data and parameters, it demonstrated few-shot and zero-shot learning capabilities, performing various tasks using only prompts without any fine-tuning.</p>
+<h3 id="zero-shot-one-shot-few-shot">Zero-shot, One-shot, Few-shot
+</h3><ul>
+<li>Can perform various tasks with just prompts and no additional fine-tuning.
+<img src="/p/gpt_review/gpt3_context_learning.png"
+	width="1161"
+	height="1022"
+	srcset="/p/gpt_review/gpt3_context_learning_hu677e469942d8b73027e071bed8b2e023_212580_480x0_resize_box_3.png 480w, /p/gpt_review/gpt3_context_learning_hu677e469942d8b73027e071bed8b2e023_212580_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt3_context_learning"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="113"
+		data-flex-basis="272px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    ><em>Brown, Tom, et al. &ldquo;Language models are few-shot learners.&rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 2.1.</em></a></span></li>
+</ul>
+<h3 id="training-1">Training
+</h3><ul>
+<li>
+<p>Dataset: CommonCrawl</p>
+<ul>
+<li>Applied filtering based on similarity to high-quality corpora.</li>
+<li>Reduced from 45TB (before filtering) to 570GB (after filtering).</li>
+<li>Fuzzy deduplication at the document level.</li>
+<li>Added well-known high-quality datasets (expanded WebText, Books1, Books2, English Wikipedia) for greater diversity. These datasets were upsampled for training.
+<img src="/p/gpt_review/gpt3_datasets.png"
+	width="1048"
+	height="277"
+	srcset="/p/gpt_review/gpt3_datasets_hu440b2680c6f21d65f6017e90b1263950_74530_480x0_resize_box_3.png 480w, /p/gpt_review/gpt3_datasets_hu440b2680c6f21d65f6017e90b1263950_74530_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt3_datasets"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="378"
+		data-flex-basis="908px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    ><em>Brown, Tom, et al. &ldquo;Language models are few-shot learners.&rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Table 2.2.</em></a></span></li>
+</ul>
+</li>
+<li>
+<p>Model</p>
+<ul>
+<li>Model sizes are as follows:<br>
+<img src="/p/gpt_review/gpt3_model_size.png"
+	width="1310"
+	height="355"
+	srcset="/p/gpt_review/gpt3_model_size_hu7d35ca2d3c1946aeb193a736972c2df0_130862_480x0_resize_box_3.png 480w, /p/gpt_review/gpt3_model_size_hu7d35ca2d3c1946aeb193a736972c2df0_130862_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt3_model_size"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="369"
+		data-flex-basis="885px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    ><em>Brown, Tom, et al. &ldquo;Language models are few-shot learners.&rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Table 2.1.</em></a></span></li>
+<li>Similar architecture to GPT2; Sparse Transformer was used.</li>
+<li>Adam optimization.</li>
+<li>Cosine decay.</li>
+<li>Linear learning rate warmup.</li>
+<li>Weight decay.</li>
+<li>Batch size increased from 32k tokens up to 4-12 billion tokens.</li>
+<li>Data is sampled without replacement, and &ldquo;end of text&rdquo; token is used when concatenating different documents.</li>
+<li>Context window $n_{ctx}$=2048, increased compared to GPT2.</li>
+</ul>
+</li>
+</ul>
+<h3 id="evaluation">Evaluation
+</h3><ul>
+<li>Sampled k examples from the training data, concatenated with \n, where k: 10~100.</li>
+<li>Selected the best-performing k on the dev set and applied it to the test set for final evaluation.
+<img src="/p/gpt_review/gpt3_results_translation.png"
+	width="1088"
+	height="717"
+	srcset="/p/gpt_review/gpt3_results_translation_huca06fc24c75695979961eca8e55aa3a0_194526_480x0_resize_box_3.png 480w, /p/gpt_review/gpt3_results_translation_huca06fc24c75695979961eca8e55aa3a0_194526_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt3_results_translation"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="151"
+		data-flex-basis="364px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    ><em>Brown, Tom, et al. &ldquo;Language models are few-shot learners.&rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 3.4.</em></a></span>
+<img src="/p/gpt_review/gpt3_results_winogrande.png"
+	width="1070"
+	height="691"
+	srcset="/p/gpt_review/gpt3_results_winogrande_hu8e439faf224b54397cefc3ffb7907cd6_152485_480x0_resize_box_3.png 480w, /p/gpt_review/gpt3_results_winogrande_hu8e439faf224b54397cefc3ffb7907cd6_152485_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt3_results_winogrande"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="154"
+		data-flex-basis="371px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    ><em>Brown, Tom, et al. &ldquo;Language models are few-shot learners.&rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 3.5.</em></a></span>
+<img src="/p/gpt_review/gpt3_results_anli.png"
+	width="1064"
+	height="685"
+	srcset="/p/gpt_review/gpt3_results_anli_hu58f4c8db94617a0e14640ed52d754665_156893_480x0_resize_box_3.png 480w, /p/gpt_review/gpt3_results_anli_hu58f4c8db94617a0e14640ed52d754665_156893_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt3_results_anli"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="155"
+		data-flex-basis="372px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    ><em>Brown, Tom, et al. &ldquo;Language models are few-shot learners.&rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 3.9.</em></a></span>
+<img src="/p/gpt_review/gpt3_result_examples_parameters.png"
+	width="1548"
+	height="853"
+	srcset="/p/gpt_review/gpt3_result_examples_parameters_hu424a2342ceff2d88e30d3cc0c9b5f282_172453_480x0_resize_box_3.png 480w, /p/gpt_review/gpt3_result_examples_parameters_hu424a2342ceff2d88e30d3cc0c9b5f282_172453_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt3_result_examples_parameters"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="181"
+		data-flex-basis="435px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    ><em>Brown, Tom, et al. &ldquo;Language models are few-shot learners.&rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 1.2.</em></a></span>
+<img src="/p/gpt_review/gpt3_aggregate_performance.png"
+	width="1350"
+	height="844"
+	srcset="/p/gpt_review/gpt3_aggregate_performance_hudc5a382bc7e995479e82dc2ff38c451e_662714_480x0_resize_box_3.png 480w, /p/gpt_review/gpt3_aggregate_performance_hudc5a382bc7e995479e82dc2ff38c451e_662714_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="gpt3_aggregate_performance"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="159"
+		data-flex-basis="383px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2005.14165"  target="_blank" rel="noopener"
+    ><em>Brown, Tom, et al. &ldquo;Language models are few-shot learners.&rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 1.3.</em></a></span></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/gpt1/">GPT1</a>
+        
+            <a href="/tags/gpt2/">GPT2</a>
+        
+            <a href="/tags/gpt3/">GPT3</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/compare_donut_pix2struct/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Donut vs. Pix2Struct Comparison</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/layoutlmv2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">LayoutLMv2 Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/unilmv2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">UniLMv2 Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/xlnet_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">XLNet Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/bert_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">BERT Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2025 Kimberly&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

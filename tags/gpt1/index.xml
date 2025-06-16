@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>GPT1 on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/tags/gpt1/</link>
+        <description>Recent content in GPT1 on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <lastBuildDate>Tue, 15 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/gpt1/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>A Review of GPT1, GPT2, GPT3</title>
+        <link>https://kimberlykang.github.io/p/gpt_review/</link>
+        <pubDate>Tue, 15 Aug 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/p/gpt_review/</guid>
+        <description>&lt;p&gt;In this post, we will review the model architecture, training methods, and major improvements of GPT1, GPT2, and GPT3 introduced by OpenAI.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;GPT1: Improving Language Understanding by Generative Pre-Training (&lt;a class=&#34;link&#34; href=&#34;https://www.mikecaptain.com/resources/pdf/GPT-1.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.mikecaptain.com/resources/pdf/GPT-1.pdf&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;GPT2: Language Models are Unsupervised Multitask Learners (&lt;a class=&#34;link&#34; href=&#34;https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;GPT3: Language Models are Few-Shot Learners (&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://arxiv.org/pdf/2005.14165&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#gpt1&#34; &gt;GPT1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#gpt2&#34; &gt;GPT2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#gpt3&#34; &gt;GPT3&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;gpt1&#34;&gt;GPT1
+&lt;/h2&gt;&lt;p&gt;GPT1 is the first Generative Pre-trained Transformer model introduced by OpenAI. It is a language model that combines large-scale unsupervised pre-training and small-scale supervised fine-tuning.&lt;/p&gt;
+&lt;h3 id=&#34;pre-training&#34;&gt;Pre-Training
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Trained in an unsupervised manner.&lt;/li&gt;
+&lt;li&gt;Acts as a good initialization point for subsequent supervised fine-tuning.&lt;/li&gt;
+&lt;li&gt;Maximizes the following likelihood:
+&lt;ul&gt;
+&lt;li&gt;$ L_1(\mathcal{U}) = \displaystyle{\sum_{i}} \log P(u_i|u_{i-k}, &amp;hellip;, u_{i-1} ; \Theta)$
+&lt;ul&gt;
+&lt;li&gt;$ \mathcal{U}= u_1, &amp;hellip;, u_n $: tokens of the unsupervised corpus&lt;/li&gt;
+&lt;li&gt;k: context window size (512)&lt;/li&gt;
+&lt;li&gt;$\Theta$: neural network parameters&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Uses a multi-layer Transformer decoder as the language model:
+&lt;ul&gt;
+&lt;li&gt;$ h_0 = U W_e + W_p \\ h_l = \mathrm{transformer \_ block}(h_{l-1}) \forall i \in [1, n] \\ P(u) = \mathrm{softmax}(h_n W_e^T)$
+&lt;ul&gt;
+&lt;li&gt;$ U=(u_{-k}, &amp;hellip;, u_{-1}) $&lt;/li&gt;
+&lt;li&gt;$n$: number of layers&lt;/li&gt;
+&lt;li&gt;$W_e$ : token embedding matrix&lt;/li&gt;
+&lt;li&gt;$W_p$ : position embedding matrix&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Dataset: BooksCorpus
+&lt;ul&gt;
+&lt;li&gt;Used the ftfy library to fix corrupted unicode text and performed other cleaning steps.&lt;/li&gt;
+&lt;li&gt;Standardized punctuation and whitespace.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;fine-tuning&#34;&gt;Fine-Tuning
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;The target model for downstream tasks is trained as follows:
+&lt;ul&gt;
+&lt;li&gt;$ P(y|x^1, &amp;hellip;, x^m) = \mathrm{softmax}(h_l^m W_y) $
+&lt;ul&gt;
+&lt;li&gt;$y$ : label&lt;/li&gt;
+&lt;li&gt;$ x^1, &amp;hellip;, x^m $  : input tokens&lt;/li&gt;
+&lt;li&gt;$ h^m_l $: last transformer block&amp;rsquo;s activation&lt;/li&gt;
+&lt;li&gt;$W_y$ : parameters of an additional linear layer&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Supervised objective: Model is trained to maximize the following objective.
+&lt;ul&gt;
+&lt;li&gt;$ L_2(\mathcal{C}) = \displaystyle{\sum_{(x, y)}} \log P(y|x^1, &amp;hellip;, x^m) $
+&lt;ul&gt;
+&lt;li&gt;$ \mathcal{C} $: labeled dataset&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;The overall objective uses the following auxiliary objective:
+&lt;ul&gt;
+&lt;li&gt;$ L_3(\mathcal{C}) = L_2(\mathcal{C}) + \lambda * L_1(\mathcal{C})$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;task-specific-input-transformations&#34;&gt;Task-specific input transformations
+&lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt1_different_tasks.png&#34;
+	width=&#34;1026&#34;
+	height=&#34;421&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt1_different_tasks_hu625cb35c2430c17a622fe69b8481cc62_119645_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt1_different_tasks_hu625cb35c2430c17a622fe69b8481cc62_119645_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt1_different_tasks&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;243&#34;
+		data-flex-basis=&#34;584px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://www.mikecaptain.com/resources/pdf/GPT-1.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Improving language understanding by generative pre-training.&amp;rdquo; (2018), Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Traversal-style:
+&lt;ul&gt;
+&lt;li&gt;When inputs consist of multiple independent items, such as (premise, hypothesis) or (context, question, answer), using them as-is may not match the form used during pre-training, making them harder for the model to interpret.&lt;/li&gt;
+&lt;li&gt;For each task, input items are concatenated into a single ordered sequence for training.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Most tasks were trained for 3 epochs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;model-architecture&#34;&gt;Model Architecture
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Decoder-only transformer&lt;/li&gt;
+&lt;li&gt;Masked self-attention: 768 dimension, 12 attention heads&lt;/li&gt;
+&lt;li&gt;Position-wise feed-forward network: 3072 dimension&lt;/li&gt;
+&lt;li&gt;Adam optimization&lt;/li&gt;
+&lt;li&gt;Batch size: 64&lt;/li&gt;
+&lt;li&gt;Trained on sequences of 512 continuous tokens&lt;/li&gt;
+&lt;li&gt;Layer norm, simple weight initialization N(0, 0.02)&lt;/li&gt;
+&lt;li&gt;Byte Pair Encoding (BPE)&lt;/li&gt;
+&lt;li&gt;Dropout: 0.01&lt;/li&gt;
+&lt;li&gt;Modified L2 regularization&lt;/li&gt;
+&lt;li&gt;GELU activation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;gpt2&#34;&gt;GPT2
+&lt;/h2&gt;&lt;p&gt;GPT2 introduced a deeper and larger model, trained on a large-scale web dataset (WebText), and demonstrated high performance using only the pre-trained model without separate fine-tuning. It gained attention for its strong zero-shot performance.&lt;/p&gt;
+&lt;h3 id=&#34;training&#34;&gt;Training
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Dataset: WebText, a dataset collected from the web.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Collected links from Reddit that received at least 3 karma.&lt;/li&gt;
+&lt;li&gt;8 million documents, total of 40GB.&lt;/li&gt;
+&lt;li&gt;Performed de-duplication.&lt;/li&gt;
+&lt;li&gt;Wikipedia data was excluded because it is a frequent source in WebText.&lt;/li&gt;
+&lt;li&gt;Used a modified Byte Pair Encoding (BPE).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Model&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Layer normalization changed position to the input and an additional layer norm was applied after the last self-attention block.&lt;/li&gt;
+&lt;li&gt;For a residual layer with N blocks, initialization was scaled by $ 1/\sqrt{N} $.&lt;/li&gt;
+&lt;li&gt;Uses modified byte-level BPE.&lt;/li&gt;
+&lt;li&gt;Vocabulary expanded to 50,257.&lt;/li&gt;
+&lt;li&gt;Context window size increased from 512 to 1,024.&lt;/li&gt;
+&lt;li&gt;Batch size increased to 512, compared to GPT1.&lt;/li&gt;
+&lt;li&gt;Model parameter sizes are as follows:&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt2_model_size.png&#34;
+	width=&#34;313&#34;
+	height=&#34;156&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt2_model_size_hue1f62bcf9fa5634ec4b507dc49f7b36e_12339_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt2_model_size_hue1f62bcf9fa5634ec4b507dc49f7b36e_12339_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt2_model_size&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;200&#34;
+		data-flex-basis=&#34;481px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Language models are unsupervised multitask learners.&amp;rdquo; OpenAI blog 1.8 (2019): 9, Table 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;results&#34;&gt;Results
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Zero-shot performance achieved state-of-the-art on 7 out of 8 benchmarks.
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt2_results.png&#34;
+	width=&#34;1182&#34;
+	height=&#34;236&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt2_results_hue2fd8463b5018ae41dacdf91cd4091d3_56442_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt2_results_hue2fd8463b5018ae41dacdf91cd4091d3_56442_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt2_results&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;500&#34;
+		data-flex-basis=&#34;1202px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://storage.prod.researchhub.com/uploads/papers/2020/06/01/language-models.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Language models are unsupervised multitask learners.&amp;rdquo; OpenAI blog 1.8 (2019): 9, Table 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;gpt3&#34;&gt;GPT3
+&lt;/h2&gt;&lt;p&gt;GPT3 massively scaled the size of the transformer model to hundreds of billions of parameters. Leveraging a huge amount of data and parameters, it demonstrated few-shot and zero-shot learning capabilities, performing various tasks using only prompts without any fine-tuning.&lt;/p&gt;
+&lt;h3 id=&#34;zero-shot-one-shot-few-shot&#34;&gt;Zero-shot, One-shot, Few-shot
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Can perform various tasks with just prompts and no additional fine-tuning.
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_context_learning.png&#34;
+	width=&#34;1161&#34;
+	height=&#34;1022&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_context_learning_hu677e469942d8b73027e071bed8b2e023_212580_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt3_context_learning_hu677e469942d8b73027e071bed8b2e023_212580_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt3_context_learning&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;113&#34;
+		data-flex-basis=&#34;272px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Brown, Tom, et al. &amp;ldquo;Language models are few-shot learners.&amp;rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 2.1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;training-1&#34;&gt;Training
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Dataset: CommonCrawl&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Applied filtering based on similarity to high-quality corpora.&lt;/li&gt;
+&lt;li&gt;Reduced from 45TB (before filtering) to 570GB (after filtering).&lt;/li&gt;
+&lt;li&gt;Fuzzy deduplication at the document level.&lt;/li&gt;
+&lt;li&gt;Added well-known high-quality datasets (expanded WebText, Books1, Books2, English Wikipedia) for greater diversity. These datasets were upsampled for training.
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_datasets.png&#34;
+	width=&#34;1048&#34;
+	height=&#34;277&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_datasets_hu440b2680c6f21d65f6017e90b1263950_74530_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt3_datasets_hu440b2680c6f21d65f6017e90b1263950_74530_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt3_datasets&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;378&#34;
+		data-flex-basis=&#34;908px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Brown, Tom, et al. &amp;ldquo;Language models are few-shot learners.&amp;rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Table 2.2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Model&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Model sizes are as follows:&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_model_size.png&#34;
+	width=&#34;1310&#34;
+	height=&#34;355&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_model_size_hu7d35ca2d3c1946aeb193a736972c2df0_130862_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt3_model_size_hu7d35ca2d3c1946aeb193a736972c2df0_130862_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt3_model_size&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;369&#34;
+		data-flex-basis=&#34;885px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Brown, Tom, et al. &amp;ldquo;Language models are few-shot learners.&amp;rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Table 2.1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Similar architecture to GPT2; Sparse Transformer was used.&lt;/li&gt;
+&lt;li&gt;Adam optimization.&lt;/li&gt;
+&lt;li&gt;Cosine decay.&lt;/li&gt;
+&lt;li&gt;Linear learning rate warmup.&lt;/li&gt;
+&lt;li&gt;Weight decay.&lt;/li&gt;
+&lt;li&gt;Batch size increased from 32k tokens up to 4-12 billion tokens.&lt;/li&gt;
+&lt;li&gt;Data is sampled without replacement, and &amp;ldquo;end of text&amp;rdquo; token is used when concatenating different documents.&lt;/li&gt;
+&lt;li&gt;Context window $n_{ctx}$=2048, increased compared to GPT2.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;evaluation&#34;&gt;Evaluation
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Sampled k examples from the training data, concatenated with \n, where k: 10~100.&lt;/li&gt;
+&lt;li&gt;Selected the best-performing k on the dev set and applied it to the test set for final evaluation.
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_results_translation.png&#34;
+	width=&#34;1088&#34;
+	height=&#34;717&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_results_translation_huca06fc24c75695979961eca8e55aa3a0_194526_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt3_results_translation_huca06fc24c75695979961eca8e55aa3a0_194526_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt3_results_translation&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;151&#34;
+		data-flex-basis=&#34;364px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Brown, Tom, et al. &amp;ldquo;Language models are few-shot learners.&amp;rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 3.4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_results_winogrande.png&#34;
+	width=&#34;1070&#34;
+	height=&#34;691&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_results_winogrande_hu8e439faf224b54397cefc3ffb7907cd6_152485_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt3_results_winogrande_hu8e439faf224b54397cefc3ffb7907cd6_152485_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt3_results_winogrande&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;154&#34;
+		data-flex-basis=&#34;371px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Brown, Tom, et al. &amp;ldquo;Language models are few-shot learners.&amp;rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 3.5.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_results_anli.png&#34;
+	width=&#34;1064&#34;
+	height=&#34;685&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_results_anli_hu58f4c8db94617a0e14640ed52d754665_156893_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt3_results_anli_hu58f4c8db94617a0e14640ed52d754665_156893_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt3_results_anli&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;155&#34;
+		data-flex-basis=&#34;372px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Brown, Tom, et al. &amp;ldquo;Language models are few-shot learners.&amp;rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 3.9.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_result_examples_parameters.png&#34;
+	width=&#34;1548&#34;
+	height=&#34;853&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_result_examples_parameters_hu424a2342ceff2d88e30d3cc0c9b5f282_172453_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt3_result_examples_parameters_hu424a2342ceff2d88e30d3cc0c9b5f282_172453_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt3_result_examples_parameters&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;181&#34;
+		data-flex-basis=&#34;435px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Brown, Tom, et al. &amp;ldquo;Language models are few-shot learners.&amp;rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 1.2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_aggregate_performance.png&#34;
+	width=&#34;1350&#34;
+	height=&#34;844&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/gpt_review/gpt3_aggregate_performance_hudc5a382bc7e995479e82dc2ff38c451e_662714_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/gpt_review/gpt3_aggregate_performance_hudc5a382bc7e995479e82dc2ff38c451e_662714_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;gpt3_aggregate_performance&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;159&#34;
+		data-flex-basis=&#34;383px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2005.14165&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Brown, Tom, et al. &amp;ldquo;Language models are few-shot learners.&amp;rdquo; arXiv preprint arXiv:2005.14165 (2020): 4, Figure 1.3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

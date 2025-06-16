@@ -32,11 +32,8 @@
     }
 
      
-    *:lang(ko) *:not(:lang(ko)),
-    *[lang="ko"] *:not([lang="ko"]),
-    *[lang="ko-KR"] *:not([lang="ko-KR"]),
-    *[lang="ko-KP"] *:not([lang="ko-KP"]) {
-        font-family: "Open Sans", var(--base-font-family);
+    .sidebar * {
+        font-family: "Open Sans", var(--base-font-family) !important;
     }
 </style>
 
@@ -251,7 +248,7 @@
                     <a href="/ko/archives/#2023">
                         
                             <span class="year">2023</span>
-                            <span class="count">15</span>
+                            <span class="count">16</span>
                         
                     </a> 
                 </div>
@@ -278,7 +275,7 @@
 
     <div class="tagCloud-tags">
         
-            <a href="/ko/categories/paper-review/" class="font_size_8">
+            <a href="/ko/categories/paper-review/" class="font_size_9">
                 Paper review
             </a>
         
@@ -323,6 +320,18 @@
                 Donut
             </a>
         
+            <a href="/ko/tags/gpt1/" class="font_size_1">
+                GPT1
+            </a>
+        
+            <a href="/ko/tags/gpt2/" class="font_size_1">
+                GPT2
+            </a>
+        
+            <a href="/ko/tags/gpt3/" class="font_size_1">
+                GPT3
+            </a>
+        
             <a href="/ko/tags/layoutlmv2/" class="font_size_1">
                 LayoutLMv2
             </a>
@@ -337,18 +346,6 @@
         
             <a href="/ko/tags/unilmv2/" class="font_size_1">
                 UniLMv2
-            </a>
-        
-            <a href="/ko/tags/xlnet/" class="font_size_1">
-                XLNet
-            </a>
-        
-            <a href="/ko/tags/yolov1/" class="font_size_1">
-                YOLOv1
-            </a>
-        
-            <a href="/ko/tags/yolov2/" class="font_size_1">
-                YOLOv2
             </a>
         
     </div>
@@ -368,7 +365,7 @@
 
         <div class="section-card">
             <div class="section-details">
-                <h3 class="section-count">15 페이지</h3>
+                <h3 class="section-count">16 페이지</h3>
                 <h1 class="section-term">Posts</h1>
                 
             </div>
@@ -447,7 +444,14 @@
                 
             
             
-                    <a class='page-link' href='/ko/post/page/3/'>3</a>
+                    
+                        
+                        <span class='page-link dots'>&hellip;</span>
+                    
+                
+            
+            
+                    <a class='page-link' href='/ko/post/page/4/'>4</a>
                 
             
     </nav>
