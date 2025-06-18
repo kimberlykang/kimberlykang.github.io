@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>LLaMA on Kimberly&#39;s Blog</title>
+        <link>https://kimberlykang.github.io/ko/tags/llama/</link>
+        <description>Recent content in LLaMA on Kimberly&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>ko</language>
+        <lastBuildDate>Wed, 27 Dec 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/tags/llama/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>LLaMA</title>
+        <link>https://kimberlykang.github.io/ko/p/llama_review/</link>
+        <pubDate>Wed, 27 Dec 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/ko/p/llama_review/</guid>
+        <description>&lt;p&gt;본 포스트에서는 2023년 Meta가 발표한 LLaMA에 대해 살펴보겠습니다.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://arxiv.org/abs/2302.13971&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%eb%b0%b0%ea%b2%bd&#34; &gt;배경&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-training-%eb%8d%b0%ec%9d%b4%ed%84%b0&#34; &gt;Pre-Training 데이터&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%eb%aa%a8%eb%8d%b8&#34; &gt;모델&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ea%b2%b0%ea%b3%bc&#34; &gt;결과&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;배경&#34;&gt;배경
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;2020년 Scaling Law에 관한 논문에서는 언어 모델의 성능이 주로 파라미터 수, 데이터셋 크기, 그리고 학습에 투입되는 연산량에 의해 결정된다는 사실을 제시했습니다.&lt;/li&gt;
+&lt;li&gt;이후 Google의 PaLM처럼 파라미터 수를 540B 개까지 늘린 초거대 모델이 등장하면서 모델은 클수록 좋다는 인식이 확산되었습니다.&lt;/li&gt;
+&lt;li&gt;하지만 DeepMind의 Chinchilla 연구에서는, 동일한 연산량이 주어졌을 때 더 작은 모델을 더 많은 데이터로 학습시키는 것이, 매우 큰 모델을 적은 데이터로 학습시키는 것과 비슷하거나 더 뛰어난 효과를 낼 수 있다는 것을 발견했습니다.&lt;/li&gt;
+&lt;li&gt;LLaMA(Large Language Model Meta AI)
+&lt;ul&gt;
+&lt;li&gt;inference 비용을 고려하면 모델이 작을수록 좋기 때문에, 더 작은 모델로 더 많은 양의 데이터를 오래 학습시켰습니다.&lt;/li&gt;
+&lt;li&gt;7B~65B parameter로 큰 모델들과 비슷한 성능을 보였습니다.&lt;/li&gt;
+&lt;li&gt;공개된 데이터만을 사용해 학습되었으며, 모델의 weight 또한 함께 공개했다는 점에서 기존 대형 언어 모델들과 차별화됩니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;pre-training-데이터&#34;&gt;Pre-Training 데이터
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Dataset&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;English CommonCrawl
+&lt;ul&gt;
+&lt;li&gt;line level에서 deduplication을 적용했습니다.&lt;/li&gt;
+&lt;li&gt;영어 아닌 문서는 제거했습니다.&lt;/li&gt;
+&lt;li&gt;n-gram language model로 quality가 낮은 데이터는 제거했습니다.&lt;/li&gt;
+&lt;li&gt;Wikipedia에서 참고문서로 사용된 페이지를 분류하는 linear model 학습하여, 참고 문서로 사용되지 않은 페이지는 제거했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;C4
+&lt;ul&gt;
+&lt;li&gt;line level에서 deduplication을 적용했습니다.&lt;/li&gt;
+&lt;li&gt;영어 아닌 문서는 제거했습니다.&lt;/li&gt;
+&lt;li&gt;punctuation marks, 단어 수, 문장 수로 quality filtering을 했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Github
+&lt;ul&gt;
+&lt;li&gt;Apache, BSD, MIT license만 포함했습니다.&lt;/li&gt;
+&lt;li&gt;line 수, 영어 숫자 비율로 quality filtering을 했습니다.&lt;/li&gt;
+&lt;li&gt;boilerplate를 제거했습니다.&lt;/li&gt;
+&lt;li&gt;exact match로 file level에서 deduplication을 적용했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Wikipedia
+&lt;ul&gt;
+&lt;li&gt;20 종류 언어 포함했습니다.&lt;/li&gt;
+&lt;li&gt;hyperlink, 댓글, boilerplate를 제거했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Gutenberg and Books3
+&lt;ul&gt;
+&lt;li&gt;90% 이상 겹치는 데이터를 book level로 deduplication 적용했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Arxiv
+&lt;ul&gt;
+&lt;li&gt;Latex 파일을 사용했습니다.&lt;/li&gt;
+&lt;li&gt;첫 번째 섹션 전 내용을 제거했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Stack Exchange
+&lt;ul&gt;
+&lt;li&gt;HTML tag를 제거했습니다.&lt;/li&gt;
+&lt;li&gt;score로 답변을 정렬하여 사용했습니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/pretrain_dataset.png&#34;
+	width=&#34;850&#34;
+	height=&#34;473&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/pretrain_dataset_hua6ea4e884a88fdf6ce6e11d0769e7809_113236_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/pretrain_dataset_hua6ea4e884a88fdf6ce6e11d0769e7809_113236_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pre-train dataset&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;179&#34;
+		data-flex-basis=&#34;431px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Tokenizer&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Byte Pair Encoding(BPE)&lt;/li&gt;
+&lt;li&gt;Sentence-Piece&lt;/li&gt;
+&lt;li&gt;전체 1.4T의 token을 사용했습니다.(참고로 PaLM-540B는 780B, Chinchilla-70B는 총 1.4T 토큰으로 학습했습니다.)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;모델&#34;&gt;모델
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;구조
+&lt;ul&gt;
+&lt;li&gt;RMSNorm 사용하여 output 대신 input을 normalize 했습니다.&lt;/li&gt;
+&lt;li&gt;SwiGLU activation.&lt;/li&gt;
+&lt;li&gt;Relative Positional Embedding의 한 종류인 Rotary Positional Embedding(RoPE)을 사용했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Optimizer
+&lt;ul&gt;
+&lt;li&gt;AdamW.&lt;/li&gt;
+&lt;li&gt;Cosine learning rate schedule.&lt;/li&gt;
+&lt;li&gt;weight decay.&lt;/li&gt;
+&lt;li&gt;gradient clipping.&lt;/li&gt;
+&lt;li&gt;2000 warmup steps.
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/model_architecture.png&#34;
+	width=&#34;1422&#34;
+	height=&#34;328&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/model_architecture_hu1294d8a9e72aaf811e41ad616772a3d3_79906_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/model_architecture_hu1294d8a9e72aaf811e41ad616772a3d3_79906_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Model Architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;433&#34;
+		data-flex-basis=&#34;1040px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Efficient Implementation
+&lt;ul&gt;
+&lt;li&gt;causal multi-head attention: masking된 건 계산하지 않았습니다.&lt;/li&gt;
+&lt;li&gt;checkpointing: 계산하는 데 오래 걸리는 activation은 저장해서 다시 사용했습니다. Manually implement해서 PyTorch autograd 대신 사용했습니다.&lt;/li&gt;
+&lt;li&gt;80GB A100 GPU 2048개를 사용하여 초당 GPU 하나에서 380개 token을 처리했고, 총 학습은 21일이 걸렸습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;결과&#34;&gt;결과
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;소형 모델임에도 불구하고, 대형 언어 모델과 매우 유사한 수준의 성능을 달성했습니다.&lt;/li&gt;
+&lt;li&gt;Common Sense Reasoning
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result1.png&#34;
+	width=&#34;1142&#34;
+	height=&#34;500&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result1_hu15a8ea4fb35c00100c529f7c67f84aed_150217_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result1_hu15a8ea4fb35c00100c529f7c67f84aed_150217_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result1&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;228&#34;
+		data-flex-basis=&#34;548px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Closed-book Question Answering
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result2.png&#34;
+	width=&#34;573&#34;
+	height=&#34;515&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result2_hu2291fc2edcdc59ad4552a65bbb54308c_92504_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result2_hu2291fc2edcdc59ad4552a65bbb54308c_92504_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result2&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;111&#34;
+		data-flex-basis=&#34;267px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result3.png&#34;
+	width=&#34;581&#34;
+	height=&#34;388&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result3_huc6145e3ac786de1a383cf000b9964d3e_73500_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result3_huc6145e3ac786de1a383cf000b9964d3e_73500_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result3&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;149&#34;
+		data-flex-basis=&#34;359px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 5.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Reading Comprehension&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result4.png&#34;
+	width=&#34;579&#34;
+	height=&#34;473&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result4_huf18d66cf921381278adeda24daee433c_65610_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result4_huf18d66cf921381278adeda24daee433c_65610_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result4&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;122&#34;
+		data-flex-basis=&#34;293px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 6.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Mathematical Reasoning
+&lt;ul&gt;
+&lt;li&gt;LaTex로 작성된 중, 고등학교 수학 문제를 푸는 Task입니다.&lt;/li&gt;
+&lt;li&gt;Minerva: Palm 모델을 ArXiv, Math Web Pages에 fine-tuning 한 모델입니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result5.png&#34;
+	width=&#34;552&#34;
+	height=&#34;469&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result5_hu3f871b7b73d199e79b8106052ba22dd7_70082_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result5_hu3f871b7b73d199e79b8106052ba22dd7_70082_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result5&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;117&#34;
+		data-flex-basis=&#34;282px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 7.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Code Generation&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result6.png&#34;
+	width=&#34;579&#34;
+	height=&#34;448&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result6_hubf782930778bcdb860500476607ff6e3_83897_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result6_hubf782930778bcdb860500476607ff6e3_83897_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result6&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;129&#34;
+		data-flex-basis=&#34;310px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 8.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Massive Multitask Language Understanding
+&lt;ul&gt;
+&lt;li&gt;2TB의 책 데이터로 학습한 Chinchilla, Gopher, PaLM와 달리 LLaMA는 177GB의 적은 데이터로 학습했지만, 비슷한 성능을 보였습니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result7.png&#34;
+	width=&#34;972&#34;
+	height=&#34;504&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result7_huc2b466d4ef7a7d0f199bec2ad2fc9fb2_118593_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result7_huc2b466d4ef7a7d0f199bec2ad2fc9fb2_118593_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result7&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;192&#34;
+		data-flex-basis=&#34;462px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 9.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

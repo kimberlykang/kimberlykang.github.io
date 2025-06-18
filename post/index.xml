@@ -6,7 +6,289 @@
         <description>Recent content in Posts on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <lastBuildDate>Fri, 24 Nov 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 27 Dec 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>LLaMA</title>
+        <link>https://kimberlykang.github.io/p/llama_review/</link>
+        <pubDate>Wed, 27 Dec 2023 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/p/llama_review/</guid>
+        <description>&lt;p&gt;In this post, we will take a look at LLaMA, introduced by Meta in 2023.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://arxiv.org/abs/2302.13971&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#background&#34; &gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-training-data&#34; &gt;Pre-Training Data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#model&#34; &gt;Model&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#results&#34; &gt;Results&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;background&#34;&gt;Background
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;The 2020 Scaling Law paper argued that the performance of language models is mainly determined by the number of parameters, the size of the dataset, and the amount of compute used for training.&lt;/li&gt;
+&lt;li&gt;Afterwards, ultra-large models such as Google&amp;rsquo;s PaLM, which scale the number of parameters up to 540B, spread the belief that &amp;ldquo;bigger is better.&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;However, DeepMind&amp;rsquo;s Chinchilla study found that, given the same compute budget, training a smaller model on more data can yield similar or even better results than training a very large model on less data.&lt;/li&gt;
+&lt;li&gt;LLaMA (Large Language Model Meta AI)
+&lt;ul&gt;
+&lt;li&gt;To reduce inference costs, LLaMA favors smaller models that are trained longer on more data.&lt;/li&gt;
+&lt;li&gt;With parameter sizes ranging from 7B to 65B, LLaMA achieves performance comparable to the largest models.&lt;/li&gt;
+&lt;li&gt;LLaMA is also distinct from existing large language models in that it is trained exclusively on public data and the model weights are openly released.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;pre-training-data&#34;&gt;Pre-Training Data
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Dataset&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;English CommonCrawl
+&lt;ul&gt;
+&lt;li&gt;Deduplication applied at the line level.&lt;/li&gt;
+&lt;li&gt;Non-English documents removed.&lt;/li&gt;
+&lt;li&gt;Low-quality data filtered out using an n-gram language model.&lt;/li&gt;
+&lt;li&gt;Used a linear model to classify pages referenced in Wikipedia, and removed those not referenced.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;C4
+&lt;ul&gt;
+&lt;li&gt;Deduplication at the line level.&lt;/li&gt;
+&lt;li&gt;Non-English documents removed.&lt;/li&gt;
+&lt;li&gt;Quality filtered by punctuation marks, number of words, and number of sentences.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Github
+&lt;ul&gt;
+&lt;li&gt;Only Apache, BSD, and MIT license repositories included.&lt;/li&gt;
+&lt;li&gt;Quality filtered by line count and ratio of English/numeric content.&lt;/li&gt;
+&lt;li&gt;Removed boilerplate.&lt;/li&gt;
+&lt;li&gt;Deduplication at the file level by exact match.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Wikipedia
+&lt;ul&gt;
+&lt;li&gt;Included 20 languages.&lt;/li&gt;
+&lt;li&gt;Hyperlinks, comments, and boilerplate removed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Gutenberg and Books3
+&lt;ul&gt;
+&lt;li&gt;Deduplication at the book level when overlap exceeds 90%.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Arxiv
+&lt;ul&gt;
+&lt;li&gt;Used LaTeX files.&lt;/li&gt;
+&lt;li&gt;Removed content before the first section.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Stack Exchange
+&lt;ul&gt;
+&lt;li&gt;HTML tags removed.&lt;/li&gt;
+&lt;li&gt;Answers ordered by score.
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/pretrain_dataset.png&#34;
+	width=&#34;850&#34;
+	height=&#34;473&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/pretrain_dataset_hua6ea4e884a88fdf6ce6e11d0769e7809_113236_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/pretrain_dataset_hua6ea4e884a88fdf6ce6e11d0769e7809_113236_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Pre-train dataset&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;179&#34;
+		data-flex-basis=&#34;431px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Tokenizer&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Byte Pair Encoding (BPE)&lt;/li&gt;
+&lt;li&gt;SentencePiece&lt;/li&gt;
+&lt;li&gt;Used a total of 1.4T tokens for training. (For reference: PaLM-540B was trained on 780B tokens, Chinchilla-70B on 1.4T tokens.)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;model&#34;&gt;Model
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Architecture
+&lt;ul&gt;
+&lt;li&gt;Used RMSNorm to normalize input instead of the output.&lt;/li&gt;
+&lt;li&gt;SwiGLU activation function.&lt;/li&gt;
+&lt;li&gt;Adopted Rotary Positional Embeddings (RoPE), a type of relative positional embedding.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Optimizer
+&lt;ul&gt;
+&lt;li&gt;AdamW.&lt;/li&gt;
+&lt;li&gt;Cosine learning rate schedule.&lt;/li&gt;
+&lt;li&gt;Weight decay.&lt;/li&gt;
+&lt;li&gt;Gradient clipping.&lt;/li&gt;
+&lt;li&gt;2,000 warmup steps.
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/model_architecture.png&#34;
+	width=&#34;1422&#34;
+	height=&#34;328&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/model_architecture_hu1294d8a9e72aaf811e41ad616772a3d3_79906_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/model_architecture_hu1294d8a9e72aaf811e41ad616772a3d3_79906_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Model Architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;433&#34;
+		data-flex-basis=&#34;1040px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Efficient Implementation
+&lt;ul&gt;
+&lt;li&gt;Causal multi-head attention: operations were not computed for masked positions.&lt;/li&gt;
+&lt;li&gt;Checkpointing: expensive activations were stored for reuse, implemented manually rather than using PyTorch autograd.&lt;/li&gt;
+&lt;li&gt;Used 2,048 A100 GPUs (80GB each), processing 380 tokens per GPU per second; total training took 21 days.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;results&#34;&gt;Results
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Despite being relatively small in size, LLaMA achieves performance comparable to large language models.&lt;/li&gt;
+&lt;li&gt;Common Sense Reasoning
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result1.png&#34;
+	width=&#34;1142&#34;
+	height=&#34;500&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result1_hu15a8ea4fb35c00100c529f7c67f84aed_150217_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result1_hu15a8ea4fb35c00100c529f7c67f84aed_150217_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result1&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;228&#34;
+		data-flex-basis=&#34;548px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Closed-book Question Answering
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result2.png&#34;
+	width=&#34;573&#34;
+	height=&#34;515&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result2_hu2291fc2edcdc59ad4552a65bbb54308c_92504_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result2_hu2291fc2edcdc59ad4552a65bbb54308c_92504_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result2&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;111&#34;
+		data-flex-basis=&#34;267px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result3.png&#34;
+	width=&#34;581&#34;
+	height=&#34;388&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result3_huc6145e3ac786de1a383cf000b9964d3e_73500_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result3_huc6145e3ac786de1a383cf000b9964d3e_73500_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result3&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;149&#34;
+		data-flex-basis=&#34;359px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 5.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Reading Comprehension&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result4.png&#34;
+	width=&#34;579&#34;
+	height=&#34;473&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result4_huf18d66cf921381278adeda24daee433c_65610_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result4_huf18d66cf921381278adeda24daee433c_65610_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result4&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;122&#34;
+		data-flex-basis=&#34;293px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 6.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Mathematical Reasoning
+&lt;ul&gt;
+&lt;li&gt;Task involving solving middle and high school math problems written in LaTeX.&lt;/li&gt;
+&lt;li&gt;Minerva: PaLM model fine-tuned on Arxiv and Math Web Pages.
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result5.png&#34;
+	width=&#34;552&#34;
+	height=&#34;469&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result5_hu3f871b7b73d199e79b8106052ba22dd7_70082_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result5_hu3f871b7b73d199e79b8106052ba22dd7_70082_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result5&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;117&#34;
+		data-flex-basis=&#34;282px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 7.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Code Generation&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result6.png&#34;
+	width=&#34;579&#34;
+	height=&#34;448&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result6_hubf782930778bcdb860500476607ff6e3_83897_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result6_hubf782930778bcdb860500476607ff6e3_83897_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result6&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;129&#34;
+		data-flex-basis=&#34;310px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 8.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;Massive Multitask Language Understanding
+&lt;ul&gt;
+&lt;li&gt;Unlike Chinchilla, Gopher, and PaLM (trained on up to 2TB of book data), LLaMA was trained on just 177GB of data but demonstrated similar performance.
+&lt;img src=&#34;https://kimberlykang.github.io/p/llama_review/result7.png&#34;
+	width=&#34;972&#34;
+	height=&#34;504&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/llama_review/result7_huc2b466d4ef7a7d0f199bec2ad2fc9fb2_118593_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/llama_review/result7_huc2b466d4ef7a7d0f199bec2ad2fc9fb2_118593_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Result7&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;192&#34;
+		data-flex-basis=&#34;462px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/2302.13971&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Touvron, Hugo, et al. &amp;ldquo;Llama: Open and efficient foundation language models.&amp;rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 9.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>Donut vs. Pix2Struct Comparison</title>
         <link>https://kimberlykang.github.io/p/compare_donut_pix2struct/</link>
         <pubDate>Fri, 24 Nov 2023 00:17:41 +0900</pubDate>

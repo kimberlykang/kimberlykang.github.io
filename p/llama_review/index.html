@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post, we will take a look at LLaMA, introduced by Meta in 2023. https://arxiv.org/abs/2302.13971 Table of Contents Background Pre-Training Data Model Results Background The 2020 Scaling Law paper argued that the performance of language models is mainly determined by the number of parameters, the size of the dataset, and the amount of compute used for training. Afterwards, ultra-large models such as Google&rsquo;s PaLM, which scale the number of parameters up to 540B, spread the belief that &ldquo;bigger is better.">
+<title>LLaMA</title>
+
+<link rel='canonical' href='https://kimberlykang.github.io/p/llama_review/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="LLaMA">
+<meta property='og:description' content="In this post, we will take a look at LLaMA, introduced by Meta in 2023. https://arxiv.org/abs/2302.13971 Table of Contents Background Pre-Training Data Model Results Background The 2020 Scaling Law paper argued that the performance of language models is mainly determined by the number of parameters, the size of the dataset, and the amount of compute used for training. Afterwards, ultra-large models such as Google&rsquo;s PaLM, which scale the number of parameters up to 540B, spread the belief that &ldquo;bigger is better.">
+<meta property='og:url' content='https://kimberlykang.github.io/p/llama_review/'>
+<meta property='og:site_name' content='Kimberly&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='LLaMA' /><meta property='article:published_time' content='2023-12-27T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-12-27T00:17:41&#43;09:00'/>
+<meta name="twitter:title" content="LLaMA">
+<meta name="twitter:description" content="In this post, we will take a look at LLaMA, introduced by Meta in 2023. https://arxiv.org/abs/2302.13971 Table of Contents Background Pre-Training Data Model Results Background The 2020 Scaling Law paper argued that the performance of language models is mainly determined by the number of parameters, the size of the dataset, and the amount of compute used for training. Afterwards, ultra-large models such as Google&rsquo;s PaLM, which scale the number of parameters up to 540B, spread the belief that &ldquo;bigger is better."><style>
+     
+    :root {
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    .sidebar * {
+        font-family: "Open Sans", var(--base-font-family) !important;
+    }
+</style>
+
+<script>
+    (function () {
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
+    }());
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Kimberly&#39;s Blog</a></h1>
+            <h2 class="site-description">Vision Engineer</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" selected>English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" >Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#background">Background</a></li>
+    <li><a href="#pre-training-data">Pre-Training Data</a></li>
+    <li><a href="#model">Model</a></li>
+    <li><a href="#results">Results</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
+                Paper review
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/llama_review/">LLaMA</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 27, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/ko/p/llama_review/" class="link">Korean</a>
+                
+            </div>
+        </footer>
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>In this post, we will take a look at LLaMA, introduced by Meta in 2023.<br>
+<a class="link" href="https://arxiv.org/abs/2302.13971"  target="_blank" rel="noopener"
+    >https://arxiv.org/abs/2302.13971</a></p>
+<h1 id="table-of-contents">Table of Contents
+</h1><ol>
+<li><a class="link" href="#background" >Background</a></li>
+<li><a class="link" href="#pre-training-data" >Pre-Training Data</a></li>
+<li><a class="link" href="#model" >Model</a></li>
+<li><a class="link" href="#results" >Results</a></li>
+</ol>
+<h2 id="background">Background
+</h2><ul>
+<li>The 2020 Scaling Law paper argued that the performance of language models is mainly determined by the number of parameters, the size of the dataset, and the amount of compute used for training.</li>
+<li>Afterwards, ultra-large models such as Google&rsquo;s PaLM, which scale the number of parameters up to 540B, spread the belief that &ldquo;bigger is better.&rdquo;</li>
+<li>However, DeepMind&rsquo;s Chinchilla study found that, given the same compute budget, training a smaller model on more data can yield similar or even better results than training a very large model on less data.</li>
+<li>LLaMA (Large Language Model Meta AI)
+<ul>
+<li>To reduce inference costs, LLaMA favors smaller models that are trained longer on more data.</li>
+<li>With parameter sizes ranging from 7B to 65B, LLaMA achieves performance comparable to the largest models.</li>
+<li>LLaMA is also distinct from existing large language models in that it is trained exclusively on public data and the model weights are openly released.</li>
+</ul>
+</li>
+</ul>
+<h2 id="pre-training-data">Pre-Training Data
+</h2><ul>
+<li>
+<p>Dataset</p>
+<ul>
+<li>English CommonCrawl
+<ul>
+<li>Deduplication applied at the line level.</li>
+<li>Non-English documents removed.</li>
+<li>Low-quality data filtered out using an n-gram language model.</li>
+<li>Used a linear model to classify pages referenced in Wikipedia, and removed those not referenced.</li>
+</ul>
+</li>
+<li>C4
+<ul>
+<li>Deduplication at the line level.</li>
+<li>Non-English documents removed.</li>
+<li>Quality filtered by punctuation marks, number of words, and number of sentences.</li>
+</ul>
+</li>
+<li>Github
+<ul>
+<li>Only Apache, BSD, and MIT license repositories included.</li>
+<li>Quality filtered by line count and ratio of English/numeric content.</li>
+<li>Removed boilerplate.</li>
+<li>Deduplication at the file level by exact match.</li>
+</ul>
+</li>
+<li>Wikipedia
+<ul>
+<li>Included 20 languages.</li>
+<li>Hyperlinks, comments, and boilerplate removed.</li>
+</ul>
+</li>
+<li>Gutenberg and Books3
+<ul>
+<li>Deduplication at the book level when overlap exceeds 90%.</li>
+</ul>
+</li>
+<li>Arxiv
+<ul>
+<li>Used LaTeX files.</li>
+<li>Removed content before the first section.</li>
+</ul>
+</li>
+<li>Stack Exchange
+<ul>
+<li>HTML tags removed.</li>
+<li>Answers ordered by score.
+<img src="/p/llama_review/pretrain_dataset.png"
+	width="850"
+	height="473"
+	srcset="/p/llama_review/pretrain_dataset_hua6ea4e884a88fdf6ce6e11d0769e7809_113236_480x0_resize_box_3.png 480w, /p/llama_review/pretrain_dataset_hua6ea4e884a88fdf6ce6e11d0769e7809_113236_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Pre-train dataset"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="179"
+		data-flex-basis="431px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 1.</em></a></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Tokenizer</p>
+<ul>
+<li>Byte Pair Encoding (BPE)</li>
+<li>SentencePiece</li>
+<li>Used a total of 1.4T tokens for training. (For reference: PaLM-540B was trained on 780B tokens, Chinchilla-70B on 1.4T tokens.)</li>
+</ul>
+</li>
+</ul>
+<h2 id="model">Model
+</h2><ul>
+<li>Architecture
+<ul>
+<li>Used RMSNorm to normalize input instead of the output.</li>
+<li>SwiGLU activation function.</li>
+<li>Adopted Rotary Positional Embeddings (RoPE), a type of relative positional embedding.</li>
+</ul>
+</li>
+<li>Optimizer
+<ul>
+<li>AdamW.</li>
+<li>Cosine learning rate schedule.</li>
+<li>Weight decay.</li>
+<li>Gradient clipping.</li>
+<li>2,000 warmup steps.
+<img src="/p/llama_review/model_architecture.png"
+	width="1422"
+	height="328"
+	srcset="/p/llama_review/model_architecture_hu1294d8a9e72aaf811e41ad616772a3d3_79906_480x0_resize_box_3.png 480w, /p/llama_review/model_architecture_hu1294d8a9e72aaf811e41ad616772a3d3_79906_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Model Architecture"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="433"
+		data-flex-basis="1040px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 2.</em></a></span></li>
+</ul>
+</li>
+<li>Efficient Implementation
+<ul>
+<li>Causal multi-head attention: operations were not computed for masked positions.</li>
+<li>Checkpointing: expensive activations were stored for reuse, implemented manually rather than using PyTorch autograd.</li>
+<li>Used 2,048 A100 GPUs (80GB each), processing 380 tokens per GPU per second; total training took 21 days.</li>
+</ul>
+</li>
+</ul>
+<h2 id="results">Results
+</h2><ul>
+<li>Despite being relatively small in size, LLaMA achieves performance comparable to large language models.</li>
+<li>Common Sense Reasoning
+<img src="/p/llama_review/result1.png"
+	width="1142"
+	height="500"
+	srcset="/p/llama_review/result1_hu15a8ea4fb35c00100c529f7c67f84aed_150217_480x0_resize_box_3.png 480w, /p/llama_review/result1_hu15a8ea4fb35c00100c529f7c67f84aed_150217_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result1"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="228"
+		data-flex-basis="548px"
+	
+>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 3.</em></a></span></li>
+<li>Closed-book Question Answering
+<img src="/p/llama_review/result2.png"
+	width="573"
+	height="515"
+	srcset="/p/llama_review/result2_hu2291fc2edcdc59ad4552a65bbb54308c_92504_480x0_resize_box_3.png 480w, /p/llama_review/result2_hu2291fc2edcdc59ad4552a65bbb54308c_92504_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result2"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="111"
+		data-flex-basis="267px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 4.</em></a></span>
+<img src="/p/llama_review/result3.png"
+	width="581"
+	height="388"
+	srcset="/p/llama_review/result3_huc6145e3ac786de1a383cf000b9964d3e_73500_480x0_resize_box_3.png 480w, /p/llama_review/result3_huc6145e3ac786de1a383cf000b9964d3e_73500_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result3"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="149"
+		data-flex-basis="359px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 5.</em></a></span></li>
+<li>Reading Comprehension<br>
+<img src="/p/llama_review/result4.png"
+	width="579"
+	height="473"
+	srcset="/p/llama_review/result4_huf18d66cf921381278adeda24daee433c_65610_480x0_resize_box_3.png 480w, /p/llama_review/result4_huf18d66cf921381278adeda24daee433c_65610_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result4"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="122"
+		data-flex-basis="293px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 6.</em></a></span></li>
+<li>Mathematical Reasoning
+<ul>
+<li>Task involving solving middle and high school math problems written in LaTeX.</li>
+<li>Minerva: PaLM model fine-tuned on Arxiv and Math Web Pages.
+<img src="/p/llama_review/result5.png"
+	width="552"
+	height="469"
+	srcset="/p/llama_review/result5_hu3f871b7b73d199e79b8106052ba22dd7_70082_480x0_resize_box_3.png 480w, /p/llama_review/result5_hu3f871b7b73d199e79b8106052ba22dd7_70082_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result5"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="117"
+		data-flex-basis="282px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 7.</em></a></span></li>
+</ul>
+</li>
+<li>Code Generation<br>
+<img src="/p/llama_review/result6.png"
+	width="579"
+	height="448"
+	srcset="/p/llama_review/result6_hubf782930778bcdb860500476607ff6e3_83897_480x0_resize_box_3.png 480w, /p/llama_review/result6_hubf782930778bcdb860500476607ff6e3_83897_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result6"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="129"
+		data-flex-basis="310px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 8.</em></a></span></li>
+<li>Massive Multitask Language Understanding
+<ul>
+<li>Unlike Chinchilla, Gopher, and PaLM (trained on up to 2TB of book data), LLaMA was trained on just 177GB of data but demonstrated similar performance.
+<img src="/p/llama_review/result7.png"
+	width="972"
+	height="504"
+	srcset="/p/llama_review/result7_huc2b466d4ef7a7d0f199bec2ad2fc9fb2_118593_480x0_resize_box_3.png 480w, /p/llama_review/result7_huc2b466d4ef7a7d0f199bec2ad2fc9fb2_118593_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result7"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="192"
+		data-flex-basis="462px"
+	
+><br>
+<span style="font-size:70%"> Source: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 9.</em></a></span></li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/llama/">LLaMA</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/compare_donut_pix2struct/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Donut vs. Pix2Struct Comparison</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/layoutlmv2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">LayoutLMv2 Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/unilmv2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">UniLMv2 Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/xlnet_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">XLNet Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/gpt_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">A Review of GPT1, GPT2, GPT3</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2025 Kimberly&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

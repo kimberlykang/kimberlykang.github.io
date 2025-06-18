@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ko" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="본 포스트에서는 2023년 Meta가 발표한 LLaMA에 대해 살펴보겠습니다. https://arxiv.org/abs/2302.13971 목차 배경 Pre-Training 데이터 모델 결과 배경 2020년 Scaling Law에 관한 논문에서는 언어 모델의 성능이 주로 파라미터 수, 데이터셋 크기, 그리고 학습에 투입되는 연산량에 의해 결정된다는 사실을 제시했습니다. 이후 Google의 PaLM처럼 파라미터 수를 540B 개까지 늘린 초거대 모델이 등장하면서 모델은 클수록 좋다는 인식이 확산되었습니다. 하지만 DeepMind의 Chinchilla 연구에서는, 동일한 연산량이 주어졌을 때 더 작은 모델을 더 많은 데이터로 학습시키는 것이, 매우 큰 모델을 적은 데이터로 학습시키는 것과 비슷하거나 더 뛰어난 효과를 낼 수 있다는 것을 발견했습니다.">
+<title>LLaMA</title>
+
+<link rel='canonical' href='https://kimberlykang.github.io/ko/p/llama_review/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="LLaMA">
+<meta property='og:description' content="본 포스트에서는 2023년 Meta가 발표한 LLaMA에 대해 살펴보겠습니다. https://arxiv.org/abs/2302.13971 목차 배경 Pre-Training 데이터 모델 결과 배경 2020년 Scaling Law에 관한 논문에서는 언어 모델의 성능이 주로 파라미터 수, 데이터셋 크기, 그리고 학습에 투입되는 연산량에 의해 결정된다는 사실을 제시했습니다. 이후 Google의 PaLM처럼 파라미터 수를 540B 개까지 늘린 초거대 모델이 등장하면서 모델은 클수록 좋다는 인식이 확산되었습니다. 하지만 DeepMind의 Chinchilla 연구에서는, 동일한 연산량이 주어졌을 때 더 작은 모델을 더 많은 데이터로 학습시키는 것이, 매우 큰 모델을 적은 데이터로 학습시키는 것과 비슷하거나 더 뛰어난 효과를 낼 수 있다는 것을 발견했습니다.">
+<meta property='og:url' content='https://kimberlykang.github.io/ko/p/llama_review/'>
+<meta property='og:site_name' content='Kimberly&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='LLaMA' /><meta property='article:published_time' content='2023-12-27T00:17:41&#43;09:00'/><meta property='article:modified_time' content='2023-12-27T00:17:41&#43;09:00'/>
+<meta name="twitter:title" content="LLaMA">
+<meta name="twitter:description" content="본 포스트에서는 2023년 Meta가 발표한 LLaMA에 대해 살펴보겠습니다. https://arxiv.org/abs/2302.13971 목차 배경 Pre-Training 데이터 모델 결과 배경 2020년 Scaling Law에 관한 논문에서는 언어 모델의 성능이 주로 파라미터 수, 데이터셋 크기, 그리고 학습에 투입되는 연산량에 의해 결정된다는 사실을 제시했습니다. 이후 Google의 PaLM처럼 파라미터 수를 540B 개까지 늘린 초거대 모델이 등장하면서 모델은 클수록 좋다는 인식이 확산되었습니다. 하지만 DeepMind의 Chinchilla 연구에서는, 동일한 연산량이 주어졌을 때 더 작은 모델을 더 많은 데이터로 학습시키는 것이, 매우 큰 모델을 적은 데이터로 학습시키는 것과 비슷하거나 더 뛰어난 효과를 낼 수 있다는 것을 발견했습니다."><style>
+     
+    :root {
+        --article-font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    * {
+        font-family: "Open Sans", var(--base-font-family);
+    }
+
+     
+    *:lang(ko),
+    *[lang="ko"],
+    *[lang="ko-KR"],
+    *[lang="ko-KP"] {
+        font-family: "Nanum Gothic", var(--base-font-family);
+    }
+
+     
+    .sidebar * {
+        font-family: "Open Sans", var(--base-font-family) !important;
+    }
+</style>
+
+<script>
+    (function () {
+        
+        const nanumGothic = document.createElement('link');
+        nanumGothic.href = "https://fonts.googleapis.com/css?family=Nanum+Gothic:400";
+        nanumGothic.type = "text/css";
+        nanumGothic.rel = "stylesheet";
+        document.head.appendChild(nanumGothic);
+
+        
+        const openSans = document.createElement('link');
+        openSans.href = "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+        openSans.type = "text/css";
+        openSans.rel = "stylesheet";
+        document.head.appendChild(openSans);
+    }());
+</script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="메뉴 여닫기">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/ko/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/kimberly_avatar_hu92a1a2905f7ef83b94672016a24ef023_184760_300x0_resize_q75_box.jpeg" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/ko">Kimberly&#39;s Blog</a></h1>
+            <h2 class="site-description">Vision Engineer</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/ko/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/ko/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+                    
+                        <li id="i18n-switch">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                            <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                                
+                                    <option value="https://kimberlykang.github.io/" >English</option>
+                                
+                                    <option value="https://kimberlykang.github.io/ko/" selected>Korean</option>
+                                
+                            </select>
+                        </li>
+                    
+                
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>다크 모드</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">목차</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#배경">배경</a></li>
+    <li><a href="#pre-training-데이터">Pre-Training 데이터</a></li>
+    <li><a href="#모델">모델</a></li>
+    <li><a href="#결과">결과</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/ko/categories/paper-review/" style="background-color: #2a9d8f; color: #fff;">
+                Paper review
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/ko/p/llama_review/">LLaMA</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">12월 27, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 분 정도
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+        <footer class="article-translations">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+            <div>
+                
+                    <a href="https://kimberlykang.github.io/p/llama_review/" class="link">English</a>
+                
+            </div>
+        </footer>
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>본 포스트에서는 2023년 Meta가 발표한 LLaMA에 대해 살펴보겠습니다.<br>
+<a class="link" href="https://arxiv.org/abs/2302.13971"  target="_blank" rel="noopener"
+    >https://arxiv.org/abs/2302.13971</a></p>
+<h1 id="목차">목차
+</h1><ol>
+<li><a class="link" href="#%eb%b0%b0%ea%b2%bd" >배경</a></li>
+<li><a class="link" href="#pre-training-%eb%8d%b0%ec%9d%b4%ed%84%b0" >Pre-Training 데이터</a></li>
+<li><a class="link" href="#%eb%aa%a8%eb%8d%b8" >모델</a></li>
+<li><a class="link" href="#%ea%b2%b0%ea%b3%bc" >결과</a></li>
+</ol>
+<h2 id="배경">배경
+</h2><ul>
+<li>2020년 Scaling Law에 관한 논문에서는 언어 모델의 성능이 주로 파라미터 수, 데이터셋 크기, 그리고 학습에 투입되는 연산량에 의해 결정된다는 사실을 제시했습니다.</li>
+<li>이후 Google의 PaLM처럼 파라미터 수를 540B 개까지 늘린 초거대 모델이 등장하면서 모델은 클수록 좋다는 인식이 확산되었습니다.</li>
+<li>하지만 DeepMind의 Chinchilla 연구에서는, 동일한 연산량이 주어졌을 때 더 작은 모델을 더 많은 데이터로 학습시키는 것이, 매우 큰 모델을 적은 데이터로 학습시키는 것과 비슷하거나 더 뛰어난 효과를 낼 수 있다는 것을 발견했습니다.</li>
+<li>LLaMA(Large Language Model Meta AI)
+<ul>
+<li>inference 비용을 고려하면 모델이 작을수록 좋기 때문에, 더 작은 모델로 더 많은 양의 데이터를 오래 학습시켰습니다.</li>
+<li>7B~65B parameter로 큰 모델들과 비슷한 성능을 보였습니다.</li>
+<li>공개된 데이터만을 사용해 학습되었으며, 모델의 weight 또한 함께 공개했다는 점에서 기존 대형 언어 모델들과 차별화됩니다.</li>
+</ul>
+</li>
+</ul>
+<h2 id="pre-training-데이터">Pre-Training 데이터
+</h2><ul>
+<li>
+<p>Dataset</p>
+<ul>
+<li>English CommonCrawl
+<ul>
+<li>line level에서 deduplication을 적용했습니다.</li>
+<li>영어 아닌 문서는 제거했습니다.</li>
+<li>n-gram language model로 quality가 낮은 데이터는 제거했습니다.</li>
+<li>Wikipedia에서 참고문서로 사용된 페이지를 분류하는 linear model 학습하여, 참고 문서로 사용되지 않은 페이지는 제거했습니다.</li>
+</ul>
+</li>
+<li>C4
+<ul>
+<li>line level에서 deduplication을 적용했습니다.</li>
+<li>영어 아닌 문서는 제거했습니다.</li>
+<li>punctuation marks, 단어 수, 문장 수로 quality filtering을 했습니다.</li>
+</ul>
+</li>
+<li>Github
+<ul>
+<li>Apache, BSD, MIT license만 포함했습니다.</li>
+<li>line 수, 영어 숫자 비율로 quality filtering을 했습니다.</li>
+<li>boilerplate를 제거했습니다.</li>
+<li>exact match로 file level에서 deduplication을 적용했습니다.</li>
+</ul>
+</li>
+<li>Wikipedia
+<ul>
+<li>20 종류 언어 포함했습니다.</li>
+<li>hyperlink, 댓글, boilerplate를 제거했습니다.</li>
+</ul>
+</li>
+<li>Gutenberg and Books3
+<ul>
+<li>90% 이상 겹치는 데이터를 book level로 deduplication 적용했습니다.</li>
+</ul>
+</li>
+<li>Arxiv
+<ul>
+<li>Latex 파일을 사용했습니다.</li>
+<li>첫 번째 섹션 전 내용을 제거했습니다.</li>
+</ul>
+</li>
+<li>Stack Exchange
+<ul>
+<li>HTML tag를 제거했습니다.</li>
+<li>score로 답변을 정렬하여 사용했습니다.
+<img src="/p/llama_review/pretrain_dataset.png"
+	width="850"
+	height="473"
+	srcset="/p/llama_review/pretrain_dataset_hua6ea4e884a88fdf6ce6e11d0769e7809_113236_480x0_resize_box_3.png 480w, /p/llama_review/pretrain_dataset_hua6ea4e884a88fdf6ce6e11d0769e7809_113236_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Pre-train dataset"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="179"
+		data-flex-basis="431px"
+	
+>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 1.</em></a></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Tokenizer</p>
+<ul>
+<li>Byte Pair Encoding(BPE)</li>
+<li>Sentence-Piece</li>
+<li>전체 1.4T의 token을 사용했습니다.(참고로 PaLM-540B는 780B, Chinchilla-70B는 총 1.4T 토큰으로 학습했습니다.)</li>
+</ul>
+</li>
+</ul>
+<h2 id="모델">모델
+</h2><ul>
+<li>구조
+<ul>
+<li>RMSNorm 사용하여 output 대신 input을 normalize 했습니다.</li>
+<li>SwiGLU activation.</li>
+<li>Relative Positional Embedding의 한 종류인 Rotary Positional Embedding(RoPE)을 사용했습니다.</li>
+</ul>
+</li>
+<li>Optimizer
+<ul>
+<li>AdamW.</li>
+<li>Cosine learning rate schedule.</li>
+<li>weight decay.</li>
+<li>gradient clipping.</li>
+<li>2000 warmup steps.
+<img src="/p/llama_review/model_architecture.png"
+	width="1422"
+	height="328"
+	srcset="/p/llama_review/model_architecture_hu1294d8a9e72aaf811e41ad616772a3d3_79906_480x0_resize_box_3.png 480w, /p/llama_review/model_architecture_hu1294d8a9e72aaf811e41ad616772a3d3_79906_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Model Architecture"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="433"
+		data-flex-basis="1040px"
+	
+>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 2.</em></a></span></li>
+</ul>
+</li>
+<li>Efficient Implementation
+<ul>
+<li>causal multi-head attention: masking된 건 계산하지 않았습니다.</li>
+<li>checkpointing: 계산하는 데 오래 걸리는 activation은 저장해서 다시 사용했습니다. Manually implement해서 PyTorch autograd 대신 사용했습니다.</li>
+<li>80GB A100 GPU 2048개를 사용하여 초당 GPU 하나에서 380개 token을 처리했고, 총 학습은 21일이 걸렸습니다.</li>
+</ul>
+</li>
+</ul>
+<h2 id="결과">결과
+</h2><ul>
+<li>소형 모델임에도 불구하고, 대형 언어 모델과 매우 유사한 수준의 성능을 달성했습니다.</li>
+<li>Common Sense Reasoning
+<img src="/p/llama_review/result1.png"
+	width="1142"
+	height="500"
+	srcset="/p/llama_review/result1_hu15a8ea4fb35c00100c529f7c67f84aed_150217_480x0_resize_box_3.png 480w, /p/llama_review/result1_hu15a8ea4fb35c00100c529f7c67f84aed_150217_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result1"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="228"
+		data-flex-basis="548px"
+	
+>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 3.</em></a></span></li>
+<li>Closed-book Question Answering
+<img src="/p/llama_review/result2.png"
+	width="573"
+	height="515"
+	srcset="/p/llama_review/result2_hu2291fc2edcdc59ad4552a65bbb54308c_92504_480x0_resize_box_3.png 480w, /p/llama_review/result2_hu2291fc2edcdc59ad4552a65bbb54308c_92504_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result2"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="111"
+		data-flex-basis="267px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 4.</em></a></span>
+<img src="/p/llama_review/result3.png"
+	width="581"
+	height="388"
+	srcset="/p/llama_review/result3_huc6145e3ac786de1a383cf000b9964d3e_73500_480x0_resize_box_3.png 480w, /p/llama_review/result3_huc6145e3ac786de1a383cf000b9964d3e_73500_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result3"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="149"
+		data-flex-basis="359px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 5.</em></a></span></li>
+<li>Reading Comprehension<br>
+<img src="/p/llama_review/result4.png"
+	width="579"
+	height="473"
+	srcset="/p/llama_review/result4_huf18d66cf921381278adeda24daee433c_65610_480x0_resize_box_3.png 480w, /p/llama_review/result4_huf18d66cf921381278adeda24daee433c_65610_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result4"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="122"
+		data-flex-basis="293px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 6.</em></a></span></li>
+<li>Mathematical Reasoning
+<ul>
+<li>LaTex로 작성된 중, 고등학교 수학 문제를 푸는 Task입니다.</li>
+<li>Minerva: Palm 모델을 ArXiv, Math Web Pages에 fine-tuning 한 모델입니다.
+<img src="/p/llama_review/result5.png"
+	width="552"
+	height="469"
+	srcset="/p/llama_review/result5_hu3f871b7b73d199e79b8106052ba22dd7_70082_480x0_resize_box_3.png 480w, /p/llama_review/result5_hu3f871b7b73d199e79b8106052ba22dd7_70082_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result5"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="117"
+		data-flex-basis="282px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 7.</em></a></span></li>
+</ul>
+</li>
+<li>Code Generation<br>
+<img src="/p/llama_review/result6.png"
+	width="579"
+	height="448"
+	srcset="/p/llama_review/result6_hubf782930778bcdb860500476607ff6e3_83897_480x0_resize_box_3.png 480w, /p/llama_review/result6_hubf782930778bcdb860500476607ff6e3_83897_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result6"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="129"
+		data-flex-basis="310px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 8.</em></a></span></li>
+<li>Massive Multitask Language Understanding
+<ul>
+<li>2TB의 책 데이터로 학습한 Chinchilla, Gopher, PaLM와 달리 LLaMA는 177GB의 적은 데이터로 학습했지만, 비슷한 성능을 보였습니다.
+<img src="/p/llama_review/result7.png"
+	width="972"
+	height="504"
+	srcset="/p/llama_review/result7_huc2b466d4ef7a7d0f199bec2ad2fc9fb2_118593_480x0_resize_box_3.png 480w, /p/llama_review/result7_huc2b466d4ef7a7d0f199bec2ad2fc9fb2_118593_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Result7"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="192"
+		data-flex-basis="462px"
+	
+><br>
+<span style="font-size:70%"> 출처: <a class="link" href="https://arxiv.org/pdf/2302.13971"  target="_blank" rel="noopener"
+    ><em>Touvron, Hugo, et al. &ldquo;Llama: Open and efficient foundation language models.&rdquo; arXiv preprint arXiv:2302.13971 (2023), Table 9.</em></a></span></li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/ko/tags/llama/">LLaMA</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">관련 글</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/ko/p/compare_donut_pix2struct/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Donut, Pix2struct 비교</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/layoutlmv2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">LayoutLMv2 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/unilmv2_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">UniLMv2 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/xlnet_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">XLNet 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/ko/p/gpt_review/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">GPT1, 2, 3 리뷰</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="kimberlykang/utterances"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2025 Kimberly&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>로 만듦 <br />
+        <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>의 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> 테마 사용 중
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
