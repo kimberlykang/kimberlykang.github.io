@@ -6,7 +6,309 @@
         <description>Recent content in Posts on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
-        <lastBuildDate>Wed, 27 Dec 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 25 Jan 2024 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>CLIP</title>
+        <link>https://kimberlykang.github.io/p/clip_review/</link>
+        <pubDate>Thu, 25 Jan 2024 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/p/clip_review/</guid>
+        <description>&lt;p&gt;In this post, we will take a look at &amp;ldquo;Learning Transferable Visual Models From Natural Language Supervision,&amp;rdquo; published by OpenAI in 2021.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#inference-examples&#34; &gt;Inference Examples&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#training-method&#34; &gt;Training Method&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#model&#34; &gt;Model&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#additional-training-techniques&#34; &gt;Additional Training Techniques&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#results&#34; &gt;Results&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;inference-examples&#34;&gt;Inference Examples
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Zero-shot inference results
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/inference_example_01.png&#34;
+	width=&#34;1077&#34;
+	height=&#34;932&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/inference_example_01_hu7b2bd15d57622ad73b5b5ceecce2e394_719137_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/inference_example_01_hu7b2bd15d57622ad73b5b5ceecce2e394_719137_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Inference example&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;115&#34;
+		data-flex-basis=&#34;277px&#34;
+	
+&gt;&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/inference_example_02.png&#34;
+	width=&#34;1078&#34;
+	height=&#34;935&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/inference_example_02_hua19838337a354d039bc010c93ce2243c_632726_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/inference_example_02_hua19838337a354d039bc010c93ce2243c_632726_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Inference example&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;115&#34;
+		data-flex-basis=&#34;276px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Learning transferable visual models from natural language supervision.&amp;rdquo; International conference on machine learning. PMLR, 2021, Figure 11.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;training-method&#34;&gt;Training Method
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Training&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Given a batch of N (image, text) pairs, representations of both the images and texts are generated.&lt;/li&gt;
+&lt;li&gt;Instead of using labels, text is used, so there is no need for dataset labeling during dataset creation.
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/architecture_01.png&#34;
+	width=&#34;856&#34;
+	height=&#34;621&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/architecture_01_hu578e505a28ed412773c3227c1551749d_79673_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/architecture_01_hu578e505a28ed412773c3227c1551749d_79673_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;137&#34;
+		data-flex-basis=&#34;330px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Learning transferable visual models from natural language supervision.&amp;rdquo; International conference on machine learning. PMLR, 2021, Figure 1, (1).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;ul&gt;
+&lt;li&gt;An image encoder and a text encoder are trained.&lt;/li&gt;
+&lt;li&gt;The model is trained to maximize the cosine similarity between image embedding and text embedding of the actual N pairs.&lt;/li&gt;
+&lt;li&gt;For each embedding, the output from the &lt;code&gt;[CLS]&lt;/code&gt; token of the image encoder is used for the image, and the &lt;code&gt;[EOS]&lt;/code&gt; token output from the text encoder is used for text.&lt;/li&gt;
+&lt;li&gt;Contrastive objective: The model is also trained to minimize the cosine similarity between $N^2 - N$ negative image-text pairs.&lt;/li&gt;
+&lt;li&gt;The final symmetric cross entropy loss is obtained by performing both: (1) classifying text embeddings based on image embeddings, and (2) classifying image embeddings based on text embeddings, then calculating cross entropy for both.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;The larger the mini-batch size, the more detailed the representations become.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Inference&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Obtain the image feature embedding.&lt;/li&gt;
+&lt;li&gt;Obtain the embeddings for all possible texts.&lt;/li&gt;
+&lt;li&gt;Compute the cosine similarity between image and text embeddings.
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/architecture_02.png&#34;
+	width=&#34;855&#34;
+	height=&#34;615&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/architecture_02_hua07be66d388e6b80865fb04e10cefe7b_75869_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/architecture_02_hua07be66d388e6b80865fb04e10cefe7b_75869_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;139&#34;
+		data-flex-basis=&#34;333px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Learning transferable visual models from natural language supervision.&amp;rdquo; International conference on machine learning. PMLR, 2021, Figure 1, (2), (3).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;ul&gt;
+&lt;li&gt;Image encoder: vision backbone, generates the feature representation of an image.&lt;/li&gt;
+&lt;li&gt;Text encoder: acts as a linear classifier.&lt;/li&gt;
+&lt;li&gt;Once text encoders are computed, the zero-shot classifier can be cached to reduce inference cost.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Inference can be performed without any task-specific training.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;model&#34;&gt;Model
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Image encoder&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Uses ResNet-50 or Vision Transformer.&lt;/li&gt;
+&lt;li&gt;Output size: 512&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Text encoder&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;64M parameters, 12 layers, 512-wide, 8 attention heads&lt;/li&gt;
+&lt;li&gt;Output size: 512&lt;/li&gt;
+&lt;li&gt;Vocabulary size: 49,152&lt;/li&gt;
+&lt;li&gt;Max sequence length: 76&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Dataset: WebImageText (WIT)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;400M image-text pairs collected from the internet.&lt;/li&gt;
+&lt;li&gt;Text must include at least one of 500,000 queries (words that appeared at least 100 times in English Wikipedia).&lt;/li&gt;
+&lt;li&gt;Up to 20,000 (image, text) pairs per query.&lt;/li&gt;
+&lt;li&gt;The word count is similar to that of WebText used in GPT-2 training.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Loss: InfoNCE Loss&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$ {\mathcal{L}}_{\text{CLIP}}= \frac{1}{2} [ \underbrace{-\frac{1}{N} \sum_{i=1}^{N} \log \frac{\exp(sim(I_i,T_i)/\tau)} {\sum_{j=1}^{N}\exp(sim(I_i,T_j) / \tau)}}_{\text{image-to-text loss}} + \underbrace{- \frac{1}{N} \sum^{N}_{i=1} \log \frac{\exp(sim(T_i, I_i)/\tau)}{\sum^{N}_{j=1} \exp(sim(T_j, I_i) / \tau)}}_\text{{text-to-image loss}} ] $&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Parameters&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Image and text encoders are trained from scratch, without any pre-trained weights.&lt;/li&gt;
+&lt;li&gt;Variants: ResNet-50, ResNet-101, ResNet-50x4, ResNet50x16, ResNet50x64&lt;/li&gt;
+&lt;li&gt;Variants: ViT-B/32, ViT-B/16, ViT-L/14&lt;/li&gt;
+&lt;li&gt;32 epochs&lt;/li&gt;
+&lt;li&gt;Initial hyperparameters: performed grid search, random search, and manual tuning using 1 epoch of training on the smallest model&lt;/li&gt;
+&lt;li&gt;Mini-batch size: 32,768
+&lt;ul&gt;
+&lt;li&gt;Since training is performed on alt-text collected from the web, there may be similar images or alt-texts, so large batch training is necessary.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Training time&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CLIP with ResNet50x64 backbone: trained for 18 days on 592 V100 GPUs.&lt;/li&gt;
+&lt;li&gt;CLIP with ViT-L/14 backbone: trained for 12 days on 256 V100 GPUs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;additional-training-techniques&#34;&gt;Additional Training Techniques
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Prompt Engineering
+&lt;ul&gt;
+&lt;li&gt;In the absence of prompts, homonyms such as &amp;ldquo;crane&amp;rdquo; (the bird or the machine) or &amp;ldquo;major&amp;rdquo; (department or meaning rank) caused problems.&lt;/li&gt;
+&lt;li&gt;Using prompts like “A photo of a {label}” increased ImageNet accuracy by 1.3%.&lt;/li&gt;
+&lt;li&gt;For datasets with specific categories:
+&lt;ul&gt;
+&lt;li&gt;Oxford-IIIT: &amp;ldquo;A photo of a {label}, a type of pet.&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;Food101: &amp;ldquo;A photo of a {label}, a type of food.&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;FGVC Aircraft: &amp;ldquo;A photo of a {label}, a type of aircraft.&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;Satellite image classification datasets: &amp;ldquo;A satellite photo of a {label}.&amp;rdquo;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Ensembling
+&lt;ul&gt;
+&lt;li&gt;Ensembled several zero-shot classifiers.
+&lt;ul&gt;
+&lt;li&gt;Examples: &amp;ldquo;A photo of a big {label}&amp;rdquo;, &amp;ldquo;A photo of a small {label}&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;Ensembled in the embedding space. Used cache to reduce cost.&lt;/li&gt;
+&lt;li&gt;For ImageNet: Used 80 different context prompts and ensembled their predictions, achieving a 3.5% accuracy improvement.&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/prompt_ensemble.png&#34;
+	width=&#34;1008&#34;
+	height=&#34;959&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/prompt_ensemble_hu1192debd796fcbd8fef8c200051208e9_114566_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/prompt_ensemble_hu1192debd796fcbd8fef8c200051208e9_114566_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Prompt Engineering and Ensembling&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;105&#34;
+		data-flex-basis=&#34;252px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;results&#34;&gt;Results
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Zero-shot performance&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Compared with a ResNet-50 pretrained on ImageNet and then fine-tuned via linear probing.
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/clip_vs_resnet.png&#34;
+	width=&#34;840&#34;
+	height=&#34;933&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/clip_vs_resnet_hu75cf0b2f5a8d1f3d263e12a1bee96004_165464_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/clip_vs_resnet_hu75cf0b2f5a8d1f3d263e12a1bee96004_165464_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Prompt Engineering and Ensembling&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;90&#34;
+		data-flex-basis=&#34;216px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;On many datasets, zero-shot CLIP outperformed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Zero-shot CLIP vs Few-shot linear probe CLIP (average score across 20 datasets).
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/few_shot_linear_probes.png&#34;
+	width=&#34;993&#34;
+	height=&#34;954&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/few_shot_linear_probes_hu1e3134f57f7122a4c6363674f9a1b5dd_208367_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/few_shot_linear_probes_hu1e3134f57f7122a4c6363674f9a1b5dd_208367_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Few shot Linear Probing&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;104&#34;
+		data-flex-basis=&#34;249px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;4-shot CLIP showed performance comparable to zero-shot CLIP.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Linear probe CLIP vs state-of-the-art models.
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/linear_probe_performance.png&#34;
+	width=&#34;1532&#34;
+	height=&#34;975&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/linear_probe_performance_hu31f0f6335fce826cc7f39994ddb20696_319951_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/linear_probe_performance_hu31f0f6335fce826cc7f39994ddb20696_319951_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Linear probe performance in comparison with state-fo-the-art&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;157&#34;
+		data-flex-basis=&#34;377px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Natural Distribution Shift&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/distribution_shift.png&#34;
+	width=&#34;959&#34;
+	height=&#34;588&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/distribution_shift_hu6115ce46ae7f98a7c6f60df3f59b6433_636577_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/distribution_shift_hu6115ce46ae7f98a7c6f60df3f59b6433_636577_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Distribution Shift&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;163&#34;
+		data-flex-basis=&#34;391px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Zero-shot CLIP achieved performance comparable to models trained specifically on ImageNet.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>LLaMA</title>
         <link>https://kimberlykang.github.io/p/llama_review/</link>
         <pubDate>Wed, 27 Dec 2023 00:17:41 +0900</pubDate>

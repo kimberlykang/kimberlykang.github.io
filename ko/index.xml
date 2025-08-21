@@ -6,7 +6,308 @@
         <description>Recent content on Kimberly&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>ko</language>
-        <lastBuildDate>Wed, 27 Dec 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 25 Jan 2024 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>CLIP</title>
+        <link>https://kimberlykang.github.io/ko/p/clip_review/</link>
+        <pubDate>Thu, 25 Jan 2024 00:17:41 +0900</pubDate>
+        
+        <guid>https://kimberlykang.github.io/ko/p/clip_review/</guid>
+        <description>&lt;p&gt;본 포스트에서는 2021년 OpenAI에서 발표한 &amp;ldquo;Learning Transferable Visual Models From Natural Language Supervision&amp;quot;을 살펴보겠습니다.&lt;br&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;목차&#34;&gt;목차
+&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ec%b6%94%eb%a1%a0-%ea%b2%b0%ea%b3%bc-%ec%98%88%ec%8b%9c&#34; &gt;추론 결과 예시&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ed%95%99%ec%8a%b5-%eb%b0%a9%eb%b2%95&#34; &gt;학습 방법&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%eb%aa%a8%eb%8d%b8&#34; &gt;모델&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ec%b6%94%ea%b0%80%ec%a0%81%ec%9d%b8-%ed%95%99%ec%8a%b5-%ea%b8%b0%eb%b2%95&#34; &gt;추가적인 학습 기법&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#%ea%b2%b0%ea%b3%bc&#34; &gt;결과&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;추론-결과-예시&#34;&gt;추론 결과 예시
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Zero-shot 추론 결과
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/inference_example_01.png&#34;
+	width=&#34;1077&#34;
+	height=&#34;932&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/inference_example_01_hu7b2bd15d57622ad73b5b5ceecce2e394_719137_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/inference_example_01_hu7b2bd15d57622ad73b5b5ceecce2e394_719137_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Inference example&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;115&#34;
+		data-flex-basis=&#34;277px&#34;
+	
+&gt;&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/inference_example_02.png&#34;
+	width=&#34;1078&#34;
+	height=&#34;935&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/inference_example_02_hua19838337a354d039bc010c93ce2243c_632726_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/inference_example_02_hua19838337a354d039bc010c93ce2243c_632726_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Inference example&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;115&#34;
+		data-flex-basis=&#34;276px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Learning transferable visual models from natural language supervision.&amp;rdquo; International conference on machine learning. PmLR, 2021, Figure 11.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;학습-방법&#34;&gt;학습 방법
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;학습&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;N개의 (이미지, 텍스트) pair가 있는 batch가 주어졌을 때, (이미지, 텍스트)의 representation을 만듭니다.&lt;/li&gt;
+&lt;li&gt;label을 사용하는 것이 아니라 텍스트를 사용하므로, 데이터셋 생성 시 labeling을 할 필요가 없습니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/architecture_01.png&#34;
+	width=&#34;856&#34;
+	height=&#34;621&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/architecture_01_hu578e505a28ed412773c3227c1551749d_79673_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/architecture_01_hu578e505a28ed412773c3227c1551749d_79673_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;137&#34;
+		data-flex-basis=&#34;330px&#34;
+	
+&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Learning transferable visual models from natural language supervision.&amp;rdquo; International conference on machine learning. PmLR, 2021, Figure 1, (1).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;ul&gt;
+&lt;li&gt;이미지 encoder와 텍스트 encoder를 학습합니다.&lt;/li&gt;
+&lt;li&gt;N개 실제 pair의 이미지 embedding과 텍스트 embedding 사이의 cosine similarity를 최대화하도록 학습합니다.&lt;/li&gt;
+&lt;li&gt;비교하는 embedding으로는 이미지는 &lt;code&gt;[CLS]&lt;/code&gt; 토큰의 image encoder의 output을, 텍스트는 &lt;code&gt;[EOS]&lt;/code&gt; 토큰의 text encoder의 output을 사용합니다.&lt;/li&gt;
+&lt;li&gt;Contrastive objective: $ N^2 - N $개 부정확한 pair의 이미지 embedding과 텍스트 embedding 사이의 cosine similarity를 최소화하도록 학습합니다.&lt;/li&gt;
+&lt;li&gt;이미지 임베딩을 기준으로 텍스트 임베딩을 분류, 텍스트 임베딩을 기준으로 이미지 임베딩을 분류 두 가지를 수행하여  Cross entropy를 계산 후 최종 symmetric cross entropy loss를 구해 최적화합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;mini-batch 사이즈가 클 수록 representation이 더욱 detail해지게 됩니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;추론&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;이미지 feature embedding을 구합니다.&lt;/li&gt;
+&lt;li&gt;가능한 text의 embedding을 구합니다.&lt;/li&gt;
+&lt;li&gt;이미지와 텍스트 사이의 cosine similarity를 구합니다.
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/architecture_02.png&#34;
+	width=&#34;855&#34;
+	height=&#34;615&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/architecture_02_hua07be66d388e6b80865fb04e10cefe7b_75869_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/architecture_02_hua07be66d388e6b80865fb04e10cefe7b_75869_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;139&#34;
+		data-flex-basis=&#34;333px&#34;
+	
+&gt;&lt;br&gt;
+&lt;span style=&#34;font-size:70%&#34;&gt; 출처: &lt;a class=&#34;link&#34; href=&#34;https://proceedings.mlr.press/v139/radford21a/radford21a.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Radford, Alec, et al. &amp;ldquo;Learning transferable visual models from natural language supervision.&amp;rdquo; International conference on machine learning. PmLR, 2021, Figure 1, (2), (3).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
+&lt;ul&gt;
+&lt;li&gt;이미지 encoder: vision backbone. 이미지의 feature representation을 구합니다.&lt;/li&gt;
+&lt;li&gt;텍스트 encoder: linear classifier역할을 하게 됩니다.&lt;/li&gt;
+&lt;li&gt;한 번 텍스트 인코더를 계산 하면 그 zero-shot classifier를 cache로 저장하여 코스트 줄입니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;task에 대한 학습이 없이도 추론이 가능합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;모델&#34;&gt;모델
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Image encoder&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ResNet-50 혹은 Vision Transformer를 사용합니다.&lt;/li&gt;
+&lt;li&gt;output size: 512&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Text encoder&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;64M parameter, 12 layer, 512-wide, 8 attention heads&lt;/li&gt;
+&lt;li&gt;output size: 512&lt;/li&gt;
+&lt;li&gt;vocab size 49,152&lt;/li&gt;
+&lt;li&gt;max wequence length: 76&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Dataset: WebImageText(WIT)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;인터넷에서 400M 이미지, 텍스트 pair 수집.&lt;/li&gt;
+&lt;li&gt;500,000 query(영어 Wikipedia에서 최소 100번 이상 나온 단어) 중 하나를 포함한 텍스트&lt;/li&gt;
+&lt;li&gt;query당 20,000(이미지, 텍스트) 까지 포함.&lt;/li&gt;
+&lt;li&gt;GPT2 학습에 사용된 WebText의 word count와 비슷한 word count.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Loss: InfoNCE Loss&lt;br&gt;
+$ {\mathcal{L}}_{\text{CLIP}}= \frac{1}{2} [ \underbrace{-\frac{1}{N} \sum_{i=1}^{N} \log \frac{\exp(sim(I_i,T_i)/\tau)} {\sum_{j=1}^{N}\exp(sim(I_i,T_j) / \tau)}}_{\text{image-to-text loss}} + \underbrace{- \frac{1}{N} \sum^{N}_{i=1} \log \frac{\exp(sim(T_i, I_i)/\tau)}{\sum^{N}_{j=1} \exp(sim(T_j, I_i) / \tau)}}_{\text{text-to-image loss}} ] $&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Parameters&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;이미지, 텍스트 encoder를 pre-train된 weight로 initialize하지 않고 scratch부터 학습했습니다.&lt;/li&gt;
+&lt;li&gt;ResNet-50, ResNet-101, ResNet-50x4, ResNet50x16, ResNet50x64&lt;/li&gt;
+&lt;li&gt;ViT-B/32, ViT-B/16, ViT-L/14&lt;/li&gt;
+&lt;li&gt;32 epochs&lt;/li&gt;
+&lt;li&gt;initial hyperparameter: 가장 작은 모델 1 epoch 학습하며 grid search, random search, manual tuning&lt;/li&gt;
+&lt;li&gt;mini batch: 32,768
+&lt;ul&gt;
+&lt;li&gt;web에서 수집한 alt-text로 학습하기 때문에 비슷한 이미지나 alt-text가 있을 수 있어서, 큰 batch로 학습하애 합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;학습 시간&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ResNet50x64 기반 CLIP: 592개 V100 GPU에서 18일 학습했습니다.&lt;/li&gt;
+&lt;li&gt;ViT-L/14 기반 CLIP: 256개 V100 GPU에서 12일 학습했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;추가적인-학습-기법&#34;&gt;추가적인 학습 기법
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Prompt Engineering
+&lt;ul&gt;
+&lt;li&gt;Prompt가 없을 떄, 크레인, 학과 같은 동음이의어가 문제가 되었습니다.&lt;/li&gt;
+&lt;li&gt;A photo of a {label} 의 prompt를 사용하여 ImageNet 정확도 1.3% 올렸습니다.&lt;/li&gt;
+&lt;li&gt;데이터셋이 특정 카테고리인 경우.
+&lt;ul&gt;
+&lt;li&gt;Oxford-IIIT: A photo of a {label}, a type of pet.&lt;/li&gt;
+&lt;li&gt;Food101: a type of food&lt;/li&gt;
+&lt;li&gt;FGVC Aircraft: a type of aircraft.&lt;/li&gt;
+&lt;li&gt;인공위성 이미지 classification datasets: a satellite photo of a {label}&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Ensembling
+&lt;ul&gt;
+&lt;li&gt;여러 개 zero-shot classifier을 ensemble 했습니다.
+&lt;ul&gt;
+&lt;li&gt;A photo of a big {label}&lt;/li&gt;
+&lt;li&gt;A photo of a small {label}&lt;/li&gt;
+&lt;li&gt;embedding space에 대해 ensemble 했습니다. 이 때, cache를 사용하여 cost를 줄였습니다.&lt;/li&gt;
+&lt;li&gt;ImageNet: 80개 의 다른 context prompt 사용하여 ensemble하여 3.5% 성능 향상시켰습니다.&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/prompt_ensemble.png&#34;
+	width=&#34;1008&#34;
+	height=&#34;959&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/prompt_ensemble_hu1192debd796fcbd8fef8c200051208e9_114566_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/prompt_ensemble_hu1192debd796fcbd8fef8c200051208e9_114566_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Prompt Engineering and Ensembling&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;105&#34;
+		data-flex-basis=&#34;252px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;결과&#34;&gt;결과
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Zero-shot performance&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;이미지넷 pre-train한 뒤 linear probing한 ResNet50과 비교.
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/clip_vs_resnet.png&#34;
+	width=&#34;840&#34;
+	height=&#34;933&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/clip_vs_resnet_hu75cf0b2f5a8d1f3d263e12a1bee96004_165464_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/clip_vs_resnet_hu75cf0b2f5a8d1f3d263e12a1bee96004_165464_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Prompt Engineering and Ensembling&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;90&#34;
+		data-flex-basis=&#34;216px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;많은 dataset에서 zero-shot CLIP이 성능이 더 좋았습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Zero-shot CLIP과 Few-shot linear probe CLIP 비교(20 datasets에 대한 평균 score).
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/few_shot_linear_probes.png&#34;
+	width=&#34;993&#34;
+	height=&#34;954&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/few_shot_linear_probes_hu1e3134f57f7122a4c6363674f9a1b5dd_208367_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/few_shot_linear_probes_hu1e3134f57f7122a4c6363674f9a1b5dd_208367_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Few shot Linear Probing&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;104&#34;
+		data-flex-basis=&#34;249px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;4-shot CLIP이 zero-shot CLIP 성능과 비슷했습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Linear probe CLIP과 SoTA 모델 비교.
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/linear_probe_performance.png&#34;
+	width=&#34;1532&#34;
+	height=&#34;975&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/linear_probe_performance_hu31f0f6335fce826cc7f39994ddb20696_319951_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/linear_probe_performance_hu31f0f6335fce826cc7f39994ddb20696_319951_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Linear probe performance in comparison with state-fo-the-art&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;157&#34;
+		data-flex-basis=&#34;377px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Natural Distribution Shift&lt;br&gt;
+&lt;img src=&#34;https://kimberlykang.github.io/p/clip_review/distribution_shift.png&#34;
+	width=&#34;959&#34;
+	height=&#34;588&#34;
+	srcset=&#34;https://kimberlykang.github.io/p/clip_review/distribution_shift_hu6115ce46ae7f98a7c6f60df3f59b6433_636577_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/clip_review/distribution_shift_hu6115ce46ae7f98a7c6f60df3f59b6433_636577_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Distribution Shift&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;163&#34;
+		data-flex-basis=&#34;391px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ImageNet에 학습한 모델 성능을 zero-shot CLIP이 따라 잡는 결과를 보였습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>LLaMA</title>
         <link>https://kimberlykang.github.io/ko/p/llama_review/</link>
         <pubDate>Wed, 27 Dec 2023 00:17:41 +0900</pubDate>

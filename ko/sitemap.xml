@@ -3,7 +3,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://kimberlykang.github.io/ko/categories/</loc>
-    <lastmod>2023-12-27T00:17:41+09:00</lastmod>
+    <lastmod>2024-01-25T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -15,8 +15,34 @@
                 href="https://kimberlykang.github.io/ko/categories/"
                 />
   </url><url>
+    <loc>https://kimberlykang.github.io/ko/tags/clip/</loc>
+    <lastmod>2024-01-25T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/tags/clip/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/tags/clip/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/ko/p/clip_review/</loc>
+    <lastmod>2024-01-25T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/p/clip_review/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/p/clip_review/"
+                />
+  </url><url>
     <loc>https://kimberlykang.github.io/ko/</loc>
-    <lastmod>2023-12-27T00:17:41+09:00</lastmod>
+    <lastmod>2024-01-25T00:17:41+09:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -26,6 +52,45 @@
                 rel="alternate"
                 hreflang="ko"
                 href="https://kimberlykang.github.io/ko/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/ko/categories/paper-review/</loc>
+    <lastmod>2024-01-25T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/categories/paper-review/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/categories/paper-review/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/ko/post/</loc>
+    <lastmod>2024-01-25T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/post/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/post/"
+                />
+  </url><url>
+    <loc>https://kimberlykang.github.io/ko/tags/</loc>
+    <lastmod>2024-01-25T00:17:41+09:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://kimberlykang.github.io/tags/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="ko"
+                href="https://kimberlykang.github.io/ko/tags/"
                 />
   </url><url>
     <loc>https://kimberlykang.github.io/ko/tags/llama/</loc>
@@ -52,45 +117,6 @@
                 rel="alternate"
                 hreflang="ko"
                 href="https://kimberlykang.github.io/ko/p/llama_review/"
-                />
-  </url><url>
-    <loc>https://kimberlykang.github.io/ko/categories/paper-review/</loc>
-    <lastmod>2023-12-27T00:17:41+09:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://kimberlykang.github.io/categories/paper-review/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="ko"
-                href="https://kimberlykang.github.io/ko/categories/paper-review/"
-                />
-  </url><url>
-    <loc>https://kimberlykang.github.io/ko/post/</loc>
-    <lastmod>2023-12-27T00:17:41+09:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://kimberlykang.github.io/post/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="ko"
-                href="https://kimberlykang.github.io/ko/post/"
-                />
-  </url><url>
-    <loc>https://kimberlykang.github.io/ko/tags/</loc>
-    <lastmod>2023-12-27T00:17:41+09:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://kimberlykang.github.io/tags/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="ko"
-                href="https://kimberlykang.github.io/ko/tags/"
                 />
   </url><url>
     <loc>https://kimberlykang.github.io/ko/tags/donut/</loc>
