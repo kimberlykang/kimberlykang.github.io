@@ -1,217 +1,174 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-    <channel>
-        <title>YOLOv2 on Kimberly&#39;s Blog</title>
-        <link>https://kimberlykang.github.io/tags/yolov2/</link>
-        <description>Recent content in YOLOv2 on Kimberly&#39;s Blog</description>
-        <generator>Hugo -- gohugo.io</generator>
-        <language>en</language>
-        <lastBuildDate>Sun, 18 Jun 2023 00:09:40 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/yolov2/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>YOLOv2 Review</title>
-        <link>https://kimberlykang.github.io/p/yolov2_review/</link>
-        <pubDate>Sun, 18 Jun 2023 00:09:40 +0900</pubDate>
-        
-        <guid>https://kimberlykang.github.io/p/yolov2_review/</guid>
-        <description>&lt;p&gt;In this post, we’ll take a look at the paper &lt;strong&gt;&amp;ldquo;YOLO9000: Better, Faster, Stronger&amp;rdquo;&lt;/strong&gt; presented at CVPR 2017.&lt;br&gt;
-&lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;YOLO9000: Better, Faster, Stronger&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
-&lt;/h1&gt;&lt;ol&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#motivation&#34; &gt;Motivation&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#batch-normalization&#34; &gt;Batch Normalization&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#classifier-training-on-high-resolution&#34; &gt;Classifier Training on High Resolution&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#use-of-anchor-boxes&#34; &gt;Use of Anchor Boxes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#dimension-clusters&#34; &gt;Dimension Clusters&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#predicted-values&#34; &gt;Predicted Values&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#fine-grained-features&#34; &gt;Fine-Grained Features&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#network&#34; &gt;Network&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#results&#34; &gt;Results&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;motivation&#34;&gt;Motivation
-&lt;/h2&gt;&lt;p&gt;YOLOv1, compared to the then state-of-the-art Fast-RCNN, had considerable localization errors and relatively low recall, frequently missing objects. In YOLOv2, several methods were designed to solve these problems of localization error and low recall, while maintaining a fast inference speed and without increasing network size.&lt;/p&gt;
-&lt;h2 id=&#34;batch-normalization&#34;&gt;Batch Normalization
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;See &lt;a class=&#34;link&#34; href=&#34;http://proceedings.mlr.press/v37/ioffe15.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Batch Normalization was proposed to address covariate shift by normalizing the input to each layer within a mini-batch to the mini-batch’s mean and variance.&lt;/li&gt;
-&lt;li&gt;Since its introduction in 2015 (PMLR), it has been widely used.&lt;/li&gt;
-&lt;li&gt;In YOLOv2, adding Batch Normalization increased mAP by 2%.&lt;/li&gt;
-&lt;li&gt;Batch normalization also acted as a regularizer, so dropout could be removed without causing overfitting.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;classifier-training-on-high-resolution&#34;&gt;Classifier Training on High Resolution
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;Object detection models are usually pre-trained as classifiers on ImageNet, then fine-tuned on detection tasks using transfer learning.&lt;/li&gt;
-&lt;li&gt;YOLOv1 also followed this, using 224×224 images for classification and 448×448 images for detection. This means that during detection training, the network needs to learn not only detection but also to adapt to the changed input resolution.&lt;/li&gt;
-&lt;li&gt;To overcome this, YOLOv2 pre-trained the classification model on 448×448 ImageNet images for 10 epochs before detection training. This simple step improved mAP by 4%.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;use-of-anchor-boxes&#34;&gt;Use of Anchor Boxes
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;YOLOv1 directly predicted bounding box coordinates by attaching a Fully Connected layer to the feature extractor.&lt;/li&gt;
-&lt;li&gt;YOLOv2 removes the Fully Connected layer and, instead, uses anchor boxes to learn offsets. For each anchor, the model predicts class and objectness.&lt;/li&gt;
-&lt;li&gt;As a result, mAP slightly dropped from 69.5 to 69.2, but recall significantly increased from 81% to 88%.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;dimension-clusters&#34;&gt;Dimension Clusters
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;Instead of manually selecting anchor boxes, YOLOv2 uses k-means clustering on training set bounding boxes to derive anchor boxes. Instead of Euclidean distance, it uses a custom metric to avoid a bias for larger boxes:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;$ d(box, centroid) = 1 - IOU(box, centroid) $&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Below is a graph of mean IOU (between dataset bounding boxes and their nearest centroid) and the anchor boxes for k=5:&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/figure2.png&#34;
-	width=&#34;405&#34;
-	height=&#34;205&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Image 1&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;197&#34;
-		data-flex-basis=&#34;474px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Figure 2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Increasing k improves performance but increases complexity; the paper uses k=5 as a tradeoff.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;The white boxes in the above figure show VOC 2007 anchors and the blue boxes COCO anchors at k=5. This shows anchor shapes differ by dataset.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/table1.png&#34;
-	width=&#34;272&#34;
-	height=&#34;102&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Image 2&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;266&#34;
-		data-flex-basis=&#34;640px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Table 1&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;The table above shows average IOU between ground truth and the closest anchor for various anchor generation methods on VOC 2007.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&amp;ldquo;Cluster SSE&amp;rdquo; refers to k-means using sum of squared errors (Euclidean distance); &amp;ldquo;Cluster IOU&amp;rdquo; refers to k-means using IOU-based distance; &amp;ldquo;Anchor Boxes&amp;rdquo; refers to the nine manually chosen anchors in &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1506.01497.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;15&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;IOU-based k-means yields higher average IOU than both SSE-based k-means and the manually-chosen anchor boxes.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;predicted-values&#34;&gt;Predicted Values
-&lt;/h2&gt;&lt;p&gt;Before getting into the outputs YOLOv2 predicts, let’s define the notation:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;$ (c_x, c_y) $: coordinates of the top-left corner of the grid cell&lt;/li&gt;
-&lt;li&gt;$ (b_x, b_y) $: center coordinates of the bounding box&lt;/li&gt;
-&lt;li&gt;$ (b_w, b_h) $: width and height of the bounding box&lt;/li&gt;
-&lt;li&gt;$ (p_w, p_h) $: prior width and height of the anchor box&lt;/li&gt;
-&lt;li&gt;$ (t_x, t_y, t_w, t_h, t_o) $: YOLOv2 network outputs (denoted with t for “target”)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;The predictions:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;$ b_x = \sigma(t_x) + c_x $&lt;/li&gt;
-&lt;li&gt;$ b_y = \sigma(t_y) + c_y $&lt;/li&gt;
-&lt;li&gt;$ b_w = p_w e^{t_w}$&lt;/li&gt;
-&lt;li&gt;$ b_h = p_h e^{t_h}$&lt;/li&gt;
-&lt;li&gt;$ Pr(object) \cdot IOU(b, object) = \sigma(t_o)$&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/figure3.png&#34;
-	width=&#34;402&#34;
-	height=&#34;301&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Image 3&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;133&#34;
-		data-flex-basis=&#34;320px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Figure 3&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;ul&gt;
-&lt;li&gt;For bounding box centers, a logistic activation ($\sigma$) is used, so the predictions are between 0 and 1 and specify a relative position in the cell. For width and height, the output is exponentiated and then multiplied by the prior (anchor) size.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;fine-grained-features&#34;&gt;Fine-Grained Features
-&lt;/h2&gt;&lt;p&gt;A passthrough layer was added to allow detection to use features at different resolutions.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;The 13×13 feature map for detection is connected to the previous 26×26 feature map via a passthrough layer.&lt;/li&gt;
-&lt;li&gt;The 26×26×512 feature map is reshaped to 13×13×2048 and concatenated with the 13×13 feature map.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;network&#34;&gt;Network
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;VGG-16 was used as the base feature extractor. It requires 30.69 billion floating point operations per image.&lt;/li&gt;
-&lt;li&gt;The paper proposes Darknet-19, with 19 convolutional layers, requiring only 5.58 billion operations per image.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;results&#34;&gt;Results
-&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/table2.png&#34;
-	width=&#34;592&#34;
-	height=&#34;236&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Image 4&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;250&#34;
-		data-flex-basis=&#34;602px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Table 2&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;This table shows the mAP for different model types on &lt;strong&gt;VOC 2007&lt;/strong&gt;.&lt;/li&gt;
-&lt;li&gt;The mAP is significantly improved compared to YOLOv1.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/table3.png&#34;
-	width=&#34;410&#34;
-	height=&#34;240&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Image 5&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;170&#34;
-		data-flex-basis=&#34;410px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Table 3&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov2_review/figure4.png&#34;
-	width=&#34;389&#34;
-	height=&#34;271&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Image 6&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;143&#34;
-		data-flex-basis=&#34;344px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: [&lt;em&gt;Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Figure 4&lt;/em&gt;](&lt;a class=&#34;link&#34; href=&#34;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_F&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_F&lt;/a&gt;&lt;/p&gt;
-</description>
-        </item>
-        
-    </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>YOLOv2 on Kimberly's Blog</title><link>https://kimberlykang.github.io/tags/yolov2/</link><description>Recent content in YOLOv2 on Kimberly's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 18 Jun 2023 00:09:40 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/yolov2/index.xml" rel="self" type="application/rss+xml"/><item><title>YOLOv2 Review</title><link>https://kimberlykang.github.io/p/yolov2_review/</link><pubDate>Sun, 18 Jun 2023 00:09:40 +0900</pubDate><guid>https://kimberlykang.github.io/p/yolov2_review/</guid><description>&lt;p>In this post, we’ll take a look at the paper &lt;strong>&amp;ldquo;YOLO9000: Better, Faster, Stronger&amp;rdquo;&lt;/strong> presented at CVPR 2017.&lt;br>
+&lt;a class="link" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf" target="_blank" rel="noopener"
+>YOLO9000: Better, Faster, Stronger&lt;/a>&lt;/p>
+&lt;h1 id="table-of-contents">Table of Contents
+&lt;/h1>&lt;ol>
+&lt;li>&lt;a class="link" href="#motivation" >Motivation&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#batch-normalization" >Batch Normalization&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#classifier-training-on-high-resolution" >Classifier Training on High Resolution&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#use-of-anchor-boxes" >Use of Anchor Boxes&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#dimension-clusters" >Dimension Clusters&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#predicted-values" >Predicted Values&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#fine-grained-features" >Fine-Grained Features&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#network" >Network&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#results" >Results&lt;/a>&lt;/li>
+&lt;/ol>
+&lt;h2 id="motivation">Motivation
+&lt;/h2>&lt;p>YOLOv1, compared to the then state-of-the-art Fast-RCNN, had considerable localization errors and relatively low recall, frequently missing objects. In YOLOv2, several methods were designed to solve these problems of localization error and low recall, while maintaining a fast inference speed and without increasing network size.&lt;/p>
+&lt;h2 id="batch-normalization">Batch Normalization
+&lt;/h2>&lt;ul>
+&lt;li>See &lt;a class="link" href="http://proceedings.mlr.press/v37/ioffe15.pdf" target="_blank" rel="noopener"
+>Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift&lt;/a>&lt;/li>
+&lt;li>Batch Normalization was proposed to address covariate shift by normalizing the input to each layer within a mini-batch to the mini-batch’s mean and variance.&lt;/li>
+&lt;li>Since its introduction in 2015 (PMLR), it has been widely used.&lt;/li>
+&lt;li>In YOLOv2, adding Batch Normalization increased mAP by 2%.&lt;/li>
+&lt;li>Batch normalization also acted as a regularizer, so dropout could be removed without causing overfitting.&lt;/li>
+&lt;/ul>
+&lt;h2 id="classifier-training-on-high-resolution">Classifier Training on High Resolution
+&lt;/h2>&lt;ul>
+&lt;li>Object detection models are usually pre-trained as classifiers on ImageNet, then fine-tuned on detection tasks using transfer learning.&lt;/li>
+&lt;li>YOLOv1 also followed this, using 224×224 images for classification and 448×448 images for detection. This means that during detection training, the network needs to learn not only detection but also to adapt to the changed input resolution.&lt;/li>
+&lt;li>To overcome this, YOLOv2 pre-trained the classification model on 448×448 ImageNet images for 10 epochs before detection training. This simple step improved mAP by 4%.&lt;/li>
+&lt;/ul>
+&lt;h2 id="use-of-anchor-boxes">Use of Anchor Boxes
+&lt;/h2>&lt;ul>
+&lt;li>YOLOv1 directly predicted bounding box coordinates by attaching a Fully Connected layer to the feature extractor.&lt;/li>
+&lt;li>YOLOv2 removes the Fully Connected layer and, instead, uses anchor boxes to learn offsets. For each anchor, the model predicts class and objectness.&lt;/li>
+&lt;li>As a result, mAP slightly dropped from 69.5 to 69.2, but recall significantly increased from 81% to 88%.&lt;/li>
+&lt;/ul>
+&lt;h2 id="dimension-clusters">Dimension Clusters
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>Instead of manually selecting anchor boxes, YOLOv2 uses k-means clustering on training set bounding boxes to derive anchor boxes. Instead of Euclidean distance, it uses a custom metric to avoid a bias for larger boxes:&lt;/p>
+&lt;ul>
+&lt;li>$ d(box, centroid) = 1 - IOU(box, centroid) $&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Below is a graph of mean IOU (between dataset bounding boxes and their nearest centroid) and the anchor boxes for k=5:&lt;br>
+&lt;img src="https://kimberlykang.github.io/p/yolov2_review/figure2.png"
+width="405"
+height="205"
+srcset="https://kimberlykang.github.io/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure2_hu84c5c7f5411da2afaeabbc60e0c8b938_14216_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Image 1"
+class="gallery-image"
+data-flex-grow="197"
+data-flex-basis="474px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf" target="_blank" rel="noopener"
+>&lt;em>Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Figure 2&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Increasing k improves performance but increases complexity; the paper uses k=5 as a tradeoff.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The white boxes in the above figure show VOC 2007 anchors and the blue boxes COCO anchors at k=5. This shows anchor shapes differ by dataset.&lt;/p>
+&lt;p>&lt;img src="https://kimberlykang.github.io/p/yolov2_review/table1.png"
+width="272"
+height="102"
+srcset="https://kimberlykang.github.io/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table1_hu9f6c5b9270229f8ac689cde3b91a7139_11755_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Image 2"
+class="gallery-image"
+data-flex-grow="266"
+data-flex-basis="640px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf" target="_blank" rel="noopener"
+>&lt;em>Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Table 1&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The table above shows average IOU between ground truth and the closest anchor for various anchor generation methods on VOC 2007.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&amp;ldquo;Cluster SSE&amp;rdquo; refers to k-means using sum of squared errors (Euclidean distance); &amp;ldquo;Cluster IOU&amp;rdquo; refers to k-means using IOU-based distance; &amp;ldquo;Anchor Boxes&amp;rdquo; refers to the nine manually chosen anchors in &lt;a class="link" href="https://arxiv.org/pdf/1506.01497.pdf" target="_blank" rel="noopener"
+>15&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>IOU-based k-means yields higher average IOU than both SSE-based k-means and the manually-chosen anchor boxes.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="predicted-values">Predicted Values
+&lt;/h2>&lt;p>Before getting into the outputs YOLOv2 predicts, let’s define the notation:&lt;/p>
+&lt;ul>
+&lt;li>$ (c_x, c_y) $: coordinates of the top-left corner of the grid cell&lt;/li>
+&lt;li>$ (b_x, b_y) $: center coordinates of the bounding box&lt;/li>
+&lt;li>$ (b_w, b_h) $: width and height of the bounding box&lt;/li>
+&lt;li>$ (p_w, p_h) $: prior width and height of the anchor box&lt;/li>
+&lt;li>$ (t_x, t_y, t_w, t_h, t_o) $: YOLOv2 network outputs (denoted with t for “target”)&lt;/li>
+&lt;/ul>
+&lt;p>The predictions:&lt;/p>
+&lt;ul>
+&lt;li>$ b_x = \sigma(t_x) + c_x $&lt;/li>
+&lt;li>$ b_y = \sigma(t_y) + c_y $&lt;/li>
+&lt;li>$ b_w = p_w e^{t_w}$&lt;/li>
+&lt;li>$ b_h = p_h e^{t_h}$&lt;/li>
+&lt;li>$ Pr(object) \cdot IOU(b, object) = \sigma(t_o)$&lt;br>
+&lt;img src="https://kimberlykang.github.io/p/yolov2_review/figure3.png"
+width="402"
+height="301"
+srcset="https://kimberlykang.github.io/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure3_hu0e3241b5964dc481420d4fecde7e67db_16677_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Image 3"
+class="gallery-image"
+data-flex-grow="133"
+data-flex-basis="320px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf" target="_blank" rel="noopener"
+>&lt;em>Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Figure 3&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;/ul>
+&lt;ul>
+&lt;li>For bounding box centers, a logistic activation ($\sigma$) is used, so the predictions are between 0 and 1 and specify a relative position in the cell. For width and height, the output is exponentiated and then multiplied by the prior (anchor) size.&lt;/li>
+&lt;/ul>
+&lt;h2 id="fine-grained-features">Fine-Grained Features
+&lt;/h2>&lt;p>A passthrough layer was added to allow detection to use features at different resolutions.&lt;/p>
+&lt;ul>
+&lt;li>The 13×13 feature map for detection is connected to the previous 26×26 feature map via a passthrough layer.&lt;/li>
+&lt;li>The 26×26×512 feature map is reshaped to 13×13×2048 and concatenated with the 13×13 feature map.&lt;/li>
+&lt;/ul>
+&lt;h2 id="network">Network
+&lt;/h2>&lt;ul>
+&lt;li>VGG-16 was used as the base feature extractor. It requires 30.69 billion floating point operations per image.&lt;/li>
+&lt;li>The paper proposes Darknet-19, with 19 convolutional layers, requiring only 5.58 billion operations per image.&lt;/li>
+&lt;/ul>
+&lt;h2 id="results">Results
+&lt;/h2>&lt;p>&lt;img src="https://kimberlykang.github.io/p/yolov2_review/table2.png"
+width="592"
+height="236"
+srcset="https://kimberlykang.github.io/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table2_hu863f8ddaabe1d225215e816998023d61_32710_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Image 4"
+class="gallery-image"
+data-flex-grow="250"
+data-flex-basis="602px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf" target="_blank" rel="noopener"
+>&lt;em>Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Table 2&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;ul>
+&lt;li>This table shows the mAP for different model types on &lt;strong>VOC 2007&lt;/strong>.&lt;/li>
+&lt;li>The mAP is significantly improved compared to YOLOv1.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://kimberlykang.github.io/p/yolov2_review/table3.png"
+width="410"
+height="240"
+srcset="https://kimberlykang.github.io/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/table3_huf4e0ec058b81074a4932a215457ea15d_32511_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Image 5"
+class="gallery-image"
+data-flex-grow="170"
+data-flex-basis="410px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_Faster_CVPR_2017_paper.pdf" target="_blank" rel="noopener"
+>&lt;em>Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Table 3&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;p>&lt;img src="https://kimberlykang.github.io/p/yolov2_review/figure4.png"
+width="389"
+height="271"
+srcset="https://kimberlykang.github.io/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov2_review/figure4_hu4d13b03f74c29d219d016509dad2c9ec_17592_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Image 6"
+class="gallery-image"
+data-flex-grow="143"
+data-flex-basis="344px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: [&lt;em>Redmon, Joseph, and Ali Farhadi. &amp;ldquo;YOLO9000: better, faster, stronger.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2017, Figure 4&lt;/em>](&lt;a class="link" href="https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_F" target="_blank" rel="noopener"
+>https://openaccess.thecvf.com/content_cvpr_2017/papers/Redmon_YOLO9000_Better_F&lt;/a>&lt;/p></description></item></channel></rss>

@@ -1,177 +1,146 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-    <channel>
-        <title>YOLOv1 on Kimberly&#39;s Blog</title>
-        <link>https://kimberlykang.github.io/tags/yolov1/</link>
-        <description>Recent content in YOLOv1 on Kimberly&#39;s Blog</description>
-        <generator>Hugo -- gohugo.io</generator>
-        <language>en</language>
-        <lastBuildDate>Mon, 29 May 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/yolov1/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>YOLOv1 Review</title>
-        <link>https://kimberlykang.github.io/p/yolov1_review/</link>
-        <pubDate>Mon, 29 May 2023 00:17:41 +0900</pubDate>
-        
-        <guid>https://kimberlykang.github.io/p/yolov1_review/</guid>
-        <description>&lt;p&gt;In this post, we’ll take a look at the paper &lt;strong&gt;&amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;rdquo;&lt;/strong&gt; presented at CVPR 2016.&lt;br&gt;
-&lt;a class=&#34;link&#34; href=&#34;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
-&lt;/h1&gt;&lt;ol&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#overview&#34; &gt;Overview&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#bounding-box&#34; &gt;Bounding Box&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#class-probability&#34; &gt;Class Probability&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#output&#34; &gt;Output&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#network-architecture&#34; &gt;Network Architecture&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#loss&#34; &gt;Loss&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#testing&#34; &gt;Testing&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;overview&#34;&gt;Overview
-&lt;/h2&gt;&lt;p&gt;YOLO uses a grid to detect objects in an image. In short:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;The input image is divided into &lt;strong&gt;S×S&lt;/strong&gt; grid cells.&lt;/li&gt;
-&lt;li&gt;Each grid cell predicts the coordinates (x, y, w, h) for &lt;strong&gt;B&lt;/strong&gt; bounding boxes and a confidence score (c) for each bounding box.&lt;/li&gt;
-&lt;li&gt;Each grid cell also predicts &lt;strong&gt;C&lt;/strong&gt; class probabilities.&lt;/li&gt;
-&lt;li&gt;The final score and class are determined by multiplying the confidence score and class probability. Bounding boxes with scores above a threshold become the final detection results.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/bboxes.png&#34;
-	width=&#34;1186&#34;
-	height=&#34;822&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Bounding Box Prediction Example&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;144&#34;
-		data-flex-basis=&#34;346px&#34;
-	
-&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;The above image shows an example with &lt;strong&gt;S=7&lt;/strong&gt; and &lt;strong&gt;B=2&lt;/strong&gt; for a single grid cell.&lt;/li&gt;
-&lt;li&gt;Each grid cell predicts two sets of bounding boxes (x, y, w, h, c).&lt;/li&gt;
-&lt;li&gt;For &lt;strong&gt;C=20&lt;/strong&gt;, each grid cell predicts class probabilities for 20 classes.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;This is a brief overview of how YOLO finds objects. Below, we’ll look at how each prediction value is calculated and what they mean.&lt;/p&gt;
-&lt;h2 id=&#34;bounding-box&#34;&gt;Bounding Box
-&lt;/h2&gt;&lt;p&gt;A bounding box is composed of (x, y, w, h, c).&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;(x, y): &lt;strong&gt;Coordinates for the center of the bounding box&lt;/strong&gt;.
-&lt;ul&gt;
-&lt;li&gt;Each grid cell has B bounding boxes, meaning the center of each of these B bounding boxes is inside that grid cell.&lt;/li&gt;
-&lt;li&gt;The corners of the box can be outside the grid cell.&lt;/li&gt;
-&lt;li&gt;(x, y) specifies the relative location within the grid cell — values range from 0 to 1.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;(w, h): &lt;strong&gt;Width and height of the bounding box&lt;/strong&gt;.
-&lt;ul&gt;
-&lt;li&gt;These are relative to the width and height of the entire image, and are values from 0 to 1.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;c: Represents how confident the model is that the box contains an object &lt;strong&gt;and&lt;/strong&gt; how accurately the predicted box fits the object.
-&lt;ul&gt;
-&lt;li&gt;$ Pr(Object) * IOU^{truth}_{pred} $&lt;/li&gt;
-&lt;li&gt;The IOU (Intersection Over Union) between the predicted box and the ground truth (GT) box is calculated to measure localization accuracy.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;class-probability&#34;&gt;Class Probability
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;C: The class probabilities for each grid cell when it contains an object.
-&lt;ul&gt;
-&lt;li&gt;$ Pr(Class_i|Object) $&lt;/li&gt;
-&lt;li&gt;Each grid cell predicts only one set of class probabilities, regardless of the number of bounding boxes.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;output&#34;&gt;Output
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;If the image is divided into S×S grid cells, and each grid cell predicts B bounding boxes and C class probabilities, the final output tensor shape is &lt;strong&gt;S×S×&lt;/strong&gt;(&lt;strong&gt;B*5+C&lt;/strong&gt;).&lt;/li&gt;
-&lt;li&gt;For example, in PASCAL VOC, S=7, B=2, C=20, so there are 49 grid cells, each predicting 30 values. Here is how one such prediction might look:
-&lt;ul&gt;
-&lt;li&gt;[x, y, w, h, c, probability for background, probability for airplane, &amp;hellip;, probability for monitor]&lt;/li&gt;
-&lt;li&gt;[0.4, 0.3, 0.8, 0.7, 0.9, 0.003, 0.8, &amp;hellip; , 0.012]&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;network-architecture&#34;&gt;Network Architecture
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;YOLO uses an architecture similar to GoogLeNet.
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/architecture.png&#34;
-	width=&#34;670&#34;
-	height=&#34;272&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Architecture&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;246&#34;
-		data-flex-basis=&#34;591px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Redmon, Joseph, et al. &amp;ldquo;You only look once: Unified, real-time object detection.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;loss&#34;&gt;Loss
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;Uses sum-squared error.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;$ \lambda_{coor} $, $ \lambda_{noobj} $ are used.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Most images have more grid cells without objects than with objects. The gradient for the confidence score in cells without objects becomes much larger than for cells with objects when the confidence is near 0, which can cause the model to diverge early in training. To address this, they used $ \lambda_{coor}=5 $ to increase the bounding box coordinate loss and $ \lambda_{noobj}=0.5 $ to decrease the confidence loss for boxes without objects.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Predicts $ \sqrt w $, $ \sqrt h $&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Small errors for large boxes are less significant, but for small boxes, the impact is much larger. To address this, the width and height values are square-rooted.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Only one bounding box predictor (the one with the highest IOU for each object) is assigned to each object.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Loss function&lt;br&gt;
-$ \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj}  [(x_i-\hat x_i)^2 + (y_i-\hat y_i)^2] $&lt;br&gt;
-$ + \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj}  [(\sqrt{w_i} - \sqrt{\hat w_i})^2 + (\sqrt{h_i} - \sqrt{\hat h_i})^2] $&lt;br&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>YOLOv1 on Kimberly's Blog</title><link>https://kimberlykang.github.io/tags/yolov1/</link><description>Recent content in YOLOv1 on Kimberly's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 29 May 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/yolov1/index.xml" rel="self" type="application/rss+xml"/><item><title>YOLOv1 Review</title><link>https://kimberlykang.github.io/p/yolov1_review/</link><pubDate>Mon, 29 May 2023 00:17:41 +0900</pubDate><guid>https://kimberlykang.github.io/p/yolov1_review/</guid><description>&lt;p>In this post, we’ll take a look at the paper &lt;strong>&amp;ldquo;You Only Look Once: Unified, Real-Time Object Detection&amp;rdquo;&lt;/strong> presented at CVPR 2016.&lt;br>
+&lt;a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf" target="_blank" rel="noopener"
+>https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&lt;/a>&lt;/p>
+&lt;h1 id="table-of-contents">Table of Contents
+&lt;/h1>&lt;ol>
+&lt;li>&lt;a class="link" href="#overview" >Overview&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#bounding-box" >Bounding Box&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#class-probability" >Class Probability&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#output" >Output&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#network-architecture" >Network Architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#loss" >Loss&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#testing" >Testing&lt;/a>&lt;/li>
+&lt;/ol>
+&lt;h2 id="overview">Overview
+&lt;/h2>&lt;p>YOLO uses a grid to detect objects in an image. In short:&lt;/p>
+&lt;ul>
+&lt;li>The input image is divided into &lt;strong>S×S&lt;/strong> grid cells.&lt;/li>
+&lt;li>Each grid cell predicts the coordinates (x, y, w, h) for &lt;strong>B&lt;/strong> bounding boxes and a confidence score (c) for each bounding box.&lt;/li>
+&lt;li>Each grid cell also predicts &lt;strong>C&lt;/strong> class probabilities.&lt;/li>
+&lt;li>The final score and class are determined by multiplying the confidence score and class probability. Bounding boxes with scores above a threshold become the final detection results.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://kimberlykang.github.io/p/yolov1_review/bboxes.png"
+width="1186"
+height="822"
+srcset="https://kimberlykang.github.io/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/bboxes_hud2dccab5ff2d7257884dfebad1d3f231_1100556_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Bounding Box Prediction Example"
+class="gallery-image"
+data-flex-grow="144"
+data-flex-basis="346px"
+>&lt;/p>
+&lt;ul>
+&lt;li>The above image shows an example with &lt;strong>S=7&lt;/strong> and &lt;strong>B=2&lt;/strong> for a single grid cell.&lt;/li>
+&lt;li>Each grid cell predicts two sets of bounding boxes (x, y, w, h, c).&lt;/li>
+&lt;li>For &lt;strong>C=20&lt;/strong>, each grid cell predicts class probabilities for 20 classes.&lt;/li>
+&lt;/ul>
+&lt;p>This is a brief overview of how YOLO finds objects. Below, we’ll look at how each prediction value is calculated and what they mean.&lt;/p>
+&lt;h2 id="bounding-box">Bounding Box
+&lt;/h2>&lt;p>A bounding box is composed of (x, y, w, h, c).&lt;/p>
+&lt;ul>
+&lt;li>(x, y): &lt;strong>Coordinates for the center of the bounding box&lt;/strong>.
+&lt;ul>
+&lt;li>Each grid cell has B bounding boxes, meaning the center of each of these B bounding boxes is inside that grid cell.&lt;/li>
+&lt;li>The corners of the box can be outside the grid cell.&lt;/li>
+&lt;li>(x, y) specifies the relative location within the grid cell — values range from 0 to 1.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>(w, h): &lt;strong>Width and height of the bounding box&lt;/strong>.
+&lt;ul>
+&lt;li>These are relative to the width and height of the entire image, and are values from 0 to 1.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>c: Represents how confident the model is that the box contains an object &lt;strong>and&lt;/strong> how accurately the predicted box fits the object.
+&lt;ul>
+&lt;li>$ Pr(Object) * IOU^{truth}_{pred} $&lt;/li>
+&lt;li>The IOU (Intersection Over Union) between the predicted box and the ground truth (GT) box is calculated to measure localization accuracy.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="class-probability">Class Probability
+&lt;/h2>&lt;ul>
+&lt;li>C: The class probabilities for each grid cell when it contains an object.
+&lt;ul>
+&lt;li>$ Pr(Class_i|Object) $&lt;/li>
+&lt;li>Each grid cell predicts only one set of class probabilities, regardless of the number of bounding boxes.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="output">Output
+&lt;/h2>&lt;ul>
+&lt;li>If the image is divided into S×S grid cells, and each grid cell predicts B bounding boxes and C class probabilities, the final output tensor shape is &lt;strong>S×S×&lt;/strong>(&lt;strong>B*5+C&lt;/strong>).&lt;/li>
+&lt;li>For example, in PASCAL VOC, S=7, B=2, C=20, so there are 49 grid cells, each predicting 30 values. Here is how one such prediction might look:
+&lt;ul>
+&lt;li>\[x, y, w, h, c, probability for background, probability for airplane, ..., probability for monitor\]&lt;/li>
+&lt;li>\[0.4, 0.3, 0.8, 0.7, 0.9, 0.003, 0.8, ... , 0.012\]&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="network-architecture">Network Architecture
+&lt;/h2>&lt;ul>
+&lt;li>YOLO uses an architecture similar to GoogLeNet.
+&lt;img src="https://kimberlykang.github.io/p/yolov1_review/architecture.png"
+width="670"
+height="272"
+srcset="https://kimberlykang.github.io/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/architecture_hu519f237000a77904bf7b34099756d7b5_30076_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Architecture"
+class="gallery-image"
+data-flex-grow="246"
+data-flex-basis="591px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf" target="_blank" rel="noopener"
+>&lt;em>Redmon, Joseph, et al. &amp;ldquo;You only look once: Unified, real-time object detection.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 3.&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;/ul>
+&lt;h2 id="loss">Loss
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>Uses sum-squared error.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>$ \lambda_{coor} $, $ \lambda_{noobj} $ are used.&lt;/p>
+&lt;ul>
+&lt;li>Most images have more grid cells without objects than with objects. The gradient for the confidence score in cells without objects becomes much larger than for cells with objects when the confidence is near 0, which can cause the model to diverge early in training. To address this, they used $ \lambda_{coor}=5 $ to increase the bounding box coordinate loss and $ \lambda_{noobj}=0.5 $ to decrease the confidence loss for boxes without objects.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Predicts $ \sqrt w $, $ \sqrt h $&lt;/p>
+&lt;ul>
+&lt;li>Small errors for large boxes are less significant, but for small boxes, the impact is much larger. To address this, the width and height values are square-rooted.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Only one bounding box predictor (the one with the highest IOU for each object) is assigned to each object.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Loss function&lt;br>
+$ \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj} [(x_i-\hat x_i)^2 + (y_i-\hat y_i)^2] $&lt;br>
+$ + \lambda_{coor} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj} [(\sqrt{w_i} - \sqrt{\hat w_i})^2 + (\sqrt{h_i} - \sqrt{\hat h_i})^2] $&lt;br>
 $ + \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{obj} (C_i-\hat C_i)^2 $
-$ + \lambda_{noobj} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{noobj} (C_i-\hat C_i)^2 $&lt;br&gt;
-$ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈classwa}} (p_i(c)-\hat p_i(c))^2 $&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;1&lt;sup&gt;obj&lt;/sup&gt;&lt;sub&gt;i&lt;/sub&gt;: Indicates whether there is an object in cell i.&lt;/li&gt;
-&lt;li&gt;1&lt;sup&gt;obj&lt;/sup&gt;&lt;sub&gt;ij&lt;/sub&gt;: Indicates whether the j-th bounding box in cell i is responsible for predicting the ground truth in cell i, i.e., whether that bounding box has the highest IOU with the GT.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;testing&#34;&gt;Testing
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;$ Pr(Class_i|Object) * Pr(Object) * {IOU}^{truth}_{pred} = Pr({Class}_i) * {IOU}^{truth}_{pred} $&lt;/li&gt;
-&lt;li&gt;At test time, the final score for each box is computed by multiplying the class probability and the confidence score.&lt;/li&gt;
-&lt;li&gt;The final score reflects both the probability of the class being present in the box, and how well the predicted box fits the object.&lt;/li&gt;
-&lt;li&gt;In the figure below, the thickness of the bounding box lines indicates the confidence. Multiplying this confidence score and the class probability, results above the threshold become the final outcomes.
-&lt;img src=&#34;https://kimberlykang.github.io/p/yolov1_review/figure2.png&#34;
-	width=&#34;642&#34;
-	height=&#34;404&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Image 5&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;158&#34;
-		data-flex-basis=&#34;381px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Redmon, Joseph, et al. &amp;ldquo;You only look once: Unified, real-time object detection.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-        </item>
-        
-    </channel>
-</rss>
+$ + \lambda_{noobj} \displaystyle{\sum_{i=0}^{s^2}} \displaystyle{\sum_{j=0}^{B}} \mathbb 1_{ij}^{noobj} (C_i-\hat C_i)^2 $&lt;br>
+$ + \displaystyle{\sum_{i=0}^{s^2}} \mathbb 1_{i}^{obj} \displaystyle{\sum_{c∈classwa}} (p_i(c)-\hat p_i(c))^2 $&lt;/p>
+&lt;ul>
+&lt;li>1&lt;sup>obj&lt;/sup>&lt;sub>i&lt;/sub>: Indicates whether there is an object in cell i.&lt;/li>
+&lt;li>1&lt;sup>obj&lt;/sup>&lt;sub>ij&lt;/sub>: Indicates whether the j-th bounding box in cell i is responsible for predicting the ground truth in cell i, i.e., whether that bounding box has the highest IOU with the GT.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="testing">Testing
+&lt;/h2>&lt;ul>
+&lt;li>$ Pr(Class_i|Object) * Pr(Object) * {IOU}^{truth}_{pred} = Pr({Class}_i) * {IOU}^{truth}\_{pred} $&lt;/li>
+&lt;li>At test time, the final score for each box is computed by multiplying the class probability and the confidence score.&lt;/li>
+&lt;li>The final score reflects both the probability of the class being present in the box, and how well the predicted box fits the object.&lt;/li>
+&lt;li>In the figure below, the thickness of the bounding box lines indicates the confidence. Multiplying this confidence score and the class probability, results above the threshold become the final outcomes.
+&lt;img src="https://kimberlykang.github.io/p/yolov1_review/figure2.png"
+width="642"
+height="404"
+srcset="https://kimberlykang.github.io/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/yolov1_review/figure2_hud5b2df22550bbf7449e31736c4696048_251487_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Image 5"
+class="gallery-image"
+data-flex-grow="158"
+data-flex-basis="381px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf" target="_blank" rel="noopener"
+>&lt;em>Redmon, Joseph, et al. &amp;ldquo;You only look once: Unified, real-time object detection.&amp;rdquo; Proceedings of the IEEE conference on computer vision and pattern recognition. 2016, Figure 2.&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;/ul></description></item></channel></rss>

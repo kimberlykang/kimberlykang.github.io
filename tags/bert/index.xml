@@ -1,330 +1,271 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-    <channel>
-        <title>BERT on Kimberly&#39;s Blog</title>
-        <link>https://kimberlykang.github.io/tags/bert/</link>
-        <description>Recent content in BERT on Kimberly&#39;s Blog</description>
-        <generator>Hugo -- gohugo.io</generator>
-        <language>en</language>
-        <lastBuildDate>Wed, 02 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/bert/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>BERT Review</title>
-        <link>https://kimberlykang.github.io/p/bert_review/</link>
-        <pubDate>Wed, 02 Aug 2023 00:17:41 +0900</pubDate>
-        
-        <guid>https://kimberlykang.github.io/p/bert_review/</guid>
-        <description>&lt;p&gt;In this post, we’ll take a look at &lt;strong&gt;&amp;ldquo;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding&amp;rdquo;&lt;/strong&gt;, published by Google in 2018.&lt;br&gt;
-&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://arxiv.org/pdf/1810.04805.pdf&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
-&lt;/h1&gt;&lt;ol&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#model-architecture&#34; &gt;Model Architecture&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#input&#34; &gt;Input&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#pre-training&#34; &gt;Pre-training&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#fine-tuning&#34; &gt;Fine-tuning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#network-structure&#34; &gt;Network Structure&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#training&#34; &gt;Training&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#testing&#34; &gt;Testing&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;model-architecture&#34;&gt;Model Architecture
-&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo.png&#34;
-	width=&#34;1495&#34;
-	height=&#34;346&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;BERT, GPT, ELMO Comparison&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;432&#34;
-		data-flex-basis=&#34;1036px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 3.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;GPT&lt;/strong&gt;: Uses a left-to-right Transformer.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;ELMo&lt;/strong&gt;: Trains left-to-right and right-to-left LSTMs separately and then concatenates them. This is a feature-based approach.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;BERT&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Uses a bi-directional Transformer.&lt;/li&gt;
-&lt;li&gt;Overcomes the challenge of a bi-directional model referencing its own token (which makes naive predictions impossible) by introducing two pre-training tasks.&lt;/li&gt;
-&lt;li&gt;BERT base has 110M parameters, and BERT large has 340M parameters.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Differences between &lt;strong&gt;GPT&lt;/strong&gt; and &lt;strong&gt;BERT&lt;/strong&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;GPT was trained only on BooksCorpus (800M words), while BERT used both BooksCorpus and Wikipedia (2,500M words).&lt;/li&gt;
-&lt;li&gt;GPT used &lt;code&gt;[SEP]&lt;/code&gt; and &lt;code&gt;[CLS]&lt;/code&gt; tokens only for fine-tuning, but BERT also used these in pre-training, along with sentence A/B embeddings.&lt;/li&gt;
-&lt;li&gt;GPT was trained for 1M steps with a batch size of 32,000 words; BERT was trained for the same number of steps, but with a batch size of 128,000 words.&lt;/li&gt;
-&lt;li&gt;GPT used the same learning rate for all fine-tuning tasks, while BERT used task-specific learning rates.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;input&#34;&gt;Input
-&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/input.png&#34;
-	width=&#34;863&#34;
-	height=&#34;263&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Input Composition&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;328&#34;
-		data-flex-basis=&#34;787px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 2.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Token embeddings:
-&lt;ul&gt;
-&lt;li&gt;Uses WordPiece embeddings (with a 30,000 token vocabulary).&lt;/li&gt;
-&lt;li&gt;The vocab_size is 30,522 (it looks like 522 tokens are reserved/unused).&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;[CLS]&lt;/code&gt;: Every sequence starts with a &lt;code&gt;[CLS]&lt;/code&gt; token, which is used for classification tasks.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;[SEP]&lt;/code&gt;: Used to separate sentences within a sequence.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Segment Embeddings: Distinguishes between the first sentence and the second sentence.&lt;/li&gt;
-&lt;li&gt;Position Embeddings: Indicates the positional distance of each token.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;pre-training&#34;&gt;Pre-training
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;Pre-training uses unlabeled data with two unsupervised tasks.&lt;/p&gt;
-&lt;h3 id=&#34;task-1-masked-lm-mlm&#34;&gt;Task 1: Masked LM (MLM)
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;Randomly masks 15% of the input tokens, then predicts those masked tokens using a softmax over the vocabulary based on the final hidden vector.&lt;/li&gt;
-&lt;li&gt;Since there are no &lt;code&gt;[MASK]&lt;/code&gt; tokens during fine-tuning, of the chosen 15%, 80% are replaced by &lt;code&gt;[MASK]&lt;/code&gt;, 10% by a random token, and the remaining 10% are left unchanged for prediction.&lt;/li&gt;
-&lt;li&gt;The figure below shows an example where the sequence &amp;ldquo;my dog is cutep [SEP] he likes play ###ing[SEP]&amp;rdquo; is masked and predicted:
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/mlm.png&#34;
-	width=&#34;457&#34;
-	height=&#34;230&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Masked LM Example&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;198&#34;
-		data-flex-basis=&#34;476px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/115055&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;https://wikidocs.net/115055&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;
-&lt;ul&gt;
-&lt;li&gt;&amp;lsquo;dog&amp;rsquo; is replaced with [MASK].&lt;/li&gt;
-&lt;li&gt;&amp;lsquo;he&amp;rsquo; is replaced with &amp;lsquo;king&amp;rsquo;.&lt;/li&gt;
-&lt;li&gt;&amp;lsquo;play&amp;rsquo; is left unchanged.&lt;/li&gt;
-&lt;li&gt;The last hidden vectors for &amp;lsquo;dog&amp;rsquo;, &amp;lsquo;he&amp;rsquo;, and &amp;lsquo;play&amp;rsquo; go through a fully connected layer and softmax to predict probabilities over the vocabulary.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;task-2-next-sentence-prediction-nsp&#34;&gt;Task 2: Next Sentence Prediction (NSP)
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;When choosing sentences A and B, 50% of the data uses the actual next sentence, while the other 50% uses a random sentence from the corpus as B.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Sample:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Input = [CLS] the man went to [MASK] store [SEP] &lt;br/&gt;
-he bought a gallon [MASK] milk [SEP] &lt;br/&gt;
-Label = IsNext &lt;br/&gt;&lt;/p&gt;
-&lt;p&gt;Input = [CLS] the man [MASK] to the store [SEP] &lt;br/&gt;
-penguin [MASK] are flight ##less birds [SEP] &lt;br/&gt;
-Label = NotNext&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;The final hidden vector of the &lt;code&gt;[CLS]&lt;/code&gt; token is used for IsNext/NotNext classification.
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/nsp.png&#34;
-	width=&#34;486&#34;
-	height=&#34;237&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Next Sentence Prediction Example&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;205&#34;
-		data-flex-basis=&#34;492px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://wikidocs.net/115055&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;https://wikidocs.net/115055&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;fine-tuning&#34;&gt;Fine-tuning
-&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;After initializing with pre-trained parameters, BERT is fine-tuned with labeled data for downstream tasks.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Only a small number of parameters are newly learned, since just a single output layer is added on top.&lt;/p&gt;
-&lt;h3 id=&#34;sentence-pair-classification-tasks&#34;&gt;Sentence Pair Classification Tasks
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;Datasets
-&lt;ul&gt;
-&lt;li&gt;MNLI: Classifies the relationship of the second sentence to the first as entailment, contradiction, or neutral.&lt;/li&gt;
-&lt;li&gt;QQP: Checks if two questions are semantically equivalent.&lt;/li&gt;
-&lt;li&gt;QNLI: Checks whether there is a correct answer to the question.&lt;/li&gt;
-&lt;li&gt;STS-B: Scores sentence similarity on a scale from 1 to 5.&lt;/li&gt;
-&lt;li&gt;MRPC: Checks if two sentences are semantically equivalent.&lt;/li&gt;
-&lt;li&gt;RTE: Determines if the second sentence is true, false, or unknown, given the first.&lt;/li&gt;
-&lt;li&gt;SWAG: Given a sentence, chooses which of four options is the most likely next sentence.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;C is the final hidden vector of the &lt;code&gt;[CLS]&lt;/code&gt; token, $C\in\mathbb{R}^H$. H is the hidden size (768 for BERT_BASE, 1024 for BERT_LARGE).&lt;/li&gt;
-&lt;li&gt;The only new parameters to be trained are the classification layer weights $W\in\mathbb R^{K \times H}$, where K is the number of classes.
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/sentence_pair_classification.png&#34;
-	width=&#34;564&#34;
-	height=&#34;503&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/sentence_pair_classification_huc922a87801af2b03b3e761b918c5893f_59915_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/sentence_pair_classification_huc922a87801af2b03b3e761b918c5893f_59915_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Sentence Pair Classification Tasks&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;112&#34;
-		data-flex-basis=&#34;269px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (a).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;li&gt;Results
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/result_glue.png&#34;
-	width=&#34;766&#34;
-	height=&#34;162&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/result_glue_hudb56a7fdb2eb4cad4ac7338936233677_38509_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/result_glue_hudb56a7fdb2eb4cad4ac7338936233677_38509_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;GLUE result&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;472&#34;
-		data-flex-basis=&#34;1134px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/result_swag.png&#34;
-	width=&#34;248&#34;
-	height=&#34;184&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/result_swag_hu741fe5f854be73947a1e26ebf777395c_13805_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/result_swag_hu741fe5f854be73947a1e26ebf777395c_13805_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;SWAG result&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;134&#34;
-		data-flex-basis=&#34;323px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;single-sentence-classification-tasks&#34;&gt;Single Sentence Classification Tasks
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;Datasets
-&lt;ul&gt;
-&lt;li&gt;SST-2: Sentiment classification.&lt;/li&gt;
-&lt;li&gt;CoLA: Determines if the sentence is linguistically &amp;ldquo;acceptable&amp;rdquo;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Just like in sentence pair tasks, the classification layer weights $W\in\mathbb R^{K \times H}$ are trained during fine-tuning.&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/single_sentence_classification.png&#34;
-	width=&#34;564&#34;
-	height=&#34;503&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/single_sentence_classification_huc27f4a6a57c6ad8034f0e0ab6460b268_58378_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/single_sentence_classification_huc27f4a6a57c6ad8034f0e0ab6460b268_58378_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Single Sentence Classification Tasks&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;112&#34;
-		data-flex-basis=&#34;269px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (b).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;question-answering-tasks&#34;&gt;Question Answering Tasks
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;Datasets
-&lt;ul&gt;
-&lt;li&gt;SQuAD v1.1: Answers are found in the passage for each question.&lt;/li&gt;
-&lt;li&gt;SQuAD v2.0&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;The question is represented as an &lt;code&gt;A embedding&lt;/code&gt;, and the passage as a &lt;code&gt;B embedding&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;During fine-tuning, the start vector $S \in \mathbb{R}^H$ and end vector $E \in \mathbb{R}^H$ are learned.&lt;/li&gt;
-&lt;li&gt;To determine start and end positions, the dot product and softmax are calculated between each token&amp;rsquo;s final hidden vector T and S or E, respectively.&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/qa.png&#34;
-	width=&#34;565&#34;
-	height=&#34;487&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Question Answering Tasks&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;116&#34;
-		data-flex-basis=&#34;278px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (c).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;single-sentence-tagging-tasks&#34;&gt;Single Sentence Tagging Tasks
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;Dataset
-&lt;ul&gt;
-&lt;li&gt;CoNLL-2003 NER&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/bert_review/single_sentence_tagging.png&#34;
-	width=&#34;565&#34;
-	height=&#34;487&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/bert_review/single_sentence_tagging_hued301fd6ac715def572f51aeadf0bbe5_59367_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/single_sentence_tagging_hued301fd6ac715def572f51aeadf0bbe5_59367_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Single Sentence Tagging Tasks&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;116&#34;
-		data-flex-basis=&#34;278px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (d).&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Results&lt;br&gt;
-&lt;img style=&#34;max-width:60%; height:auto;&#34; src=&#34;conll_2003.png&#34; alt=&#34;CoNLL-2003 Named Entity Recognition Tasks&#34; /&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1810.04805.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 7.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-        </item>
-        
-    </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BERT on Kimberly's Blog</title><link>https://kimberlykang.github.io/tags/bert/</link><description>Recent content in BERT on Kimberly's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 02 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/bert/index.xml" rel="self" type="application/rss+xml"/><item><title>BERT Review</title><link>https://kimberlykang.github.io/p/bert_review/</link><pubDate>Wed, 02 Aug 2023 00:17:41 +0900</pubDate><guid>https://kimberlykang.github.io/p/bert_review/</guid><description>&lt;p>In this post, we’ll take a look at &lt;strong>&amp;ldquo;BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding&amp;rdquo;&lt;/strong>, published by Google in 2018.&lt;br>
+&lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>https://arxiv.org/pdf/1810.04805.pdf&lt;/a>&lt;/p>
+&lt;h1 id="table-of-contents">Table of Contents
+&lt;/h1>&lt;ol>
+&lt;li>&lt;a class="link" href="#model-architecture" >Model Architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#input" >Input&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#pre-training" >Pre-training&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#fine-tuning" >Fine-tuning&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#network-structure" >Network Structure&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#training" >Training&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#testing" >Testing&lt;/a>&lt;/li>
+&lt;/ol>
+&lt;h2 id="model-architecture">Model Architecture
+&lt;/h2>&lt;p>&lt;img src="https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo.png"
+width="1495"
+height="346"
+srcset="https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/bert_gpt_elmo_hu627b81f4322d5b928ebc700608cfc37d_114762_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="BERT, GPT, ELMO Comparison"
+class="gallery-image"
+data-flex-grow="432"
+data-flex-basis="1036px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 3.&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>GPT&lt;/strong>: Uses a left-to-right Transformer.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>ELMo&lt;/strong>: Trains left-to-right and right-to-left LSTMs separately and then concatenates them. This is a feature-based approach.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>BERT&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Uses a bi-directional Transformer.&lt;/li>
+&lt;li>Overcomes the challenge of a bi-directional model referencing its own token (which makes naive predictions impossible) by introducing two pre-training tasks.&lt;/li>
+&lt;li>BERT base has 110M parameters, and BERT large has 340M parameters.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Differences between &lt;strong>GPT&lt;/strong> and &lt;strong>BERT&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>GPT was trained only on BooksCorpus (800M words), while BERT used both BooksCorpus and Wikipedia (2,500M words).&lt;/li>
+&lt;li>GPT used &lt;code>[SEP]&lt;/code> and &lt;code>[CLS]&lt;/code> tokens only for fine-tuning, but BERT also used these in pre-training, along with sentence A/B embeddings.&lt;/li>
+&lt;li>GPT was trained for 1M steps with a batch size of 32,000 words; BERT was trained for the same number of steps, but with a batch size of 128,000 words.&lt;/li>
+&lt;li>GPT used the same learning rate for all fine-tuning tasks, while BERT used task-specific learning rates.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="input">Input
+&lt;/h2>&lt;p>&lt;img src="https://kimberlykang.github.io/p/bert_review/input.png"
+width="863"
+height="263"
+srcset="https://kimberlykang.github.io/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/input_hu06eac06465f811180df7aaa2dce1d28d_34819_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Input Composition"
+class="gallery-image"
+data-flex-grow="328"
+data-flex-basis="787px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 2.&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;ul>
+&lt;li>Token embeddings:
+&lt;ul>
+&lt;li>Uses WordPiece embeddings (with a 30,000 token vocabulary).&lt;/li>
+&lt;li>The vocab_size is 30,522 (it looks like 522 tokens are reserved/unused).&lt;/li>
+&lt;li>&lt;code>[CLS]&lt;/code>: Every sequence starts with a &lt;code>[CLS]&lt;/code> token, which is used for classification tasks.&lt;/li>
+&lt;li>&lt;code>[SEP]&lt;/code>: Used to separate sentences within a sequence.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Segment Embeddings: Distinguishes between the first sentence and the second sentence.&lt;/li>
+&lt;li>Position Embeddings: Indicates the positional distance of each token.&lt;/li>
+&lt;/ul>
+&lt;h2 id="pre-training">Pre-training
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>Pre-training uses unlabeled data with two unsupervised tasks.&lt;/p>
+&lt;h3 id="task-1-masked-lm-mlm">Task 1: Masked LM (MLM)
+&lt;/h3>&lt;ul>
+&lt;li>Randomly masks 15% of the input tokens, then predicts those masked tokens using a softmax over the vocabulary based on the final hidden vector.&lt;/li>
+&lt;li>Since there are no &lt;code>[MASK]&lt;/code> tokens during fine-tuning, of the chosen 15%, 80% are replaced by &lt;code>[MASK]&lt;/code>, 10% by a random token, and the remaining 10% are left unchanged for prediction.&lt;/li>
+&lt;li>The figure below shows an example where the sequence &amp;ldquo;my dog is cutep [SEP] he likes play ###ing[SEP]&amp;rdquo; is masked and predicted:
+&lt;img src="https://kimberlykang.github.io/p/bert_review/mlm.png"
+width="457"
+height="230"
+srcset="https://kimberlykang.github.io/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/mlm_hue48afc9cd1375f9851ac94854c641983_9589_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Masked LM Example"
+class="gallery-image"
+data-flex-grow="198"
+data-flex-basis="476px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://wikidocs.net/115055" target="_blank" rel="noopener"
+>&lt;em>https://wikidocs.net/115055&lt;/em>&lt;/a>&lt;/span>
+&lt;ul>
+&lt;li>&amp;lsquo;dog&amp;rsquo; is replaced with [MASK].&lt;/li>
+&lt;li>&amp;lsquo;he&amp;rsquo; is replaced with &amp;lsquo;king&amp;rsquo;.&lt;/li>
+&lt;li>&amp;lsquo;play&amp;rsquo; is left unchanged.&lt;/li>
+&lt;li>The last hidden vectors for &amp;lsquo;dog&amp;rsquo;, &amp;lsquo;he&amp;rsquo;, and &amp;lsquo;play&amp;rsquo; go through a fully connected layer and softmax to predict probabilities over the vocabulary.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="task-2-next-sentence-prediction-nsp">Task 2: Next Sentence Prediction (NSP)
+&lt;/h3>&lt;ul>
+&lt;li>
+&lt;p>When choosing sentences A and B, 50% of the data uses the actual next sentence, while the other 50% uses a random sentence from the corpus as B.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Sample:&lt;/p>
+&lt;blockquote>
+&lt;p>Input = [CLS] the man went to [MASK] store [SEP] &lt;br/>
+he bought a gallon [MASK] milk [SEP] &lt;br/>
+Label = IsNext &lt;br/>&lt;/p>
+&lt;p>Input = [CLS] the man [MASK] to the store [SEP] &lt;br/>
+penguin [MASK] are flight ##less birds [SEP] &lt;br/>
+Label = NotNext&lt;/p>
+&lt;/blockquote>
+&lt;/li>
+&lt;li>
+&lt;p>The final hidden vector of the &lt;code>[CLS]&lt;/code> token is used for IsNext/NotNext classification.
+&lt;img src="https://kimberlykang.github.io/p/bert_review/nsp.png"
+width="486"
+height="237"
+srcset="https://kimberlykang.github.io/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/nsp_hu2312c72a16e1af0a0fe9440fe0f26496_10762_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Next Sentence Prediction Example"
+class="gallery-image"
+data-flex-grow="205"
+data-flex-basis="492px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://wikidocs.net/115055" target="_blank" rel="noopener"
+>&lt;em>https://wikidocs.net/115055&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="fine-tuning">Fine-tuning
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>After initializing with pre-trained parameters, BERT is fine-tuned with labeled data for downstream tasks.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Only a small number of parameters are newly learned, since just a single output layer is added on top.&lt;/p>
+&lt;h3 id="sentence-pair-classification-tasks">Sentence Pair Classification Tasks
+&lt;/h3>&lt;ul>
+&lt;li>Datasets
+&lt;ul>
+&lt;li>MNLI: Classifies the relationship of the second sentence to the first as entailment, contradiction, or neutral.&lt;/li>
+&lt;li>QQP: Checks if two questions are semantically equivalent.&lt;/li>
+&lt;li>QNLI: Checks whether there is a correct answer to the question.&lt;/li>
+&lt;li>STS-B: Scores sentence similarity on a scale from 1 to 5.&lt;/li>
+&lt;li>MRPC: Checks if two sentences are semantically equivalent.&lt;/li>
+&lt;li>RTE: Determines if the second sentence is true, false, or unknown, given the first.&lt;/li>
+&lt;li>SWAG: Given a sentence, chooses which of four options is the most likely next sentence.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>C is the final hidden vector of the &lt;code>[CLS]&lt;/code> token, $C\in\mathbb{R}^H$. H is the hidden size (768 for BERT_BASE, 1024 for BERT_LARGE).&lt;/li>
+&lt;li>The only new parameters to be trained are the classification layer weights $W\in\mathbb R^{K \times H}$, where K is the number of classes.
+&lt;img src="https://kimberlykang.github.io/p/bert_review/sentence_pair_classification.png"
+width="564"
+height="503"
+srcset="https://kimberlykang.github.io/p/bert_review/sentence_pair_classification_huc922a87801af2b03b3e761b918c5893f_59915_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/sentence_pair_classification_huc922a87801af2b03b3e761b918c5893f_59915_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Sentence Pair Classification Tasks"
+class="gallery-image"
+data-flex-grow="112"
+data-flex-basis="269px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (a).&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;li>Results
+&lt;img src="https://kimberlykang.github.io/p/bert_review/result_glue.png"
+width="766"
+height="162"
+srcset="https://kimberlykang.github.io/p/bert_review/result_glue_hudb56a7fdb2eb4cad4ac7338936233677_38509_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/result_glue_hudb56a7fdb2eb4cad4ac7338936233677_38509_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="GLUE result"
+class="gallery-image"
+data-flex-grow="472"
+data-flex-basis="1134px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 1.&lt;/em>&lt;/a>&lt;/span>&lt;br>
+&lt;img src="https://kimberlykang.github.io/p/bert_review/result_swag.png"
+width="248"
+height="184"
+srcset="https://kimberlykang.github.io/p/bert_review/result_swag_hu741fe5f854be73947a1e26ebf777395c_13805_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/result_swag_hu741fe5f854be73947a1e26ebf777395c_13805_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="SWAG result"
+class="gallery-image"
+data-flex-grow="134"
+data-flex-basis="323px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 4.&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;/ul>
+&lt;h3 id="single-sentence-classification-tasks">Single Sentence Classification Tasks
+&lt;/h3>&lt;ul>
+&lt;li>Datasets
+&lt;ul>
+&lt;li>SST-2: Sentiment classification.&lt;/li>
+&lt;li>CoLA: Determines if the sentence is linguistically &amp;ldquo;acceptable&amp;rdquo;.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Just like in sentence pair tasks, the classification layer weights $W\in\mathbb R^{K \times H}$ are trained during fine-tuning.&lt;br>
+&lt;img src="https://kimberlykang.github.io/p/bert_review/single_sentence_classification.png"
+width="564"
+height="503"
+srcset="https://kimberlykang.github.io/p/bert_review/single_sentence_classification_huc27f4a6a57c6ad8034f0e0ab6460b268_58378_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/single_sentence_classification_huc27f4a6a57c6ad8034f0e0ab6460b268_58378_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Single Sentence Classification Tasks"
+class="gallery-image"
+data-flex-grow="112"
+data-flex-basis="269px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (b).&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;/ul>
+&lt;h3 id="question-answering-tasks">Question Answering Tasks
+&lt;/h3>&lt;ul>
+&lt;li>Datasets
+&lt;ul>
+&lt;li>SQuAD v1.1: Answers are found in the passage for each question.&lt;/li>
+&lt;li>SQuAD v2.0&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>The question is represented as an &lt;code>A embedding&lt;/code>, and the passage as a &lt;code>B embedding&lt;/code>.&lt;/li>
+&lt;li>During fine-tuning, the start vector $S \in \mathbb{R}^H$ and end vector $E \in \mathbb{R}^H$ are learned.&lt;/li>
+&lt;li>To determine start and end positions, the dot product and softmax are calculated between each token&amp;rsquo;s final hidden vector T and S or E, respectively.&lt;br>
+&lt;img src="https://kimberlykang.github.io/p/bert_review/qa.png"
+width="565"
+height="487"
+srcset="https://kimberlykang.github.io/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/qa_hud93a7b2d11ea663f2f90914a19fb3bea_63643_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Question Answering Tasks"
+class="gallery-image"
+data-flex-grow="116"
+data-flex-basis="278px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (c).&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;/ul>
+&lt;h3 id="single-sentence-tagging-tasks">Single Sentence Tagging Tasks
+&lt;/h3>&lt;ul>
+&lt;li>Dataset
+&lt;ul>
+&lt;li>CoNLL-2003 NER&lt;br>
+&lt;img src="https://kimberlykang.github.io/p/bert_review/single_sentence_tagging.png"
+width="565"
+height="487"
+srcset="https://kimberlykang.github.io/p/bert_review/single_sentence_tagging_hued301fd6ac715def572f51aeadf0bbe5_59367_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/bert_review/single_sentence_tagging_hued301fd6ac715def572f51aeadf0bbe5_59367_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Single Sentence Tagging Tasks"
+class="gallery-image"
+data-flex-grow="116"
+data-flex-basis="278px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Figure 4, (d).&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Results&lt;br>
+&lt;img style="max-width:60%; height:auto;" src="conll_2003.png" alt="CoNLL-2003 Named Entity Recognition Tasks" />&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener"
+>&lt;em>Devlin, Jacob, et al. &amp;ldquo;Bert: Pre-training of deep bidirectional transformers for language understanding.&amp;rdquo; arXiv preprint arXiv:1810.04805 (2018), Table 7.&lt;/em>&lt;/a>&lt;/span>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

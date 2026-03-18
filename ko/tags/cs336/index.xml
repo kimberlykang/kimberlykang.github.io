@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CS336 on Kimberly's Blog</title><link>https://kimberlykang.github.io/ko/tags/cs336/</link><description>Recent content in CS336 on Kimberly's Blog</description><generator>Hugo -- gohugo.io</generator><language>ko</language><lastBuildDate>Wed, 18 Mar 2026 00:00:00 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/ko/tags/cs336/index.xml" rel="self" type="application/rss+xml"/><item><title>CS336 Lecture 1: Tokenization</title><link>https://kimberlykang.github.io/ko/p/cs336_lecture_01/</link><pubDate>Wed, 18 Mar 2026 00:00:00 +0900</pubDate><guid>https://kimberlykang.github.io/ko/p/cs336_lecture_01/</guid><description>&lt;p>본 포스트에서는 Stanford CS336: Language Modeling from Scratch의 Lecture 1에서 다루는 Tokenization에 대해 정리합니다.&lt;/p>
+&lt;h1 id="목차">목차
+&lt;/h1>&lt;ol>
+&lt;li>&lt;a class="link" href="#tokenization" >Tokenization&lt;/a>&lt;/li>
+&lt;/ol>
+&lt;h2 id="tokenization">Tokenization
+&lt;/h2>&lt;p>&lt;img src="https://kimberlykang.github.io/p/cs336_lecture_01/tokenizer.png"
+width="2395"
+height="983"
+srcset="https://kimberlykang.github.io/p/cs336_lecture_01/tokenizer_hub4612aaa29275c3763ce751c1767ad4e_260915_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/cs336_lecture_01/tokenizer_hub4612aaa29275c3763ce751c1767ad4e_260915_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Tokenizer encode/decode"
+class="gallery-image"
+data-flex-grow="243"
+data-flex-basis="584px"
+>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Tokenizer&lt;/strong>: encode와 decode를 수행하는 class입니다.&lt;/li>
+&lt;li>&lt;strong>Vocabulary size&lt;/strong>: token 종류의 수입니다.&lt;/li>
+&lt;/ul>
+&lt;h3 id="tokenization-예시">Tokenization 예시
+&lt;/h3>&lt;p>&lt;a class="link" href="https://tiktokenizer.vercel.app/" target="_blank" rel="noopener"
+>tiktokenizer&lt;/a>에서 직접 확인할 수 있습니다.&lt;/p>
+&lt;ul>
+&lt;li>space도 token의 일부입니다. 보통 token 앞에 있습니다.&lt;/li>
+&lt;li>&lt;code>hello&lt;/code>와 &lt;code> hello&lt;/code>는 다른 token입니다.&lt;/li>
+&lt;li>숫자는 왼쪽에서부터 묶어서 tokenize합니다.&lt;/li>
+&lt;/ul>
+&lt;h3 id="compression-ratio">Compression Ratio
+&lt;/h3>&lt;ul>
+&lt;li>$\text{compression ratio} = \text{num\_bytes} / \text{num\_tokens}$&lt;/li>
+&lt;li>예시 (GPT-4o):
+&lt;ul>
+&lt;li>&lt;strong>Hello World&lt;/strong>
+&lt;ul>
+&lt;li>&lt;code>Hello&lt;/code>(5) + 공백(1) + &lt;code>World&lt;/code>(5) = &lt;strong>11 bytes&lt;/strong>&lt;/li>
+&lt;li>토큰 수: &lt;strong>2&lt;/strong>&lt;/li>
+&lt;li>5.5 bytes per token&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>안녕 세상&lt;/strong>
+&lt;ul>
+&lt;li>&lt;code>안&lt;/code>(3) + &lt;code>녕&lt;/code>(3) + 공백(1) + &lt;code>세&lt;/code>(3) + &lt;code>상&lt;/code>(3) = &lt;strong>13 bytes&lt;/strong>&lt;/li>
+&lt;li>토큰 수: &lt;strong>4&lt;/strong>&lt;/li>
+&lt;li>3.25 bytes per token&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="character-based-tokenization">Character-based Tokenization
+&lt;/h3>&lt;ul>
+&lt;li>많은 character들이 자주 등장하지 않는 character여서 매우 비효율적입니다.&lt;/li>
+&lt;li>Compression ratio가 낮습니다.&lt;/li>
+&lt;/ul>
+&lt;h3 id="byte-based-tokenization">Byte-based Tokenization
+&lt;/h3>&lt;ul>
+&lt;li>1바이트(byte)는 8비트(bit) → $2^8 = 256$가지 값을 표현 가능합니다.&lt;/li>
+&lt;li>Vocab size: 256&lt;/li>
+&lt;li>Compression ratio: 1&lt;/li>
+&lt;li>Sequence length가 길어집니다. Attention 연산이 $O(n^2)$이기 때문에 계산 비용이 커지는 단점이 있습니다.&lt;/li>
+&lt;/ul>
+&lt;h3 id="word-based-tokenization">Word-based Tokenization
+&lt;/h3>&lt;ul>
+&lt;li>Words의 수는 굉장히 크고, 그 중에는 자주 등장하지 않는 word도 많습니다.&lt;/li>
+&lt;li>Fixed vocab size가 정해지지 않습니다.&lt;/li>
+&lt;li>예) &lt;code>ChatGPTized&lt;/code> → &lt;code>&amp;lt;UNK&amp;gt;&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h3 id="byte-pair-encoding-bpe">Byte Pair Encoding (BPE)
+&lt;/h3>&lt;ul>
+&lt;li>텍스트에서 자주 등장하는 sequence를 반복적으로 병합하여 vocabulary를 학습합니다.&lt;/li>
+&lt;li>각 바이트를 초기 토큰으로 사용하고, 텍스트 전체에서 자주 등장하는 byte pair를 병합합니다.&lt;/li>
+&lt;li>자주 나오는 여러 개 character의 sequence는 하나의 token이 됩니다.&lt;/li>
+&lt;li>Rare sequence는 여러 개의 token으로 분리됩니다.&lt;/li>
+&lt;li>예) &lt;code>ChatGPTized&lt;/code> → &lt;code>Chat&lt;/code>, &lt;code>GPT&lt;/code>, &lt;code>ized&lt;/code>&lt;/li>
+&lt;li>예) &lt;code>ChatGPTized&lt;/code> → &lt;code>Chat&lt;/code>, &lt;code>G&lt;/code>, &lt;code>PT&lt;/code>, &lt;code>ized&lt;/code>&lt;/li>
+&lt;/ul></description></item></channel></rss>

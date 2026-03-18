@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tokenization on Kimberly's Blog</title><link>https://kimberlykang.github.io/tags/tokenization/</link><description>Recent content in Tokenization on Kimberly's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 18 Mar 2026 00:00:00 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/tokenization/index.xml" rel="self" type="application/rss+xml"/><item><title>CS336 Lecture 1: Tokenization</title><link>https://kimberlykang.github.io/p/cs336_lecture_01/</link><pubDate>Wed, 18 Mar 2026 00:00:00 +0900</pubDate><guid>https://kimberlykang.github.io/p/cs336_lecture_01/</guid><description>&lt;p>This post covers Tokenization from Stanford CS336: Language Modeling from Scratch, Lecture 1.&lt;/p>
+&lt;h1 id="contents">Contents
+&lt;/h1>&lt;ol>
+&lt;li>&lt;a class="link" href="#tokenization" >Tokenization&lt;/a>&lt;/li>
+&lt;/ol>
+&lt;h2 id="tokenization">Tokenization
+&lt;/h2>&lt;p>&lt;img src="https://kimberlykang.github.io/p/cs336_lecture_01/tokenizer.png"
+width="2395"
+height="983"
+srcset="https://kimberlykang.github.io/p/cs336_lecture_01/tokenizer_hub4612aaa29275c3763ce751c1767ad4e_260915_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/cs336_lecture_01/tokenizer_hub4612aaa29275c3763ce751c1767ad4e_260915_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Tokenizer encode/decode"
+class="gallery-image"
+data-flex-grow="243"
+data-flex-basis="584px"
+>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Tokenizer&lt;/strong>: A class that performs encode and decode operations.&lt;/li>
+&lt;li>&lt;strong>Vocabulary size&lt;/strong>: The number of distinct token types.&lt;/li>
+&lt;/ul>
+&lt;h3 id="tokenization-examples">Tokenization Examples
+&lt;/h3>&lt;p>You can try it yourself at &lt;a class="link" href="https://tiktokenizer.vercel.app/" target="_blank" rel="noopener"
+>tiktokenizer&lt;/a>.&lt;/p>
+&lt;ul>
+&lt;li>Spaces are part of tokens. They usually appear at the beginning of a token.&lt;/li>
+&lt;li>&lt;code>hello&lt;/code> and &lt;code> hello&lt;/code> are different tokens.&lt;/li>
+&lt;li>Numbers are grouped from left to right during tokenization.&lt;/li>
+&lt;/ul>
+&lt;h3 id="compression-ratio">Compression Ratio
+&lt;/h3>&lt;ul>
+&lt;li>$\text{compression ratio} = \text{num\_bytes} / \text{num\_tokens}$&lt;/li>
+&lt;li>Examples (GPT-4o):
+&lt;ul>
+&lt;li>&lt;strong>Hello World&lt;/strong>
+&lt;ul>
+&lt;li>&lt;code>Hello&lt;/code>(5) + space(1) + &lt;code>World&lt;/code>(5) = &lt;strong>11 bytes&lt;/strong>&lt;/li>
+&lt;li>Tokens: &lt;strong>2&lt;/strong>&lt;/li>
+&lt;li>5.5 bytes per token&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>안녕 세상&lt;/strong> (Korean)
+&lt;ul>
+&lt;li>&lt;code>안&lt;/code>(3) + &lt;code>녕&lt;/code>(3) + space(1) + &lt;code>세&lt;/code>(3) + &lt;code>상&lt;/code>(3) = &lt;strong>13 bytes&lt;/strong>&lt;/li>
+&lt;li>Tokens: &lt;strong>4&lt;/strong>&lt;/li>
+&lt;li>3.25 bytes per token&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="character-based-tokenization">Character-based Tokenization
+&lt;/h3>&lt;ul>
+&lt;li>Many characters rarely appear, making it highly inefficient.&lt;/li>
+&lt;li>Low compression ratio.&lt;/li>
+&lt;/ul>
+&lt;h3 id="byte-based-tokenization">Byte-based Tokenization
+&lt;/h3>&lt;ul>
+&lt;li>1 byte = 8 bits → $2^8 = 256$ possible values.&lt;/li>
+&lt;li>Vocab size: 256&lt;/li>
+&lt;li>Compression ratio: 1&lt;/li>
+&lt;li>Sequence length becomes very long. Since Attention is $O(n^2)$, computation cost increases significantly.&lt;/li>
+&lt;/ul>
+&lt;h3 id="word-based-tokenization">Word-based Tokenization
+&lt;/h3>&lt;ul>
+&lt;li>The number of words is extremely large, and many are rare.&lt;/li>
+&lt;li>Fixed vocab size cannot be determined.&lt;/li>
+&lt;li>e.g., &lt;code>ChatGPTized&lt;/code> → &lt;code>&amp;lt;UNK&amp;gt;&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h3 id="byte-pair-encoding-bpe">Byte Pair Encoding (BPE)
+&lt;/h3>&lt;ul>
+&lt;li>Learns vocabulary by repeatedly merging frequently occurring sequences in text.&lt;/li>
+&lt;li>Starts with each byte as an initial token, then merges frequently occurring byte pairs across the entire text.&lt;/li>
+&lt;li>Frequent multi-character sequences become a single token.&lt;/li>
+&lt;li>Rare sequences are split into multiple tokens.&lt;/li>
+&lt;li>e.g., &lt;code>ChatGPTized&lt;/code> → &lt;code>Chat&lt;/code>, &lt;code>GPT&lt;/code>, &lt;code>ized&lt;/code>&lt;/li>
+&lt;li>e.g., &lt;code>ChatGPTized&lt;/code> → &lt;code>Chat&lt;/code>, &lt;code>G&lt;/code>, &lt;code>PT&lt;/code>, &lt;code>ized&lt;/code>&lt;/li>
+&lt;/ul></description></item></channel></rss>

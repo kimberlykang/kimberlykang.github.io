@@ -1,238 +1,199 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-    <channel>
-        <title>XLNet on Kimberly&#39;s Blog</title>
-        <link>https://kimberlykang.github.io/tags/xlnet/</link>
-        <description>Recent content in XLNet on Kimberly&#39;s Blog</description>
-        <generator>Hugo -- gohugo.io</generator>
-        <language>en</language>
-        <lastBuildDate>Thu, 31 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/xlnet/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>XLNet Review</title>
-        <link>https://kimberlykang.github.io/p/xlnet_review/</link>
-        <pubDate>Thu, 31 Aug 2023 00:17:41 +0900</pubDate>
-        
-        <guid>https://kimberlykang.github.io/p/xlnet_review/</guid>
-        <description>&lt;p&gt;In this post, we’ll look at &lt;strong&gt;&amp;ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&amp;rdquo;&lt;/strong&gt;, published by Google in 2019.&lt;br&gt;
-&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://arxiv.org/pdf/1906.08237.pdf&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents
-&lt;/h1&gt;&lt;ol&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#autoregressive-vs-autoencoding&#34; &gt;AutoRegressive vs. AutoEncoding&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#permutation-language-modeling&#34; &gt;Permutation Language Modeling&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#two-stream-self-attention&#34; &gt;Two-Stream Self-Attention&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;autoregressive-vs-autoencoding&#34;&gt;AutoRegressive vs. AutoEncoding
-&lt;/h2&gt;&lt;h3 id=&#34;autoregressive-ar-language-modeling&#34;&gt;AutoRegressive (AR) Language Modeling
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;Given an input token sequence, predicts the next token.&lt;/li&gt;
-&lt;li&gt;Pre-training maximizes the following likelihood:
-&lt;ul&gt;
-&lt;li&gt;$ \underset{θ}{\max} \log p_θ ({\bf x} )
-= \displaystyle{\sum_{t=1}^{T}} \log p_θ (x_t | {\bf x_{\rm &amp;lt; t}})
-= \displaystyle{\sum_{t=1}^{T}} \log \frac{exp(h_θ({\bf x_{\rm 1:t-1}})_t^{\top} e(x_t))}{ \sum _{x&amp;rsquo;} exp(h_θ({\bf x _{\rm 1:t-1}})^{\top} e(x&amp;rsquo;))}
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>XLNet on Kimberly's Blog</title><link>https://kimberlykang.github.io/tags/xlnet/</link><description>Recent content in XLNet on Kimberly's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 31 Aug 2023 00:17:41 +0900</lastBuildDate><atom:link href="https://kimberlykang.github.io/tags/xlnet/index.xml" rel="self" type="application/rss+xml"/><item><title>XLNet Review</title><link>https://kimberlykang.github.io/p/xlnet_review/</link><pubDate>Thu, 31 Aug 2023 00:17:41 +0900</pubDate><guid>https://kimberlykang.github.io/p/xlnet_review/</guid><description>&lt;p>In this post, we’ll look at &lt;strong>&amp;ldquo;XLNet: Generalized Autoregressive Pretraining for Language Understanding&amp;rdquo;&lt;/strong>, published by Google in 2019.&lt;br>
+&lt;a class="link" href="https://arxiv.org/pdf/1906.08237.pdf" target="_blank" rel="noopener"
+>https://arxiv.org/pdf/1906.08237.pdf&lt;/a>&lt;/p>
+&lt;h1 id="table-of-contents">Table of Contents
+&lt;/h1>&lt;ol>
+&lt;li>&lt;a class="link" href="#autoregressive-vs-autoencoding" >AutoRegressive vs. AutoEncoding&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#permutation-language-modeling" >Permutation Language Modeling&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="#two-stream-self-attention" >Two-Stream Self-Attention&lt;/a>&lt;/li>
+&lt;/ol>
+&lt;h2 id="autoregressive-vs-autoencoding">AutoRegressive vs. AutoEncoding
+&lt;/h2>&lt;h3 id="autoregressive-ar-language-modeling">AutoRegressive (AR) Language Modeling
+&lt;/h3>&lt;ul>
+&lt;li>Given an input token sequence, predicts the next token.&lt;/li>
+&lt;li>Pre-training maximizes the following likelihood:
+&lt;ul>
+&lt;li>$ \underset{θ}{\max} \log p_θ ({\bf x} )
+= \displaystyle{\sum_{t=1}^{T}} \log p_θ (x_t | {\bf x_{\rm &lt; t}})
+= \displaystyle{\sum_{t=1}^{T}} \log \frac{exp(h_θ({\bf x_{\rm 1:t-1}})_t^{\top} e(x_t))}{ \sum _{x'} exp(h_θ({\bf x _{\rm 1:t-1}})^{\top} e(x'))}
 $
-&lt;ul&gt;
-&lt;li&gt;$ {\bf x} = [x_1, &amp;hellip;, x_T]$: text sequence&lt;/li&gt;
-&lt;li&gt;$ h_θ({\bf x _{\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers&lt;/li&gt;
-&lt;li&gt;$ e(x) $: embedding of x&lt;/li&gt;
-&lt;li&gt;exp is used for softmax&lt;/li&gt;
-&lt;li&gt;Each word is predicted by referring only to the words that come before it.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;autoencoding-ae&#34;&gt;AutoEncoding (AE)
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;Example: BERT&lt;/li&gt;
-&lt;li&gt;Randomly masks some tokens in the input sequence, and predicts the original tokens for those masked positions.&lt;/li&gt;
-&lt;li&gt;Pre-training maximizes the following likelihood:
-&lt;ul&gt;
-&lt;li&gt;$ \underset{θ}{\max} \log p_θ ({\bf \bar x} | {\bf \hat x})
+&lt;ul>
+&lt;li>$ {\bf x} = [x_1, ..., x_T]$: text sequence&lt;/li>
+&lt;li>$ h_θ({\bf x _{\rm 1:t-1}}) $: context representation from a neural model like RNNs or Transformers&lt;/li>
+&lt;li>$ e(x) $: embedding of x&lt;/li>
+&lt;li>exp is used for softmax&lt;/li>
+&lt;li>Each word is predicted by referring only to the words that come before it.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="autoencoding-ae">AutoEncoding (AE)
+&lt;/h3>&lt;ul>
+&lt;li>Example: BERT&lt;/li>
+&lt;li>Randomly masks some tokens in the input sequence, and predicts the original tokens for those masked positions.&lt;/li>
+&lt;li>Pre-training maximizes the following likelihood:
+&lt;ul>
+&lt;li>$ \underset{θ}{\max} \log p_θ ({\bf \bar x} | {\bf \hat x})
 ≈ \displaystyle{\sum_{t=1}^{T}}m_t \log p_θ (x_t | {\bf \hat x})
-= \displaystyle{\sum_{t=1}^{T}}m_t \log \frac{exp(H_θ({\bf \hat x})_t^{\top} e(x_t))}{ \sum _{x&amp;rsquo;} exp(H_θ({\bf \hat x})_t^{\top} e(x&amp;rsquo;))}
+= \displaystyle{\sum_{t=1}^{T}}m_t \log \frac{exp(H_θ({\bf \hat x})_t^{\top} e(x_t))}{ \sum _{x'} exp(H_θ({\bf \hat x})_t^{\top} e(x'))}
 $
-&lt;ul&gt;
-&lt;li&gt;$ {\bf x} = [x_1, &amp;hellip;, x_T]$: text sequence&lt;/li&gt;
-&lt;li&gt;$ {\bf \hat x} $: corrupted version where some tokens from $ {\bf x} $ are randomly replaced with [MASK]&lt;/li&gt;
-&lt;li&gt;$ {\bf \bar x} $: masked tokens&lt;/li&gt;
-&lt;li&gt;$ m_t=1 $ if $x_t$ is masked&lt;/li&gt;
-&lt;li&gt;$ H_θ $: Transformer that maps text sequence to hidden vectors&lt;/li&gt;
-&lt;li&gt;$ e(x) $: embedding of x&lt;/li&gt;
-&lt;li&gt;exp is used for softmax&lt;/li&gt;
-&lt;li&gt;This is an approximate factorization.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;The training objective is to recover $ {\bf \bar x} $ from $ {\bf \hat x} $.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;permutation-language-modeling&#34;&gt;Permutation Language Modeling
-&lt;/h2&gt;&lt;h3 id=&#34;independence-assumption&#34;&gt;Independence Assumption
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;In BERT, all masked tokens are predicted independently.&lt;/li&gt;
-&lt;li&gt;For example, given [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;city&lt;/code&gt;] and [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;] as prediction targets, the objectives for BERT and XLNet are:
-&lt;ul&gt;
-&lt;li&gt;$ {\cal J}_{BERT} = \log p(\text{New} | \text{is a city}) + \log p(\text{York} | \text{is a city})$&lt;/li&gt;
-&lt;li&gt;$ {\cal J}_{XLNet} = \log p(\text{New} | \text{is a city}) + \log p(\text{York} | \textcolor{red}{\text{New}} \text{, is a city})$&lt;/li&gt;
-&lt;li&gt;In BERT, the prediction for ‘York’ is independent of ‘New’.&lt;/li&gt;
-&lt;li&gt;BERT cannot model the dependency between (‘New’, ‘York’), but XLNet considers these dependencies during training.&lt;/li&gt;
-&lt;li&gt;Using AutoRegressive, you’d have to predict ‘a’ after seeing [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;]. XLNet overcomes such limitations through permutation.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;permutation-language-modeling-objective&#34;&gt;Permutation Language Modeling Objective
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;For a sequence x of length T, there are T! possible orders.&lt;/li&gt;
-&lt;li&gt;By sharing parameters across all factorization orders, the model can learn information in both directions at all positions.&lt;/li&gt;
-&lt;li&gt;Without the independence assumption; and since [MASK] is not used, there is no pretrain-finetune discrepancy.&lt;/li&gt;
-&lt;li&gt;Only the factorization order is permuted; the input sequence order remains unchanged, so positional encoding is based on the original sequence order.&lt;/li&gt;
-&lt;li&gt;The objective:
-&lt;ul&gt;
-&lt;li&gt;$ \underset{θ}{\max} \Bbb E_{{\bf z} \sim \cal Z_t} [\displaystyle{\sum_{t=1}^{T}} \log p_θ (x_{z_t} | {\bf x_{z \rm &amp;lt; t}})] $&lt;/li&gt;
-&lt;li&gt;$ \cal Z_t $: all possible permutations.&lt;/li&gt;
-&lt;li&gt;$ z_t $: the t-th value in the permutation.&lt;/li&gt;
-&lt;li&gt;After sampling a factorization order ${\bf z}$, likelihood $ \log p_θ $ is computed according to that order.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Example: New York is a city
-&lt;ul&gt;
-&lt;li&gt;Permutation 1: [&lt;code&gt;New&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;, &lt;code&gt;city&lt;/code&gt;]. After seeing &lt;code&gt;New&lt;/code&gt; → &lt;code&gt;York&lt;/code&gt; → &lt;code&gt;is&lt;/code&gt;, predict &lt;code&gt;a&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;Permutation 2: [&lt;code&gt;city&lt;/code&gt;, &lt;code&gt;York&lt;/code&gt;, &lt;code&gt;New&lt;/code&gt;, &lt;code&gt;is&lt;/code&gt;, &lt;code&gt;a&lt;/code&gt;]. After seeing &lt;code&gt;city&lt;/code&gt; → &lt;code&gt;York&lt;/code&gt; → &lt;code&gt;New&lt;/code&gt; → &lt;code&gt;is&lt;/code&gt;, predict &lt;code&gt;a&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;The model can see &lt;code&gt;city&lt;/code&gt; (which comes after &lt;code&gt;a&lt;/code&gt; in the sequence) and use it to predict &lt;code&gt;a&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;By using permutations, the model learns bidirectional context.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/xlnet_review/permutation.png&#34;
-	width=&#34;962&#34;
-	height=&#34;729&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/xlnet_review/permutation_hu2a3025eb74dc7a675c4490d541f9fe32_91998_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/permutation_hu2a3025eb74dc7a675c4490d541f9fe32_91998_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Permutation&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;131&#34;
-		data-flex-basis=&#34;316px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 4.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;After calculating $ \log p_θ $ with the given factorization order sampled by permutation, the expectation is computed.&lt;/li&gt;
-&lt;li&gt;‘mem’ is a feature of Transformer-XL, which enables learning of long sequences; gradients are not applied to it.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;two-stream-self-attention&#34;&gt;Two-Stream Self-Attention
-&lt;/h2&gt;&lt;h3 id=&#34;re-parameterization-considering-target-position&#34;&gt;Re-parameterization Considering Target Position
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;In a vanilla transformer, if two permutations $ {\bf z}^{(1)} $ and $ {\bf z}^{(2)} $ are identical up to position t, but differ at t, the following problem arises:
-&lt;img src=&#34;https://kimberlykang.github.io/p/xlnet_review/problems_original_transformer.png&#34;
-	width=&#34;1188&#34;
-	height=&#34;166&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/xlnet_review/problems_original_transformer_hu12f964d52a9bfc2531679f083dd729c6_34637_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/problems_original_transformer_hu12f964d52a9bfc2531679f083dd729c6_34637_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Problems with Original Transformer&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;715&#34;
-		data-flex-basis=&#34;1717px&#34;
-	
-&gt;
-&lt;ul&gt;
-&lt;li&gt;$ {\bf z}^{(1)}_t $ and $ {\bf z}^{(2)}_t $ have different target positions and ground truths, but yield the same model prediction.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;To address this, instead of only using $ {\bf x_{z \rm &amp;lt; t}} $, XLNet introduces a new representation $ g_θ({\bf x_{z \rm &amp;lt; t}}, z_t) $ that also receives the target position $ z_t $ as input:
-&lt;ul&gt;
-&lt;li&gt;$ p_θ (X_{x_{z_t}}=x | x_{z &amp;lt; t}) = \frac{exp(e(x)^{\top} g_θ({\bf x_{z \rm &amp;lt; t}}, z_t))}{ \sum _{x&amp;rsquo;} exp(e(x&amp;rsquo;)^{\top} g_θ({\bf x _{z \rm &amp;lt; t}}, z_t) )}$&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;using-two-hidden-representations&#34;&gt;Using Two Hidden Representations
-&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;For $ g_θ({\bf x_{z &amp;lt; t}}, z_t) $:
-&lt;ul&gt;
-&lt;li&gt;If the content $ x_{z_t} $ is used, no learning will occur, so only the position $ z_t $ is used, not the content $ x_{z_t} $.&lt;/li&gt;
-&lt;li&gt;To predict $ x_{z_j} $ for $j&amp;gt;t$, the content $ x_{z_t}$ is not used, but the contextual information must be available.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Hidden representations:
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Content representation&lt;/strong&gt; $ h_θ({\bf x_{z \leq t}}) $: Acts similarly to the hidden state in a standard Transformer, encoding both the context and $ x_{z_t} $.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Query representation&lt;/strong&gt; $ g_θ({\bf x_{z &amp;lt; t}}, z_t) $: Encodes the contextual information prior to $ t $ and the position $ z_t $.&lt;/li&gt;
-&lt;li&gt;$ h_i^{(0)}=e(x_i) $. For the content stream, the first layer is the word embedding.&lt;/li&gt;
-&lt;li&gt;$ g_i^{(0)}=w $. For the query stream, the first layer is initialized as a learnable vector.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Update:
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Query stream&lt;/strong&gt;: $ g_{z_t}^{(m)} \leftarrow \text{Attention}(Q=g_{z_t}^{(m-1)}, KV=h_{{\bf z} &amp;lt; t}^{(m-1)}; θ)$&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Content stream&lt;/strong&gt;: $ h_{z_t}^{(m)} \leftarrow \text{Attention}(Q=h_{z_t}^{(m-1)}, KV=h_{{\bf z} \leq t}^{(m-1)}; θ)$&lt;/li&gt;
-&lt;li&gt;In the query stream, &lt;code&gt;$z_t$&lt;/code&gt; is used, but &lt;code&gt;$ x_{z_t} $&lt;/code&gt; is not. On the other hand, in the content stream, both &lt;code&gt;$z_t$&lt;/code&gt; and &lt;code&gt;$ x_{z_t} $&lt;/code&gt; are used.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/xlnet_review/two_stream_attention.png&#34;
-	width=&#34;1559&#34;
-	height=&#34;718&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/xlnet_review/two_stream_attention_hudafbccca2a7cd50030c8f978b100117b_172802_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/two_stream_attention_hudafbccca2a7cd50030c8f978b100117b_172802_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Two-Stream Self-Attention&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;217&#34;
-		data-flex-basis=&#34;521px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 1.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;When the factorization order is 3 → 2 → 4 → 1:&lt;/li&gt;
-&lt;li&gt;In the next layer, $h_3^{(1)}$ attends to all previous layer states up to and including itself; i.e., it attends to $h_1^{(0)}, h_2^{(0)}, h_3^{(0)}$.&lt;/li&gt;
-&lt;li&gt;In the next layer, $g_3^{(1)}$ only attends to prior positions in the previous layer; i.e., $h_1^{(0)}, h_2^{(0)}$.&lt;/li&gt;
-&lt;li&gt;In the final layer, predictions are made from &lt;code&gt;g&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;With this attention mechanism, the prediction layer cannot access the current word embedding directly, which encourages better learning.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;https://kimberlykang.github.io/p/xlnet_review/content_stream.png&#34;
-	width=&#34;755&#34;
-	height=&#34;934&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/xlnet_review/content_stream_hu03bbe986eea1aeffac54966a37d2c831_134712_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/content_stream_hu03bbe986eea1aeffac54966a37d2c831_134712_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Content Stream&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;80&#34;
-		data-flex-basis=&#34;194px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 5.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;br&gt;
-&lt;img src=&#34;https://kimberlykang.github.io/p/xlnet_review/query_stream.png&#34;
-	width=&#34;756&#34;
-	height=&#34;931&#34;
-	srcset=&#34;https://kimberlykang.github.io/p/xlnet_review/query_stream_hu31ba4eacdc469d4a671273c750ea7e9b_139173_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/query_stream_hu31ba4eacdc469d4a671273c750ea7e9b_139173_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-		alt=&#34;Query Stream&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;81&#34;
-		data-flex-basis=&#34;194px&#34;
-	
-&gt;&lt;br&gt;
-&lt;span style=&#34;font-size:70%&#34;&gt; Source: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1906.08237.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;&lt;em&gt;Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 6.&lt;/em&gt;&lt;/a&gt;&lt;/span&gt;&lt;/p&gt;
-</description>
-        </item>
-        
-    </channel>
-</rss>
+&lt;ul>
+&lt;li>$ {\bf x} = [x_1, ..., x_T]$: text sequence&lt;/li>
+&lt;li>$ {\bf \hat x} $: corrupted version where some tokens from $ {\bf x} $ are randomly replaced with [MASK]&lt;/li>
+&lt;li>$ {\bf \bar x} $: masked tokens&lt;/li>
+&lt;li>$ m_t=1 $ if $x_t$ is masked&lt;/li>
+&lt;li>$ H_θ $: Transformer that maps text sequence to hidden vectors&lt;/li>
+&lt;li>$ e(x) $: embedding of x&lt;/li>
+&lt;li>exp is used for softmax&lt;/li>
+&lt;li>This is an approximate factorization.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>The training objective is to recover $ {\bf \bar x} $ from $ {\bf \hat x} $.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="permutation-language-modeling">Permutation Language Modeling
+&lt;/h2>&lt;h3 id="independence-assumption">Independence Assumption
+&lt;/h3>&lt;ul>
+&lt;li>In BERT, all masked tokens are predicted independently.&lt;/li>
+&lt;li>For example, given [&lt;code>New&lt;/code>, &lt;code>York&lt;/code>, &lt;code>is&lt;/code>, &lt;code>a&lt;/code>, &lt;code>city&lt;/code>] and [&lt;code>New&lt;/code>, &lt;code>York&lt;/code>] as prediction targets, the objectives for BERT and XLNet are:
+&lt;ul>
+&lt;li>$ {\cal J}_{BERT} = \log p(\text{New} | \text{is a city}) + \log p(\text{York} | \text{is a city})$&lt;/li>
+&lt;li>$ {\cal J}_{XLNet} = \log p(\text{New} | \text{is a city}) + \log p(\text{York} | \textcolor{red}{\text{New}} \text{, is a city})$&lt;/li>
+&lt;li>In BERT, the prediction for ‘York’ is independent of ‘New’.&lt;/li>
+&lt;li>BERT cannot model the dependency between (‘New’, ‘York’), but XLNet considers these dependencies during training.&lt;/li>
+&lt;li>Using AutoRegressive, you’d have to predict ‘a’ after seeing [&lt;code>New&lt;/code>, &lt;code>York&lt;/code>, &lt;code>is&lt;/code>]. XLNet overcomes such limitations through permutation.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="permutation-language-modeling-objective">Permutation Language Modeling Objective
+&lt;/h3>&lt;ul>
+&lt;li>For a sequence x of length T, there are T! possible orders.&lt;/li>
+&lt;li>By sharing parameters across all factorization orders, the model can learn information in both directions at all positions.&lt;/li>
+&lt;li>Without the independence assumption; and since [MASK] is not used, there is no pretrain-finetune discrepancy.&lt;/li>
+&lt;li>Only the factorization order is permuted; the input sequence order remains unchanged, so positional encoding is based on the original sequence order.&lt;/li>
+&lt;li>The objective:
+&lt;ul>
+&lt;li>$ \underset{θ}{\max} \Bbb E_{{\bf z} \sim \cal Z_t} [\displaystyle{\sum_{t=1}^{T}} \log p_θ (x_{z_t} | {\bf x_{z \rm &lt; t}})] $&lt;/li>
+&lt;li>$ \cal Z_t $: all possible permutations.&lt;/li>
+&lt;li>$ z_t $: the t-th value in the permutation.&lt;/li>
+&lt;li>After sampling a factorization order ${\bf z}$, likelihood $ \log p_θ $ is computed according to that order.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Example: New York is a city
+&lt;ul>
+&lt;li>Permutation 1: [&lt;code>New&lt;/code>, &lt;code>York&lt;/code>, &lt;code>is&lt;/code>, &lt;code>a&lt;/code>, &lt;code>city&lt;/code>]. After seeing &lt;code>New&lt;/code> → &lt;code>York&lt;/code> → &lt;code>is&lt;/code>, predict &lt;code>a&lt;/code>.&lt;/li>
+&lt;li>Permutation 2: [&lt;code>city&lt;/code>, &lt;code>York&lt;/code>, &lt;code>New&lt;/code>, &lt;code>is&lt;/code>, &lt;code>a&lt;/code>]. After seeing &lt;code>city&lt;/code> → &lt;code>York&lt;/code> → &lt;code>New&lt;/code> → &lt;code>is&lt;/code>, predict &lt;code>a&lt;/code>.&lt;/li>
+&lt;li>The model can see &lt;code>city&lt;/code> (which comes after &lt;code>a&lt;/code> in the sequence) and use it to predict &lt;code>a&lt;/code>.&lt;/li>
+&lt;li>By using permutations, the model learns bidirectional context.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://kimberlykang.github.io/p/xlnet_review/permutation.png"
+width="962"
+height="729"
+srcset="https://kimberlykang.github.io/p/xlnet_review/permutation_hu2a3025eb74dc7a675c4490d541f9fe32_91998_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/permutation_hu2a3025eb74dc7a675c4490d541f9fe32_91998_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Permutation"
+class="gallery-image"
+data-flex-grow="131"
+data-flex-basis="316px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1906.08237.pdf" target="_blank" rel="noopener"
+>&lt;em>Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 4.&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;ul>
+&lt;li>After calculating $ \log p_θ $ with the given factorization order sampled by permutation, the expectation is computed.&lt;/li>
+&lt;li>‘mem’ is a feature of Transformer-XL, which enables learning of long sequences; gradients are not applied to it.&lt;/li>
+&lt;/ul>
+&lt;h2 id="two-stream-self-attention">Two-Stream Self-Attention
+&lt;/h2>&lt;h3 id="re-parameterization-considering-target-position">Re-parameterization Considering Target Position
+&lt;/h3>&lt;ul>
+&lt;li>In a vanilla transformer, if two permutations $ {\bf z}^{(1)} $ and $ {\bf z}^{(2)} $ are identical up to position t, but differ at t, the following problem arises:
+&lt;img src="https://kimberlykang.github.io/p/xlnet_review/problems_original_transformer.png"
+width="1188"
+height="166"
+srcset="https://kimberlykang.github.io/p/xlnet_review/problems_original_transformer_hu12f964d52a9bfc2531679f083dd729c6_34637_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/problems_original_transformer_hu12f964d52a9bfc2531679f083dd729c6_34637_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Problems with Original Transformer"
+class="gallery-image"
+data-flex-grow="715"
+data-flex-basis="1717px"
+>
+&lt;ul>
+&lt;li>$ {\bf z}^{(1)}_t $ and $ {\bf z}^{(2)}_t $ have different target positions and ground truths, but yield the same model prediction.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>To address this, instead of only using $ {\bf x_{z \rm &lt; t}} $, XLNet introduces a new representation $ g_θ({\bf x_{z \rm &lt; t}}, z_t) $ that also receives the target position $ z_t $ as input:
+&lt;ul>
+&lt;li>$ p_θ (X_{x_{z_t}}=x | x_{z &lt; t}) = \frac{exp(e(x)^{\top} g_θ({\bf x_{z \rm &lt; t}}, z_t))}{ \sum _{x'} exp(e(x')^{\top} g_θ({\bf x _{z \rm &lt; t}}, z_t) )}$&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="using-two-hidden-representations">Using Two Hidden Representations
+&lt;/h3>&lt;ul>
+&lt;li>For $ g_θ({\bf x_{z &lt; t}}, z_t) $:
+&lt;ul>
+&lt;li>If the content $ x_{z_t} $ is used, no learning will occur, so only the position $ z_t $ is used, not the content $ x_{z_t} $.&lt;/li>
+&lt;li>To predict $ x_{z_j} $ for $j>t$, the content $ x_{z_t}$ is not used, but the contextual information must be available.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Hidden representations:
+&lt;ul>
+&lt;li>&lt;strong>Content representation&lt;/strong> $ h_θ({\bf x_{z \leq t}}) $: Acts similarly to the hidden state in a standard Transformer, encoding both the context and $ x_{z_t} $.&lt;/li>
+&lt;li>&lt;strong>Query representation&lt;/strong> $ g_θ({\bf x_{z &lt; t}}, z_t) $: Encodes the contextual information prior to $ t $ and the position $ z_t $.&lt;/li>
+&lt;li>$ h_i^{(0)}=e(x_i) $. For the content stream, the first layer is the word embedding.&lt;/li>
+&lt;li>$ g_i^{(0)}=w $. For the query stream, the first layer is initialized as a learnable vector.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Update:
+&lt;ul>
+&lt;li>&lt;strong>Query stream&lt;/strong>: $ g_{z_t}^{(m)} \leftarrow \text{Attention}(Q=g_{z_t}^{(m-1)}, KV=h_{{\bf z} &lt; t}^{(m-1)}; θ)$&lt;/li>
+&lt;li>&lt;strong>Content stream&lt;/strong>: $ h_{z_t}^{(m)} \leftarrow \text{Attention}(Q=h_{z_t}^{(m-1)}, KV=h_{{\bf z} \leq t}^{(m-1)}; θ)$&lt;/li>
+&lt;li>In the query stream, &lt;code>$z_t$&lt;/code> is used, but &lt;code>$ x_{z_t} $&lt;/code> is not. On the other hand, in the content stream, both &lt;code>$z_t$&lt;/code> and &lt;code>$ x_{z_t} $&lt;/code> are used.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://kimberlykang.github.io/p/xlnet_review/two_stream_attention.png"
+width="1559"
+height="718"
+srcset="https://kimberlykang.github.io/p/xlnet_review/two_stream_attention_hudafbccca2a7cd50030c8f978b100117b_172802_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/two_stream_attention_hudafbccca2a7cd50030c8f978b100117b_172802_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Two-Stream Self-Attention"
+class="gallery-image"
+data-flex-grow="217"
+data-flex-basis="521px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1906.08237.pdf" target="_blank" rel="noopener"
+>&lt;em>Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 1.&lt;/em>&lt;/a>&lt;/span>&lt;/p>
+&lt;ul>
+&lt;li>When the factorization order is 3 → 2 → 4 → 1:&lt;/li>
+&lt;li>In the next layer, $h_3^{(1)}$ attends to all previous layer states up to and including itself; i.e., it attends to $h_1^{(0)}, h_2^{(0)}, h_3^{(0)}$.&lt;/li>
+&lt;li>In the next layer, $g_3^{(1)}$ only attends to prior positions in the previous layer; i.e., $h_1^{(0)}, h_2^{(0)}$.&lt;/li>
+&lt;li>In the final layer, predictions are made from &lt;code>g&lt;/code>.&lt;/li>
+&lt;li>With this attention mechanism, the prediction layer cannot access the current word embedding directly, which encourages better learning.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://kimberlykang.github.io/p/xlnet_review/content_stream.png"
+width="755"
+height="934"
+srcset="https://kimberlykang.github.io/p/xlnet_review/content_stream_hu03bbe986eea1aeffac54966a37d2c831_134712_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/content_stream_hu03bbe986eea1aeffac54966a37d2c831_134712_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Content Stream"
+class="gallery-image"
+data-flex-grow="80"
+data-flex-basis="194px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1906.08237.pdf" target="_blank" rel="noopener"
+>&lt;em>Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 5.&lt;/em>&lt;/a>&lt;/span>&lt;br>
+&lt;img src="https://kimberlykang.github.io/p/xlnet_review/query_stream.png"
+width="756"
+height="931"
+srcset="https://kimberlykang.github.io/p/xlnet_review/query_stream_hu31ba4eacdc469d4a671273c750ea7e9b_139173_480x0_resize_box_3.png 480w, https://kimberlykang.github.io/p/xlnet_review/query_stream_hu31ba4eacdc469d4a671273c750ea7e9b_139173_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Query Stream"
+class="gallery-image"
+data-flex-grow="81"
+data-flex-basis="194px"
+>&lt;br>
+&lt;span style="font-size:70%"> Source: &lt;a class="link" href="https://arxiv.org/pdf/1906.08237.pdf" target="_blank" rel="noopener"
+>&lt;em>Yang, Zhilin, et al. &amp;ldquo;Xlnet: Generalized autoregressive pretraining for language understanding.&amp;rdquo; Advances in neural information processing systems 32 (2019), Figure 6.&lt;/em>&lt;/a>&lt;/span>&lt;/p></description></item></channel></rss>
